@@ -8,7 +8,7 @@
         "build": "webpack --config ./webpack.config.js --env mode=prod",
         "lint": "eslint . --ext .ts",
         "test": "jest",
-        "format": "prettier --check src"
+        "format": "prettier --write src"
     },
     "repository": {
         "type": "git",
