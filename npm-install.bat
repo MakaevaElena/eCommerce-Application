@@ -22,5 +22,7 @@ npm i -D eslint-config-airbnb eslint-config-airbnb-typescript
 
 npm i -D prettier
 
+npx husky-init
+npm install
 
 
