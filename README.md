@@ -12,7 +12,15 @@ The team was created as part of the program of phase 2 of the course [JSFE2023Q1
 - [__Siarhei Muliarenka__](https://github.com/surface74 "Siarhei`s GitHub")  The most experienced among us. If you have a need to create a development environment configuration, the best solution is to turn to him.  
 - [__Vladimir Sobolev__](https://github.com/VladimirSobbolev "Vladimir`s GitHub") The most inquisitive member. Want plates, fruit or something a little more interesting on CSS? Just give him a hint.
 
-
+## Technology Overview
+### Stack
+- __Language:__ [Typescript](https://www.typescriptlang.org/)  
+- __Back-end:__ [commercetools](https://commercetools.com/)  
+- __Bundler:__ [Webpack](https://webpack.js.org/)  
+- __Format code:__ [Prettier](https://prettier.io/docs/en/index.html)  
+- __Improving code quality:__ [ESLint](https://eslint.org/docs/latest/use/getting-started)  
+- __Git hook managment:__ [Husky](https://github.com/typicode/husky#readme)  
+- __Testing framework:__ [Jest](https://jestjs.io/docs/getting-started)
 
 ## Getting Started  
 ### Steps  
