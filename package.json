@@ -8,7 +8,9 @@
         "build": "webpack --config ./webpack.config.js --env mode=prod",
         "lint": "eslint . --ext .ts",
         "test": "jest",
-        "format": "prettier --write src"
+        "format": "prettier --write src",
+        "pre-commit": "npm test & npm run format",
+        "prepare": "husky install"
     },
     "repository": {
         "type": "git",
@@ -53,7 +55,8 @@
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^4.15.1",
-        "webpack-merge": "^5.9.0"
+        "webpack-merge": "^5.9.0",
+        "husky": "^8.0.0"
     },
     "dependencies": {
         "@types/webpack": "^5.28.1"
