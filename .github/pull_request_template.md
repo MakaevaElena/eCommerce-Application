@@ -1,8 +1,8 @@
-1. Task: [link](https://github.com/)
+1. Task: [eCommerce Application](https://github.com/)
 2. Screenshot:
-3. Deploy: [link](https://github.com/)
-4. Done 05.08.2023 / deadline 06.08.2023
-5. Score: 20 / 40
-  - [x] Application is divided to logical modules / layers. Like working with api it's separate module, as well as working with UI rendering, or working with an application state, etc. Better discuss architecture with a mentor before implementing. (40/40)
-  - [ ] Application is SPA.(0/20)
+3. Deploy: [The Best Store](https://MakaevaElena.github.io/eCommerce-Application)
+4. Done 03.08.2023 / Team deadline 04.08.2023 / Sprint deadline 08.08.2023
+5. Score: 40 / 60
+  - [x] (10 points) Create a GitHub repository for the project, complete with a README file, .gitignore, and necessary dependencies. RSS-ECOMM-1_01
+  - [ ] (10 points) Set up a clear and organized folder structure within the repository, ensuring a maintainable and scalable codebase. RSS-ECOMM-1_02
 
