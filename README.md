@@ -27,7 +27,7 @@ The team was created as part of the program of phase 2 of the course [JSFE2023Q1
 - Clone [repository](https://github.com/MakaevaElena/eCommerce-Application)  
 - Run `npm install`  
 - Run `npm run prepare` starts huski
-- Run `npm run start` starts local server  
+- Run `npm start` starts local server  
 ### Environment configuration 
 - Run `npm run lint` for quickly and efficiently identify code style issues and potential errors  
 - Run `npm run build` for building project
