@@ -31,7 +31,6 @@ The team was created as part of the program of phase 2 of the course [JSFE2023Q1
 ### Environment configuration 
 - Run `npm run lint` for quickly and efficiently identify code style issues and potential errors  
 - Run `npm run build` for building project
-- Run `npm run lint`  helps with identify potential code issues
 - Run `npm run test` runs tests 
 - Run `npm run format` starts file formatting: indents, hyphenation, etc.
 - Run `npm run pre-commit` before move pending changes from the working directory to the indexed files section of Git for runing Eslint and Prettier. If there are warnings or errors, you won't be able to commit.
