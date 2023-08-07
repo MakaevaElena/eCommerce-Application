@@ -1,5 +1,5 @@
 import Favicon from '../favicon/favicon';
-import LoginView from '../view/page/login-vew/login-view';
+import LoginView from '../view/page/login-view/login-view';
 import MainView from '../view/page/main-view/main-view';
 import RegistrationView from '../view/page/registration-view/registration-view';
 
