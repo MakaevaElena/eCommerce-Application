@@ -1,0 +1,25 @@
+@import 'base/fonts/karla.css';
+@import 'base/fonts/oswald.css';
+@import 'base/fonts/open-sans.css';
+
+html {
+  font-size: 10px; //добавил root значение для удобного использования rem
+}
+
+body {
+  font-size: 50px;
+  font-family: 'Karla';
+  margin: 0;
+  background-color: turquoise;
+}
+
+/**
+Порядок логически связанных свойств должен быть сгруппирован следующим образом:
+
+Позиционирование
+Блочная модель
+Типографика
+Оформление
+Анимация
+Разное
+ */
