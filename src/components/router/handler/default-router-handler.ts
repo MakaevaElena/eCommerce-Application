@@ -1,9 +1,9 @@
-type RequestParams = {
+export type RequestParams = {
   path: string;
   resource: string;
 };
 
-type RouterHandlerParam = {
+export type RouterHandlerParam = {
   nameEvent: string;
   locationField: string;
   callback: (requestParams: RequestParams) => void;

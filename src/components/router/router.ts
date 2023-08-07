@@ -1,17 +1,17 @@
+import { RequestParams } from './handler/default-router-handler';
 import HashRouterHandler from './handler/hash/hash-router-handler';
 import HistoryRouterHandler from './handler/history/history-router-handler';
 import { Pages, ID_SELECTOR } from './pages';
 
-type Route = {
-    path: string;
-  callback: () => voi;
+export type Route = {
+  path: string;
+  callback: () => void;
 };
 
 export default class Router {
-  /**
-   * @param {Array<Route>} routes
-   */
-  constructor(routes) {
+  private routes: Array<Route>;
+
+  constructor(routes: Array<Route>) {
     this.routes = routes;
 
     this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
@@ -21,25 +21,24 @@ export default class Router {
     });
   }
 
-  setHashHandler() {
+  public setHistoryHandler() {
+    this.handler.disable();
+    this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
+  }
+
+  public setHashHandler() {
     this.handler.disable();
     this.handler = new HashRouterHandler(this.urlChangedHandler.bind(this));
   }
 
-  /**
-   * @param {string} url
-   */
-  navigate(url) {
+  public navigate(url: string) {
     window.history.pushState(null, null, `/${url}`);
     this.handler.navigate(url);
   }
 
-  /**
-   * @param {import('./handler/default-router-handler.js').RequestParams} requestParams
-   */
-  urlChangedHandler(requestParams) {
-    const pathForFind = requestParams.resource === '' ? requestParams.path : `${requestParams.path}/${ID_SELECTOR}`;
-    const route = this.routes.find((item) => item.path === pathForFind);
+  private urlChangedHandler(requestParams: RequestParams) {
+    const newPath = requestParams.resource === '' ? requestParams.path : `${requestParams.path}/${ID_SELECTOR}`;
+    const route = this.routes.find((item) => item.path === newPath);
 
     if (!route) {
       this.redirectToNotFoundPage();
@@ -49,7 +48,7 @@ export default class Router {
     route.callback(requestParams.resource);
   }
 
-  redirectToNotFoundPage() {
+  private redirectToNotFoundPage() {
     const notFoundPage = this.routes.find((item) => item.path === Pages.NOT_FOUND);
     if (notFoundPage) {
       this.navigate(notFoundPage.path);
