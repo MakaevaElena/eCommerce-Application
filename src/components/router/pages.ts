@@ -1,8 +1,10 @@
-const Pages = {
-  INDEX: 'index',
-  PRODUCT: 'product',
-  NOT_FOUND: 'not-found',
-};
+enum Pages {
+  INDEX = 'index',
+  LOGIN = 'login',
+  REGISTRATION = 'registration',
+  PRODUCT = 'product',
+  NOT_FOUND = '404',
+}
 
 const ID_SELECTOR = '{id}';
 

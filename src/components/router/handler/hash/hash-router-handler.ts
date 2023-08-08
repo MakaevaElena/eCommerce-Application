@@ -1,6 +1,6 @@
-import DefaultRouterHandler from '../default-router-handler';
+import HistoryRouterHandler from '../history-router-handler';
 
-export default class HashRouterHandler extends DefaultRouterHandler {
+export default class HashRouterHandler extends HistoryRouterHandler {
   constructor(callbackRouter: () => void) {
     const handlerParams = {
       nameEvent: 'hashchange',
@@ -9,6 +9,6 @@ export default class HashRouterHandler extends DefaultRouterHandler {
     };
     super(handlerParams);
 
-    window.addEventListener('hashchange', this.navigate.bind(this));
+    window.addEventListener(handlerParams.nameEvent, this.navigate.bind(this));
   }
 }

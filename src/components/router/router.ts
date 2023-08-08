@@ -1,6 +1,6 @@
-import { RequestParams } from './handler/default-router-handler';
+import DefaultRouterHandler, { RequestParams } from './handler/history-router-handler';
 import HashRouterHandler from './handler/hash/hash-router-handler';
-import HistoryRouterHandler from './handler/history/history-router-handler';
+import HistoryRouterHandler from './handler/old-history/history-router-handler';
 import { Pages, ID_SELECTOR } from './pages';
 
 export type Route = {
@@ -10,6 +10,8 @@ export type Route = {
 
 export default class Router {
   private routes: Array<Route>;
+
+  private handler: DefaultRouterHandler;
 
   constructor(routes: Array<Route>) {
     this.routes = routes;
