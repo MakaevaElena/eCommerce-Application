@@ -6,13 +6,13 @@ export type RequestParams = {
 export type RouterHandlerParam = {
   nameEvent: string;
   locationField: string;
-  // callback: (requestParams: RequestParams) => void;
+  callback: (requestParams: RequestParams) => void;
 };
 
-export default class HistoryRouterHandler {
+export default class DefaultRouterHandler {
   private params: RouterHandlerParam;
 
-  constructor(callback: (params: )) {
+  constructor(params: RouterHandlerParam) {
     this.params = params;
   }
 
@@ -21,9 +21,10 @@ export default class HistoryRouterHandler {
   }
 
   public navigate(url: string) {
-    const urlString = url || window.location[this.params.locationField].slice(1);
-
-    const fullPath = urlString.split('/');
+    // const location: string = window.location[this.params.locationField].slice(1);
+    // const urlString: string = url || location;
+    // const fullPath = urlString.split('/');
+    const fullPath = url.split('/');
     const result: RequestParams = {
       path: '',
       resource: '',

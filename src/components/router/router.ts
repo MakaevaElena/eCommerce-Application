@@ -1,19 +1,19 @@
-import DefaultRouterHandler, { RequestParams } from './handler/history-router-handler';
+import HistoryRouterHandler from './handler/history/history-router-handler';
 import HashRouterHandler from './handler/hash/hash-router-handler';
-import HistoryRouterHandler from './handler/old-history/history-router-handler';
 import { Pages, ID_SELECTOR } from './pages';
+import { RequestParams } from './handler/default-router-handler';
 
 export type Route = {
   path: string;
-  callback: () => void;
+  callback: (url: string) => void;
 };
 
 export default class Router {
-  private routes: Array<Route>;
+  private routes: Route[];
 
-  private handler: DefaultRouterHandler;
+  private handler: HistoryRouterHandler;
 
-  constructor(routes: Array<Route>) {
+  constructor(routes: Route[]) {
     this.routes = routes;
 
     this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
@@ -34,7 +34,7 @@ export default class Router {
   }
 
   public navigate(url: string) {
-    window.history.pushState(null, null, `/${url}`);
+    window.history.pushState(null, '', `/${url}`); // TODO: must depend of this.handler's instance type
     this.handler.navigate(url);
   }
 
