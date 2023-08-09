@@ -1,8 +1,8 @@
-import HistoryRouterHandler, { RequestParams } from '../default-router-handler';
+import HistoryRouterHandler, { RequestParams, RouterHandlerParam } from '../default-router-handler';
 
 export default class HashRouterHandler extends HistoryRouterHandler {
   constructor(callbackRouter: (param: RequestParams) => void) {
-    const handlerParams = {
+    const handlerParams: RouterHandlerParam = {
       nameEvent: 'hashchange',
       locationField: 'hash',
       callback: callbackRouter,
