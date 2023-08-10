@@ -15,23 +15,20 @@ export type RouterHandlerParam = {
   locationField: LocationField;
 };
 
-export default class HistoryRouterHandler {
-  protected params: RouterHandlerParam;
+export default class RouterHandler {
+  private params: RouterHandlerParam;
 
-  protected callback: (params: RequestParams) => void;
-
-  protected windowHandler: (param: NavigateParam) => void;
+  private callback: (params: RequestParams) => void;
 
   constructor(callback: (params: RequestParams) => void) {
+    this.callback = callback;
+
     this.params = {
-      nameEvent: 'popstate',
-      locationField: LocationField.PATHNAME,
+      nameEvent: 'hashchange',
+      locationField: LocationField.HASH,
     };
 
-    this.callback = callback;
-    this.windowHandler = this.windowEventHandler;
-
-    window.addEventListener(this.params.nameEvent, this.windowHandler);
+    window.addEventListener(this.params.nameEvent, this.windowEventHandler.bind(this));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -39,11 +36,8 @@ export default class HistoryRouterHandler {
     this.navigate(window.location[this.params.locationField]);
   }
 
-  public disable() {
-    window.removeEventListener(this.params.nameEvent, this.windowHandler);
-  }
-
   public navigate(url: string) {
+    console.log('url: ', url);
     this.setAddressLine(url);
 
     const location = window.location[this.params.locationField].slice(1);
@@ -62,6 +56,6 @@ export default class HistoryRouterHandler {
 
   // eslint-disable-next-line class-methods-use-this
   private setAddressLine(url: string) {
-    window.history.pushState(null, '', `/${url}`);
+    window.history.pushState(null, '', `#${url}`);
   }
 }

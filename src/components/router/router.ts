@@ -1,39 +1,33 @@
-import HistoryRouterHandler, { RequestParams } from './handler/history-router-handler';
-// import HashRouterHandler from './handler/hash/hash-router-handler';
+import RouterHandler, { RequestParams } from './router-handler';
 import { Pages, ID_SELECTOR } from './pages';
 
 export type Route = {
   path: string;
+  name: Pages;
   callback: () => void;
 };
 
 export default class Router {
   private routes: Route[];
 
-  private handler: HistoryRouterHandler;
+  private handler: RouterHandler;
 
   constructor(routes: Route[]) {
     this.routes = routes;
 
-    this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
+    this.handler = new RouterHandler(this.urlChangedHandler.bind(this));
 
     document.addEventListener('DOMContentLoaded', () => {
       this.handler.navigate('');
     });
   }
 
-  // public setHistoryHandler() {
-  // this.handler.disable();
-  //   this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
-  // }
-
-  // public setHashHandler() {
-  // this.handler.disable();
-  //   this.handler = new HashRouterHandler(this.urlChangedHandler.bind(this));
-  // }
+  public getRoutes(): Array<Route> {
+    return this.routes;
+  }
 
   public navigate(url: string) {
-    window.history.pushState(null, '', `/${url}`); // TODO: must depend of this.handler's instance type
+    window.history.pushState(null, '', `${url}`);
     this.handler.navigate(url);
   }
 

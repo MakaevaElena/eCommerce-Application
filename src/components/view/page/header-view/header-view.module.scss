@@ -2,5 +2,7 @@
 
 .header-view {
   display: flex;
+  gap: 1rem;
+  justify-content: end;
   border: 1px solid blue;
 }

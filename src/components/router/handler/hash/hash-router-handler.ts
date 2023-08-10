@@ -2,15 +2,12 @@ import HistoryRouterHandler, { LocationField, RequestParams } from '../history-r
 
 export default class HashRouterHandler extends HistoryRouterHandler {
   constructor(callback: (params: RequestParams) => void) {
-    super(params);
+    super(callback);
 
     this.params = {
       nameEvent: 'hashchange',
       locationField: LocationField.HASH,
     };
-
-    this.callback = callback;
-    this.windowHandler = this.windowEventHandler;
 
     window.addEventListener(this.params.nameEvent, this.windowHandler);
   }

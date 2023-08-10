@@ -1,37 +1,37 @@
 // @import '../../styles/abstracts/variables.scss';
 
-.button {
+.link-button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
   width: fit-content;
-  height: 3rem;
+  height: 2rem;
   padding: 0 10px;
-  // border: 2px solid $button-color-border;
+  border: 2px solid lightblue;
   border-radius: 5px;
   cursor: pointer;
 
-  // font-size: $button-font-size;
+  font-size: 1.5rem;
   text-align: center;
   text-decoration: none;
-  // color: $button-color-text;
+  color: blue;
   background: transparent;
   transition: all 0.5s;
 
-  // @media (hover: hover) {
-  //   &:hover {
-      // color: $button-color-text-hover;
-      // border-color: $button-color-border-hover;
-      // background: $button-color-background-hover;
-  //   }
-  // }
+  @media (hover: hover) {
+    &:hover {
+      color: darkblue;
+      border-color: darkblue;
+      background: lightblue;
+    }
+  }
 
   &:active {
     transform: scale(0.95);
   }
 }
 
-.button_disabled {
+.link-button_disabled {
   // color: $button-disabled-color-text;
   // border-color: $button-disabled-color-border;
   background: transparent;
