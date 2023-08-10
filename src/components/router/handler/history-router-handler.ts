@@ -8,7 +8,7 @@ export enum LocationField {
   HASH = 'hash',
 }
 
-export type NavigateParam = PopStateEvent | string;
+export type NavigateParam = Event;
 
 export type RouterHandlerParam = {
   nameEvent: keyof WindowEventMap;
@@ -20,7 +20,7 @@ export default class HistoryRouterHandler {
 
   private callback: (params: RequestParams) => void;
 
-  private handler: (param: NavigateParam) => void;
+  private windowHandler: (param: NavigateParam) => void;
 
   constructor(callback: (params: RequestParams) => void) {
     this.params = {
@@ -29,23 +29,26 @@ export default class HistoryRouterHandler {
     };
 
     this.callback = callback;
-    this.handler = this.navigate.bind(this);
+    this.windowHandler = this.windowEventHandler;
 
-    window.addEventListener(this.params.nameEvent, this.handler);
+    window.addEventListener(this.params.nameEvent, this.windowHandler);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private windowEventHandler(e: Event) {
+    this.navigate(window.location[this.params.locationField]);
   }
 
   public disable() {
-    window.removeEventListener(this.params.nameEvent, this.handler);
+    window.removeEventListener(this.params.nameEvent, this.windowHandler);
   }
 
-  public navigate(url: NavigateParam) {
-    if (typeof url === 'string') {
-      this.setHistory(url);
-    }
+  public navigate(url: string) {
+    this.setAddressLine(url);
 
     const location = window.location[this.params.locationField].slice(1);
-    const urlString = typeof url === 'string' ? url || location : location;
-    const fullPath = urlString.split('/'); // TODO: must depend on this.params.locationField
+    const urlString = url || location;
+    const fullPath = urlString.split('/');
 
     const result: RequestParams = {
       path: '',
@@ -58,7 +61,7 @@ export default class HistoryRouterHandler {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  private setHistory(url: string) {
+  private setAddressLine(url: string) {
     window.history.pushState(null, '', `/${url}`);
   }
 }

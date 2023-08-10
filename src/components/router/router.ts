@@ -1,11 +1,10 @@
 import HistoryRouterHandler, { RequestParams } from './handler/history-router-handler';
 // import HashRouterHandler from './handler/hash/hash-router-handler';
 import { Pages, ID_SELECTOR } from './pages';
-// import DefaultRouterHandler, { RequestParams } from './handler/default-router-handler';
 
 export type Route = {
   path: string;
-  callback: (url: string) => void;
+  callback: () => void;
 };
 
 export default class Router {
@@ -24,12 +23,12 @@ export default class Router {
   }
 
   // public setHistoryHandler() {
-    // this.handler.disable();
+  // this.handler.disable();
   //   this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
   // }
 
   // public setHashHandler() {
-    // this.handler.disable();
+  // this.handler.disable();
   //   this.handler = new HashRouterHandler(this.urlChangedHandler.bind(this));
   // }
 
@@ -47,7 +46,7 @@ export default class Router {
       return;
     }
 
-    route.callback(requestParams.resource);
+    route.callback();
   }
 
   private redirectToNotFoundPage() {

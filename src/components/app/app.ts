@@ -43,7 +43,6 @@ export default class App {
   }
 
   private setContent(pageName: string, view: DefaultView) {
-    console.log('pageName: ', pageName);
     const creator = this.main.getCreator();
     creator.clearInnerContent();
     creator.addInnerElement(view.getElement());
