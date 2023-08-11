@@ -33,8 +33,9 @@ h6 {
 
 // TODO:   в дальнейшем добавлю класс button пока здесь для примера
 button {
+  //max-width: 20%;
   padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
-  font-size: inherit;
+  //font-size: inherit;
   color: $color-text-primary;
   font-family: 'Oswald';
   background-color: $color-brand-primary;
