@@ -40,7 +40,9 @@ button {
   font-family: 'Oswald';
   background-color: $color-brand-primary;
   border: 0;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25), 0 2px 3px rgba(13, 96, 111, 0.16);
+  box-shadow:
+    0 4px 4px rgba(0, 0, 0, 0.25),
+    0 2px 3px rgba(13, 96, 111, 0.16);
   cursor: pointer;
   transition-property: color, visibility, background-color, transform, box-shadow;
   transition-duration: 0.05s;
@@ -48,13 +50,15 @@ button {
 }
 
 button:active {
-  background-color: transparentize($color-brand-primary, .5);
+  background-color: transparentize($color-brand-primary, 0.5);
   //border-color: transparentize($color-brand-primary, .4);
-  box-shadow: 0 -4px 4px rgba(0, 0, 0, 0.25), 0 -2px 3px rgba(13, 96, 111, 0.16);
+  box-shadow:
+    0 -4px 4px rgba(0, 0, 0, 0.25),
+    0 -2px 3px rgba(13, 96, 111, 0.16);
   transform: translate(-2px, 2px);
 }
 button:hover {
-  background-color: transparentize($color-brand-primary, .1);
+  background-color: transparentize($color-brand-primary, 0.1);
 }
 
 /**

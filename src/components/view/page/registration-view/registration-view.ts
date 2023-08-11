@@ -17,12 +17,10 @@ export default class RegistrationView extends DefaultView {
   }
 
   private configView() {
+    const button = document.createElement('button');
+    button.textContent = 'button';
 
-   const button = document.createElement('button');
-   button.textContent = 'button';
-
-   this.getElement().append(button);
-
+    this.getElement().append(button);
 
     // throw new Error(`configView() for ${this.getElement()} not implemented`);
   }
