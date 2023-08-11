@@ -1,13 +1,17 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { ctpClient } from './BuildClient';
+// import { anonimClient } from './with-anonimous-flow-2';
 
 export default class ClientApi {
+  // private anonimRoot = createApiBuilderFromCtpClient(anonimClient).withProjectKey({ projectKey: 'best-games' });
+
   private apiRoot = createApiBuilderFromCtpClient(ctpClient).withProjectKey({ projectKey: 'best-games' });
 
   public checkCustomerExist(email: string) {
-    return this.returnCustomerByEmail(email).then(({ body }) => {
-      return body.results.length;
-    });
+    return this.returnCustomerByEmail(email).then((customer) => customer);
+    // .then(({ body }) => {
+    //   return body.results.length;
+    // })
     // .catch(console.error);
   }
 

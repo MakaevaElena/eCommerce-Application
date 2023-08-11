@@ -128,13 +128,14 @@ export default class LoginView extends DefaultView {
       if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
         if (email !== undefined) {
           this.ClientApi.checkCustomerExist(email)
-            .then((results: number) => {
-              if (results === 0) {
+            .then(({ body }) => {
+              if (body.results.length === 0) {
                 this.emailElement.setCustomValidity(`This email address has not been registered.`);
                 this.emailElement.reportValidity();
               } else {
                 // this.emailElement.setCustomValidity(`This email address registered.`);
                 // this.emailElement.reportValidity();
+                console.log('customer body', body);
               }
             })
             .catch(console.error);
