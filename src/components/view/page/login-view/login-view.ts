@@ -295,6 +295,7 @@ export default class LoginView extends DefaultView {
     });
   }
 }
-function createApiBuilderFromCtpClient(ctpClient: any) {
-  throw new Error('Function not implemented.');
-}
+
+// function createApiBuilderFromCtpClient(ctpClient: any) {
+//   throw new Error('Function not implemented.');
+// }
