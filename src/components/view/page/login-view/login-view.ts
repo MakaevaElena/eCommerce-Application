@@ -19,3 +19,7 @@ export default class LoginView extends DefaultView {
     throw new Error(`configView() for ${this.getElement()} not implemented`);
   }
 }
+
+export function getView(): LoginView {
+  return new LoginView();
+}

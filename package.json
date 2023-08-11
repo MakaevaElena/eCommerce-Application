@@ -10,7 +10,7 @@
         "test": "jest",
         "format": "prettier --write src",
         "check-format": "prettier --check src",
-        "pre-commit": "npm test",
+        "pre-commit": "npm test & npm run format",
         "prepare": "husky install"
     },
     "repository": {

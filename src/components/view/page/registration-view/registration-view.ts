@@ -19,3 +19,7 @@ export default class RegistrationView extends DefaultView {
     throw new Error(`configView() for ${this.getElement()} not implemented`);
   }
 }
+
+export function getView(): RegistrationView {
+  return new RegistrationView();
+}

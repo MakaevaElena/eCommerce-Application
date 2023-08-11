@@ -5,7 +5,6 @@ import styleCss from './index-view.module.scss';
 
 export default class IndexView extends DefaultView {
   constructor() {
-    console.log('IndexView constaractor!');
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: Object.values(styleCss),
@@ -24,4 +23,8 @@ export default class IndexView extends DefaultView {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
   }
+}
+
+export function getView(): IndexView {
+  return new IndexView();
 }

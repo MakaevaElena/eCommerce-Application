@@ -38,7 +38,6 @@ export default class RouterHandler {
   }
 
   public navigate(url: string) {
-    console.log('url: ', url);
     this.setAddressLine(url);
 
     const location = window.location[this.params.locationField].slice(1);
