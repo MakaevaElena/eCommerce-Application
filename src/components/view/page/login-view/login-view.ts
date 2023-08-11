@@ -12,7 +12,7 @@ export default class LoginView extends DefaultView {
 
   private loginPassword = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.login_form__password, styleCss.field],
+    classNames: [styleCss['login-form__password'], styleCss.field],
     textContent: 'password',
   });
 
@@ -20,7 +20,7 @@ export default class LoginView extends DefaultView {
     const params: ElementParams = {
       tag: TagName.SECTION,
       // classNames: Object.values(styleCss),
-      classNames: [styleCss.login_view],
+      classNames: [styleCss['login-view']],
       textContent: '',
     };
     super(params);
@@ -35,55 +35,55 @@ export default class LoginView extends DefaultView {
   private renderForm() {
     const loginTitle = new ElementCreator({
       tag: TagName.SPAN,
-      classNames: [styleCss.login_title],
+      classNames: [styleCss['login-title']],
       textContent: 'EXISTING CUSTOMERS',
     });
 
     const loginSubTitle = new ElementCreator({
       tag: TagName.SPAN,
-      classNames: [styleCss.login_sub_title],
+      classNames: [styleCss['login-subtitle']],
       textContent: 'Sign Into Next',
     });
 
     const loginForm = new ElementCreator({
       tag: TagName.DIV,
-      classNames: [styleCss.login_form],
+      classNames: [styleCss['login-form']],
       textContent: '',
     });
 
     const passwordBlock = new ElementCreator({
       tag: TagName.DIV,
-      classNames: [styleCss.password_block],
+      classNames: [styleCss['password-block']],
       textContent: '',
     });
 
     const showPasswordButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss.login_form__show_password, styleCss.button],
+      classNames: [styleCss['login-form__show-password'], styleCss.button],
       textContent: 'SHOW',
     });
 
     const loginSubmitButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss.login_form__submit_button, styleCss.button],
+      classNames: [styleCss['login-form__submit-button'], styleCss.button],
       textContent: 'SIGN IN',
     });
 
     const registrationField = new ElementCreator({
       tag: TagName.DIV,
-      classNames: [styleCss.registration_field],
+      classNames: [styleCss['registration-field']],
       textContent: '',
     });
 
     const registrationTitle = new ElementCreator({
       tag: TagName.SPAN,
-      classNames: [styleCss.registration_title],
+      classNames: [styleCss['registration-field__title']],
       textContent: 'NEW CUSTOMERS',
     });
 
     const toRegistrationLinkButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss.register_link, styleCss.button],
+      classNames: [styleCss['register-link'], styleCss.button],
       textContent: 'REGISTER NOW',
     });
 
@@ -159,52 +159,41 @@ export default class LoginView extends DefaultView {
     const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
     const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
     const checkWightSpace = /(^\S*$)/;
+    const passwordElement = this.loginPassword.getElement() as HTMLInputElement;
 
-    const { value } = this.loginPassword.getElement() as HTMLInputElement;
-    (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity('');
+    const { value } = passwordElement;
+    passwordElement.setCustomValidity('');
 
     switch (true) {
       case !checkWightSpace.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must not contain leading or trailing whitespace.`
-        );
+        passwordElement.setCustomValidity(`Password must not contain leading or trailing whitespace.`);
         break;
 
       case !checkOneNumber.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must contain at least one digit (0-9).`
-        );
+        passwordElement.setCustomValidity(`Password must contain at least one digit (0-9).`);
         break;
 
       case !checkOneLowerLatinSimbol.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must contain at least one lowercase letter (a-z).`
-        );
+        passwordElement.setCustomValidity(`Password must contain at least one lowercase letter (a-z).`);
         break;
 
       case !checkOneUpperLatinSimbol.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must contain at least one uppercase letter (A-Z).`
-        );
+        passwordElement.setCustomValidity(`Password must contain at least one uppercase letter (A-Z).`);
         break;
 
       case !checkSpecialSimbols.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must contain at least one special character (e.g., !@#$%^&*).`
-        );
+        passwordElement.setCustomValidity(`Password must contain at least one special character (e.g., !@#$%^&*).`);
         break;
 
       case !checkLenght.test(value):
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(
-          `Password must be at least 8 characters long.`
-        );
+        passwordElement.setCustomValidity(`Password must be at least 8 characters long.`);
         break;
 
       default:
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity('');
+        passwordElement.setCustomValidity('');
     }
 
-    (this.loginPassword.getElement() as HTMLInputElement).reportValidity();
+    passwordElement.reportValidity();
   }
 
   private createMessagePopup(message: string) {

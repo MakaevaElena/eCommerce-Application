@@ -1,6 +1,6 @@
 // @import '../../../styles/abstracts/variables.scss';
 
-.login_view {
+.login-view {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -11,38 +11,7 @@
   background-color: white;
 }
 
-.login_title,
-.registration_title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.login_sub_title {
-  font-size: 1rem;
-  font-weight: 300;
-  color: gray;
-}
-
-.login_form {
-  height: 200px;
-  width: 400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: start;
-  margin: 1rem 0;
-  background-color: #f8f8f8;
-  border: 0.1px solid gray;
-  padding: 1rem;
-}
-
-.password_block {
-  width: 90%;
-  display: flex;
-  gap: 10px;
-}
-
-.registration_field {
+.registration-field {
   height: 100px;
   width: 400px;
   display: flex;
@@ -55,21 +24,55 @@
   padding: 1rem;
 }
 
-.login_view .button {
+.login-title,
+.registration-field__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  font-weight: 300;
+  color: gray;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: start;
+  height: 200px;
+  width: 400px;
+  margin: 1rem 0;
+  background-color: #f8f8f8;
+  border: 0.1px solid gray;
+  padding: 1rem;
+
+  &__show-password {
+    width: 15%;
+  }
+
+  &__popup {
+    border: 0.1px solid gray;
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+}
+
+.password-block {
+  width: 90%;
+  display: flex;
+  gap: 10px;
+}
+
+.login-view .button {
   width: 90%;
   font-size: 0.7rem;
   padding: 0.5rem;
 }
 
-.login_view .login_form__show_password {
+.login-view .login-form__show-password {
   width: 15%;
-}
-
-.login_form__popup {
-  border: 0.1px solid gray;
-  margin: 1rem 0;
-  padding: 1rem;
-  // background-color: rgb(204, 204, 204);
 }
 
 input.field {
@@ -94,4 +97,3 @@ input[type='password']:invalid {
 input[type='password']:valid {
   border-color: 0.1px solid rgb(69, 150, 69);
 }
-
