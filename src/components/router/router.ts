@@ -1,5 +1,5 @@
 import RouterHandler, { RequestParams } from './router-handler';
-import { Pages, ID_SELECTOR } from './pages';
+import { PagePath, ITEM_ID } from './pages';
 
 export type Route = {
   path: string;
@@ -30,7 +30,7 @@ export default class Router {
   }
 
   private urlChangedHandler(requestParams: RequestParams) {
-    const newPath = requestParams.resource === '' ? requestParams.path : `${requestParams.path}/${ID_SELECTOR}`;
+    const newPath = requestParams.resource === '' ? requestParams.path : `${requestParams.path}/${ITEM_ID}`;
     const route = this.routes.find((item) => item.path === newPath);
 
     if (!route) {
@@ -42,7 +42,7 @@ export default class Router {
   }
 
   private redirectToNotFoundPage() {
-    const notFoundPage = this.routes.find((item) => item.path === Pages.NOT_FOUND);
+    const notFoundPage = this.routes.find((item) => item.path === PagePath.NOT_FOUND);
     if (notFoundPage) {
       this.navigate(notFoundPage.path);
     }

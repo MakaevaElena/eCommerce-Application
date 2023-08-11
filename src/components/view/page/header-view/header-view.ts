@@ -1,6 +1,6 @@
 import TagName from '../../../../enum/tag-name';
 import { ElementParams, InsertableElement } from '../../../../utils/element-creator';
-import { LinkName, Pages } from '../../../router/pages';
+import { LinkName, PagePath } from '../../../router/pages';
 import Router, { Route } from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
@@ -13,7 +13,7 @@ export default class HeaderView extends DefaultView {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['header-view']],
-      textContent: 'HeaderView',
+      textContent: '',
     };
     super(params);
 
@@ -32,7 +32,7 @@ export default class HeaderView extends DefaultView {
 
   private createLinkButtons() {
     Object.keys(LinkName).forEach((key) => {
-      const path = Pages[key as keyof typeof Pages];
+      const path = PagePath[key as keyof typeof PagePath];
       const title = LinkName[key as keyof typeof LinkName];
       const route = this.getRoute(path);
       if (route) {

@@ -1,7 +1,4 @@
-/**
- * url resource
- */
-const Pages = {
+const PagePath = {
   INDEX: 'index',
   LOGIN: 'login',
   REGISTRATION: 'registration',
@@ -13,10 +10,10 @@ const Pages = {
 const LinkName = {
   INDEX: 'Main',
   LOGIN: 'Log In',
-  REGISTRATION: 'Registration',
+  REGISTRATION: 'Sign In',
   PRODUCT: 'Catalog',
 };
 
-const ID_SELECTOR = '{id}';
+const ITEM_ID = '{id}';
 
-export { Pages, LinkName, ID_SELECTOR };
+export { PagePath, LinkName, ITEM_ID };

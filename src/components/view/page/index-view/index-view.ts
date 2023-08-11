@@ -5,6 +5,7 @@ import styleCss from './index-view.module.scss';
 
 export default class IndexView extends DefaultView {
   constructor() {
+    console.log('IndexView constaractor!');
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: Object.values(styleCss),
