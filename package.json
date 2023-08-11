@@ -61,7 +61,8 @@
     "dependencies": {
         "@commercetools/platform-sdk": "^5.0.0",
         "@commercetools/sdk-client-v2": "^2.2.0",
-        "@types/webpack": "^5.28.1"
+        "@types/webpack": "^5.28.1",
+        "dotenv": "^16.3.1"
     },
     "config": {
         "commitizen": {

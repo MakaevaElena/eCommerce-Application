@@ -1,11 +1,12 @@
-import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { ctpClient } from './BuildClient';
+import ClientApi from './client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
 import styleCss from './login-view.module.scss';
 
 export default class LoginView extends DefaultView {
+  private ClientApi = new ClientApi();
+
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
     classNames: [styleCss.login_form__email, styleCss.field],
@@ -125,8 +126,31 @@ export default class LoginView extends DefaultView {
       }
 
       if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
-        this.getCustomer({ email, password });
-        this.checkCustomerExist(email);
+        if (email !== undefined) {
+          this.ClientApi.checkCustomerExist(email)
+            .then((results: number) => {
+              if (results === 0) {
+                this.emailElement.setCustomValidity(`This email address has not been registered.`);
+                this.emailElement.reportValidity();
+              } else {
+                // this.emailElement.setCustomValidity(`This email address registered.`);
+                // this.emailElement.reportValidity();
+              }
+            })
+            .catch(console.error);
+        }
+
+        this.ClientApi.getCustomer({ email, password })
+          .then(({ body }) => {
+            if (body.customer) {
+              this.createMessagePopup('Welcome! You are logged!.');
+              window.sessionStorage.setItem(`${email}_isLogin`, 'true');
+            }
+          })
+          .catch(() => {
+            this.passwordElement.setCustomValidity(`Password is wrong!`);
+            this.passwordElement.reportValidity();
+          });
       }
     });
 
@@ -223,60 +247,6 @@ export default class LoginView extends DefaultView {
 
     this.passwordElement.reportValidity();
     return false;
-  }
-
-  // TODO вынести в client-api
-  private apiRoot = createApiBuilderFromCtpClient(ctpClient).withProjectKey({ projectKey: 'best-games' });
-
-  private checkCustomerExist(email: string) {
-    if (email !== undefined)
-      this.returnCustomerByEmail(email)
-        .then(({ body }) => {
-          if (body.results.length === 0) {
-            this.emailElement.setCustomValidity(`This email address has not been registered.`);
-            this.emailElement.reportValidity();
-          } else {
-            // this.emailElement.setCustomValidity(`This email address registered.`);
-            // this.emailElement.reportValidity();
-          }
-        })
-        .catch(console.error);
-  }
-
-  private returnCustomerByEmail(customerEmail: string) {
-    return this.apiRoot
-      .customers()
-      .get({
-        queryArgs: {
-          where: `email="${customerEmail}"`,
-        },
-      })
-      .execute();
-  }
-
-  // 'johndoe@example.com'
-  // '123!@#qweQWE'
-  private getCustomer({ email, password }: { email: string; password: string }) {
-    return this.apiRoot
-      .me()
-      .login()
-      .post({
-        body: {
-          email,
-          password,
-        },
-      })
-      .execute()
-      .then(({ body }) => {
-        if (body.customer) {
-          this.createMessagePopup('Welcome! You are logged!.');
-          window.sessionStorage.setItem(`${email}_isLogin`, 'true');
-        }
-      })
-      .catch(() => {
-        this.passwordElement.setCustomValidity(`Please fill the field password.`);
-        this.passwordElement.reportValidity();
-      });
   }
 
   private createMessagePopup(message: string) {

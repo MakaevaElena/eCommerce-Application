@@ -1,3 +1,6 @@
+// import dotenv from 'dotenv';
+// TODO prosecc.env не подключился
+
 import {
   ClientBuilder,
 
@@ -14,7 +17,7 @@ const CTP_API_URL = 'https://api.europe-west1.gcp.commercetools.com';
 const CTP_SCOPES = 'manage_project:best-games manage_api_clients:best-games view_audit_log:best-games';
 
 const projectKey = CTP_PROJECT_KEY || '';
-const scopes = [CTP_SCOPES];
+const scopes = [CTP_SCOPES] || '';
 
 // Configure authMiddlewareOptions
 const authMiddlewareOptions: AuthMiddlewareOptions = {
@@ -41,6 +44,5 @@ export const ctpClient = new ClientBuilder()
   .withClientCredentialsFlow(authMiddlewareOptions)
   .withHttpMiddleware(httpMiddlewareOptions)
   .withLoggerMiddleware() // Include middleware for logging
-  // .withQueueMiddleware({ concurrency: 5 })
 
   .build();
