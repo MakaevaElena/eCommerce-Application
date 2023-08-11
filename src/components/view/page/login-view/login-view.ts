@@ -18,6 +18,10 @@ export default class LoginView extends DefaultView {
     textContent: 'password',
   });
 
+  private passwordElement = this.loginPassword.getElement() as HTMLInputElement;
+
+  private emailElement = this.loginEmail.getElement() as HTMLInputElement;
+
   constructor() {
     const params: ElementParams = {
       tag: TagName.SECTION,
@@ -91,37 +95,36 @@ export default class LoginView extends DefaultView {
 
     loginForm.getElement().setAttribute('action', '#');
 
-    this.loginEmail.getElement().setAttribute('type', 'email');
-    this.loginEmail.getElement().setAttribute('name', 'email');
-    this.loginEmail.getElement().setAttribute('placeholder', 'email');
-    this.loginEmail.getElement().setAttribute('Required', 'true');
+    this.emailElement.setAttribute('type', 'email');
+    this.emailElement.setAttribute('name', 'email');
+    this.emailElement.setAttribute('placeholder', 'email');
+    this.emailElement.setAttribute('Required', 'true');
 
-    this.loginPassword.getElement().setAttribute('type', 'password');
-    this.loginPassword.getElement().setAttribute('name', 'password');
-    this.loginPassword.getElement().setAttribute('placeholder', 'password');
-    this.loginPassword.getElement().setAttribute('Required', 'true');
+    this.passwordElement.setAttribute('type', 'password');
+    this.passwordElement.setAttribute('name', 'password');
+    this.passwordElement.setAttribute('placeholder', 'password');
+    this.passwordElement.setAttribute('Required', 'true');
 
-    this.loginEmail.getElement().addEventListener('input', () => this.validateEmail());
-    this.loginPassword.getElement().addEventListener('input', () => this.validatePassword());
+    this.emailElement.addEventListener('input', () => this.validateEmail());
+    this.passwordElement.addEventListener('input', () => this.validatePassword());
 
     showPasswordButton.getElement().addEventListener('click', (event) => this.showPassword(event));
 
     loginSubmitButton.getElement().addEventListener('click', (event) => {
       event.preventDefault();
-      const email = (this.loginEmail.getElement() as HTMLInputElement).value;
-      const password = (this.loginPassword.getElement() as HTMLInputElement).value;
+      const email = this.emailElement.value;
+      const password = this.passwordElement.value;
 
       if (!email) {
-        (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity(`Please fill the field email.`);
-        (this.loginEmail.getElement() as HTMLInputElement).reportValidity();
+        this.emailElement.setCustomValidity(`Please fill the field email.`);
+        this.emailElement.reportValidity();
       }
       if (!password) {
-        (this.loginPassword.getElement() as HTMLInputElement).setCustomValidity(`Please fill the field password.`);
-        (this.loginPassword.getElement() as HTMLInputElement).reportValidity();
+        this.passwordElement.setCustomValidity(`Please fill the field password.`);
+        this.passwordElement.reportValidity();
       }
 
       if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
-        console.log(this.validateEmail());
         this.getCustomer({ email, password });
         this.checkCustomerExist(email);
       }
@@ -144,40 +147,34 @@ export default class LoginView extends DefaultView {
 
   private showPassword(event: Event) {
     event.preventDefault();
-    if (this.loginPassword.getElement().getAttribute('type') === 'password') {
-      this.loginPassword.getElement().setAttribute('type', 'text');
+    if (this.passwordElement.getAttribute('type') === 'password') {
+      this.passwordElement.setAttribute('type', 'text');
     } else {
-      this.loginPassword.getElement().setAttribute('type', 'password');
+      this.passwordElement.setAttribute('type', 'password');
     }
   }
 
   private validateEmail() {
     const regExp = /[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}/;
     const checkWightSpace = /(^\S*$)/;
-    // TODO
-    // const emailElement = this.loginEmail.getElement() as HTMLInputElement;
     const { value } = this.loginEmail.getElement() as HTMLInputElement;
-    (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity('');
+    this.emailElement.setCustomValidity('');
 
     switch (true) {
       case !checkWightSpace.test(value):
-        (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity(
-          `Email address must not contain leading or trailing whitespace.`
-        );
+        this.emailElement.setCustomValidity(`Email address must not contain leading or trailing whitespace.`);
         break;
 
       case !regExp.test(value):
-        (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity(
-          `Email address must be properly formatted (e.g., user@example.com).`
-        );
+        this.emailElement.setCustomValidity(`Email address must be properly formatted (e.g., user@example.com).`);
         break;
 
       default:
-        (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity('');
+        this.emailElement.setCustomValidity('');
         return true;
     }
 
-    (this.loginEmail.getElement() as HTMLInputElement).reportValidity();
+    this.emailElement.reportValidity();
     return false;
   }
 
@@ -188,42 +185,43 @@ export default class LoginView extends DefaultView {
     const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
     const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
     const checkWightSpace = /(^\S*$)/;
-    const passwordElement = this.loginPassword.getElement() as HTMLInputElement;
 
-    const { value } = passwordElement;
-    passwordElement.setCustomValidity('');
+    const { value } = this.passwordElement;
+    this.passwordElement.setCustomValidity('');
 
     switch (true) {
       case !checkWightSpace.test(value):
-        passwordElement.setCustomValidity(`Password must not contain leading or trailing whitespace.`);
+        this.passwordElement.setCustomValidity(`Password must not contain leading or trailing whitespace.`);
         break;
 
       case !checkOneNumber.test(value):
-        passwordElement.setCustomValidity(`Password must contain at least one digit (0-9).`);
+        this.passwordElement.setCustomValidity(`Password must contain at least one digit (0-9).`);
         break;
 
       case !checkOneLowerLatinSimbol.test(value):
-        passwordElement.setCustomValidity(`Password must contain at least one lowercase letter (a-z).`);
+        this.passwordElement.setCustomValidity(`Password must contain at least one lowercase letter (a-z).`);
         break;
 
       case !checkOneUpperLatinSimbol.test(value):
-        passwordElement.setCustomValidity(`Password must contain at least one uppercase letter (A-Z).`);
+        this.passwordElement.setCustomValidity(`Password must contain at least one uppercase letter (A-Z).`);
         break;
 
       case !checkSpecialSimbols.test(value):
-        passwordElement.setCustomValidity(`Password must contain at least one special character (e.g., !@#$%^&*).`);
+        this.passwordElement.setCustomValidity(
+          `Password must contain at least one special character (e.g., !@#$%^&*).`
+        );
         break;
 
       case !checkLenght.test(value):
-        passwordElement.setCustomValidity(`Password must be at least 8 characters long.`);
+        this.passwordElement.setCustomValidity(`Password must be at least 8 characters long.`);
         break;
 
       default:
-        passwordElement.setCustomValidity('');
+        this.passwordElement.setCustomValidity('');
         return true;
     }
 
-    passwordElement.reportValidity();
+    this.passwordElement.reportValidity();
     return false;
   }
 
@@ -235,14 +233,11 @@ export default class LoginView extends DefaultView {
       this.returnCustomerByEmail(email)
         .then(({ body }) => {
           if (body.results.length === 0) {
-            // this.createMessagePopup('This email address has not been registered.');
-            (this.loginEmail.getElement() as HTMLInputElement).setCustomValidity(
-              `This email address has not been registered.`
-            );
-            (this.loginEmail.getElement() as HTMLInputElement).reportValidity();
+            this.emailElement.setCustomValidity(`This email address has not been registered.`);
+            this.emailElement.reportValidity();
           } else {
-            // console.log(body.results[0].id);
-            // this.createMessagePopup(`Email ${body.results[0].email} exist`);
+            // this.emailElement.setCustomValidity(`This email address registered.`);
+            // this.emailElement.reportValidity();
           }
         })
         .catch(console.error);
@@ -278,7 +273,10 @@ export default class LoginView extends DefaultView {
           window.sessionStorage.setItem(`${email}_isLogin`, 'true');
         }
       })
-      .catch(() => this.createMessagePopup(`This password wrong!.`));
+      .catch(() => {
+        this.passwordElement.setCustomValidity(`Please fill the field password.`);
+        this.passwordElement.reportValidity();
+      });
   }
 
   private createMessagePopup(message: string) {
@@ -295,7 +293,3 @@ export default class LoginView extends DefaultView {
     });
   }
 }
-
-// function createApiBuilderFromCtpClient(ctpClient: any) {
-//   throw new Error('Function not implemented.');
-// }
