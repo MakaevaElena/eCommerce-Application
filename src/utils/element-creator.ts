@@ -28,10 +28,10 @@ export default class ElementCreator {
   }
 
   public addInnerElement(element: InsertableElement) {
-    if (element instanceof HTMLElement || element instanceof DocumentFragment) {
-      this.element.append(element);
-    } else {
+    if (element instanceof ElementCreator) {
       this.element.append(element.getElement());
+    } else {
+      this.element.append(element);
     }
   }
 

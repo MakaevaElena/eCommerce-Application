@@ -33,7 +33,8 @@ export default class RouterHandler {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private windowEventHandler(e: Event) {
-    this.navigate(window.location[this.params.locationField]);
+    const path = window.location[this.params.locationField].slice(1);
+    this.navigate(path);
   }
 
   public navigate(url: string) {

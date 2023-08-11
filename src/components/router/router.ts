@@ -3,7 +3,6 @@ import { Pages, ID_SELECTOR } from './pages';
 
 export type Route = {
   path: string;
-  name: Pages;
   callback: () => void;
 };
 
@@ -27,7 +26,6 @@ export default class Router {
   }
 
   public navigate(url: string) {
-    window.history.pushState(null, '', `${url}`);
     this.handler.navigate(url);
   }
 

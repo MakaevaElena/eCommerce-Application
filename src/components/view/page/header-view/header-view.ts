@@ -31,43 +31,19 @@ export default class HeaderView extends DefaultView {
   }
 
   private createLinkButtons() {
-    this.createIndexButton();
-    this.createLoginButton();
-    this.createRegistrationButton();
+    Object.keys(LinkName).forEach((key) => {
+      const path = Pages[key as keyof typeof Pages];
+      const title = LinkName[key as keyof typeof LinkName];
+      const route = this.getRoute(path);
+      if (route) {
+        const link = new LinkButton(title, () => this.router.navigate(path));
+        this.getCreator().addInnerElement(link.getElement());
+      }
+    });
   }
 
-  private createIndexButton() {
-    const link = this.createButton(Pages.INDEX, LinkName.INDEX);
-    if (link instanceof LinkButton) {
-      this.getCreator().addInnerElement(link.getElement());
-    }
-  }
-
-  private createLoginButton() {
-    const link = this.createButton(Pages.LOGIN, LinkName.LOGIN);
-    if (link instanceof LinkButton) {
-      this.getCreator().addInnerElement(link.getElement());
-    }
-  }
-
-  private createRegistrationButton() {
-    const link = this.createButton(Pages.REGISTRATION, LinkName.REGISTRATION);
-    if (link instanceof LinkButton) {
-      this.getCreator().addInnerElement(link.getElement());
-    }
-  }
-
-  private createButton(page: Pages, title: LinkName): LinkButton | undefined {
-    const route = this.getRoute(page);
-    if (route) {
-      const link = new LinkButton(title, route.callback);
-      return link;
-    }
-    return undefined;
-  }
-
-  private getRoute(routeName: Pages): Route | undefined {
-    const route = this.router.getRoutes().find((item) => item.name === routeName);
+  private getRoute(routeName: string): Route | undefined {
+    const route = this.router.getRoutes().find((item) => item.path === routeName);
     return route;
   }
 }

@@ -51,7 +51,6 @@ export default class App {
     return [
       {
         path: ``,
-        name: Pages.EMPTY,
         callback: () => {
           // const { default: IndexView } = await import('../view/page/index-view/index-view');
           this.setContent(Pages.INDEX, new IndexView());
@@ -59,7 +58,6 @@ export default class App {
       },
       {
         path: `${Pages.INDEX}`,
-        name: Pages.INDEX,
         callback: () => {
           // const { default: IndexView } = await import('../view/page/index-view/index-view');
           this.setContent(Pages.INDEX, new IndexView());
@@ -67,7 +65,6 @@ export default class App {
       },
       {
         path: `${Pages.LOGIN}`,
-        name: Pages.LOGIN,
         callback: () => {
           // const { default: LoginView } = await import('../view/page/login-view/login-view');
           this.setContent(Pages.LOGIN, new LoginView());
@@ -75,7 +72,6 @@ export default class App {
       },
       {
         path: `${Pages.REGISTRATION}`,
-        name: Pages.REGISTRATION,
         callback: () => {
           // const { default: RegistrationView } = await import('../view/page/registration-view/registration-view');
           this.setContent(Pages.REGISTRATION, new RegistrationView());
@@ -83,7 +79,6 @@ export default class App {
       },
       {
         path: `${Pages.NOT_FOUND}`,
-        name: Pages.EMPTY,
         callback: () => {
           // const { default: NotFoundView } = await import('./view/main/not-found/not-found-view');
           this.setContent(Pages.NOT_FOUND, new NotFoundView());
