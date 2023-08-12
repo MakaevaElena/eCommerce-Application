@@ -8,66 +8,27 @@
 
 html {
   font-size: clamp(10px, 2vmin, 30px);
-  //адаптивный размер шрифта, он будет всегда высчитываться от минимальной стороны экрана, но при это никогда не будет меньше 10px и больше 30px;
+  //адаптивный размер шрифта, он будет всегда высчитываться от минимальной стороны экрана, но при этом никогда не будет меньше 10px и больше 30px;
 }
 
 body {
   margin: 0;
-  font-family: 'Open Sans';
+  font-family: 'Open Sans', sans-serif;
   color: $color-text-primary;
   background-color: $color-page-background;
   //@import 'helper.scss'; т.к. я подключил сюда этот файл, то я могу из него использовать переменные;
 }
 
-// TODO:   в дальнейшем добавлю класс tittle пока здесь для примера
+// т.к. это должно быть одинаково для всех заголовков, и это для всего проекта, то удобнее задать это через тэги
+// в остальных случаях останется только позиционировать заголовки (размеры относительно основного текста дефолтные)
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  margin: 0 auto; // сам бллок не будет себя позиционировать
-  // TODO: добавить переменную с полным именем
-  font-family: 'Karla';
+  margin: 0; // сам блок не будет себя позиционировать
+  font-family: 'Karla', sans-serif;
 }
-
-// TODO:   в дальнейшем добавлю класс button пока здесь для примера
-button {
-  //max-width: 20%;
-  padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
-  //font-size: inherit;
-  color: $color-text-primary;
-  font-family: 'Oswald';
-  background-color: $color-brand-primary;
-  border: 0;
-  box-shadow:
-    0 4px 4px rgba(0, 0, 0, 0.25),
-    0 2px 3px rgba(13, 96, 111, 0.16);
-  cursor: pointer;
-  transition-property: color, visibility, background-color, transform, box-shadow;
-  transition-duration: 0.05s;
-  transition-timing-function: ease-out;
-}
-
-button:active {
-  background-color: transparentize($color-brand-primary, 0.5);
-  //border-color: transparentize($color-brand-primary, .4);
-  box-shadow:
-    0 -4px 4px rgba(0, 0, 0, 0.25),
-    0 -2px 3px rgba(13, 96, 111, 0.16);
-  transform: translate(-2px, 2px);
-}
-button:hover {
-  background-color: transparentize($color-brand-primary, 0.1);
-}
-
-/**
-Порядок логически связанных свойств должен быть сгруппирован следующим образом:
-
-Позиционирование
-Блочная модель
-Типографика
-Оформление
-Анимация
-Разное
- */
+// сбрасывать какие-то стили пока не вижу смысла, т.к. мы работаем под один браузер, попадать в пиксели нам не надо
+// скорее удобнее будет подкорректировать непосредственно в месте использования
