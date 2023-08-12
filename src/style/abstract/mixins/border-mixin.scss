@@ -1,0 +1,12 @@
+@mixin border($width: 0.1rem, $style: solid, $color: $color-brand-primary) {
+  border: $width $style $color;
+}
+
+// для использования данного миксина в классе достаточно прописать
+// @inlude border();
+// если не передавать  аргументов, то применится:
+// border: 0.1rem solid $color-brand-primary;
+// первым аргументом передается значение для свойства border-width
+// вторым  аргументом передается значение для свойства border-style
+// третьим аргументом передается значение для свойства border-color
+// можно добавить еще wrap и т.д. надо обсудить
