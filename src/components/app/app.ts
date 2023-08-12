@@ -16,7 +16,7 @@ export default class App {
     this.favicon = new Favicon();
     this.mainView = new MainView();
     this.loginView = new LoginView();
-    this.registrationView = new RegistrationView();
+    this.registrationView = new RegistrationView(null);
   }
 
   init() {
