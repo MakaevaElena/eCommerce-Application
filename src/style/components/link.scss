@@ -1,0 +1,28 @@
+@import './src/style/helper'; // для подтягивания переменных
+// скопируйте это в компонент к ссылке
+
+.link {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.link:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.2rem;
+  width: 0;
+  height: 0.1rem;
+  background-color: $color-brand-primary;
+  transition: width 0.2s;
+}
+
+.link:hover {
+  color: $color-brand-primary;
+}
+
+.link:hover:before {
+  width: 100%;
+}
