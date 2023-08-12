@@ -25,12 +25,33 @@ export default class InputCreator {
     this.element.classList.add(...params.classNames);
     this.inputElement.classList.add(styles.input);
 
+    enum DefaultAttributes {
+      attributeName,
+      attributeValue,
+    }
+
+    const defaultAttributes = [
+      ['placeholder', 'mandatory field'],
+      ['required', 'true'],
+    ];
+    defaultAttributes.forEach((attribute) =>
+      this.inputElement.setAttribute(
+        attribute[DefaultAttributes.attributeName],
+        attribute[DefaultAttributes.attributeValue]
+      )
+    );
+
     Object.entries(params.attributes).forEach(([attributeName, attribute]) => {
-      this.inputElement.setAttribute(attributeName, attribute.toString());
+      this.inputElement.setAttribute(attributeName, attribute);
     });
     this.setCallback(params.callback);
     this.labelElement.textContent = params.textContent;
-    this.element.append(this.labelElement, this.inputElement);
+
+    const symbol: HTMLSpanElement = document.createElement(TagName.SPAN);
+    symbol.classList.add(styles.input__symbol);
+
+    this.labelElement.append(this.inputElement, symbol);
+    this.element.append(this.labelElement);
     return this.element;
   }
 

@@ -1,12 +1,32 @@
 .input {
-  background-color: orange;
-  color: blue;
-}
+  margin-left: 0.5rem;
+  border: 1px solid black;
+  border-radius: 2px;
+  outline: none;
 
-.input:invalid {
-  background-color: red;
-}
+  &:invalid {
+    background-color: lightpink;
+  }
 
-.input__container {
-  background-color: pink;
+  &__container {
+    max-width: clamp(500px, 80%, 800px);
+    margin: 0.5rem;
+    position: relative;
+    display: flex;
+    justify-content: right;
+  }
+
+  &__symbol:after {
+    display: inline-block;
+    content: '✖';
+    width: 1.5rem;
+    height: 1.5rem;
+    text-align: center;
+  }
+
+  &:valid {
+    & + .input__symbol::after {
+      content: '✓';
+    }
+  }
 }

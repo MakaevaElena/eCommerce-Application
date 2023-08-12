@@ -8,8 +8,9 @@ export type InputParams = {
 type InputAttributes = {
   type: string;
   name: string;
-  placeholder: string;
-  Required: boolean;
+  title: string;
+  placeholder?: string;
+  pattern?: string;
 };
 
 export type CallbackClick = (event: Event) => void;
