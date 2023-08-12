@@ -31,14 +31,16 @@ export default class RouterHandler {
     window.addEventListener(this.params.nameEvent, this.windowEventHandler.bind(this));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private windowEventHandler(e: Event) {
-    const path = window.location[this.params.locationField].slice(1);
+    let path = '';
+    if (e instanceof HashChangeEvent && e.currentTarget instanceof Window) {
+      path = e.currentTarget.location.hash.slice(1);
+    }
     this.navigate(path);
   }
 
   public navigate(url: string) {
-    this.setAddressLine(url);
+    window.history.pushState(null, '', `#${url}`);
 
     const location = window.location[this.params.locationField].slice(1);
     const urlString = url || location;
@@ -52,10 +54,5 @@ export default class RouterHandler {
     [result.path = '', result.resource = ''] = fullPath;
 
     this.callback(result);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  private setAddressLine(url: string) {
-    window.history.pushState(null, '', `#${url}`);
   }
 }
