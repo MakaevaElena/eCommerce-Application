@@ -1,3 +1,4 @@
+@import 'src/style/abstract/variebles/colors';
 @mixin border($width: 0.1rem, $style: solid, $color: $color-brand-primary) {
   border: $width $style $color;
 }
