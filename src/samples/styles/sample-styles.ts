@@ -1,6 +1,7 @@
 import styleScss from './style-scss.module.scss';
 import styleCss from './style-css.module.css';
 import html from './sample-styles.html';
+import '../../style/global.scss';
 
 export default class SampleStiles {
   private element: HTMLElement;
