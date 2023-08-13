@@ -128,14 +128,13 @@ export default class LoginView extends DefaultView {
       if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
         if (email !== undefined) {
           this.ClientApi.checkCustomerExist(email)
-            .then(({ body }) => {
-              if (body.results.length === 0) {
+            .then((response) => {
+              if (response.body.results.length === 0) {
+                // if (body.results.length === 0) {
                 this.emailElement.setCustomValidity(`This email address has not been registered.`);
                 this.emailElement.reportValidity();
               } else {
-                // this.emailElement.setCustomValidity(`This email address registered.`);
-                // this.emailElement.reportValidity();
-                console.log('customer body', body);
+                console.log();
               }
             })
             .catch(console.error);
@@ -144,8 +143,23 @@ export default class LoginView extends DefaultView {
         this.ClientApi.getCustomer({ email, password })
           .then(({ body }) => {
             if (body.customer) {
+              console.log('body', body);
+
               this.createMessagePopup('Welcome! You are logged!.');
               window.sessionStorage.setItem(`${email}_isLogin`, 'true');
+
+              // TODO REDIRECT TO HOME
+              this.ClientApi.createUserRoot(email, password);
+
+              this.ClientApi.getCartByCustomerId(body.customer.id)
+                .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
+                .catch(() => {
+                  this.ClientApi.createCart(body.customer.id)
+                    .then((cart) => {
+                      console.log('new cart created', cart);
+                    })
+                    .catch((error) => console.log(error));
+                });
             }
           })
           .catch(() => {
