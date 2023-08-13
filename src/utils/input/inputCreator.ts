@@ -23,23 +23,6 @@ export default class InputCreator {
   private createElement(params: InputParams): HTMLElement {
     this.element.classList.add(styles.input__container);
     this.element.classList.add(...params.classNames);
-    this.inputElement.classList.add(styles.input);
-
-    enum DefaultAttributes {
-      attributeName,
-      attributeValue,
-    }
-
-    const defaultAttributes = [
-      ['placeholder', 'mandatory field'],
-      ['required', 'true'],
-    ];
-    defaultAttributes.forEach((attribute) =>
-      this.inputElement.setAttribute(
-        attribute[DefaultAttributes.attributeName],
-        attribute[DefaultAttributes.attributeValue]
-      )
-    );
 
     Object.entries(params.attributes).forEach(([attributeName, attribute]) => {
       this.inputElement.setAttribute(attributeName, attribute);
@@ -58,4 +41,19 @@ export default class InputCreator {
   private setCallback(callback: CallbackClick) {
     this.inputElement.addEventListener('click', callback);
   }
+
+  private createInput(params: InputParams) {
+    this.inputElement.classList.add(styles.input);
+
+    const defaultAttributes = {
+      placeholder: 'mandatory field',
+      required: 'true',
+    };
+
+    Object.entries(defaultAttributes).forEach(([attributeName, attribute]) => {
+      this.inputElement.setAttribute(attributeName, attribute);
+    });
+  }
+
+  private setAttributes(attributes) {}
 }

@@ -48,5 +48,15 @@ export default class RegistrationView extends DefaultView {
 
   private changeAny(e: Event): void {
     // alert(e);
+    const button = document.createElement('button');
+    button.textContent = 'button';
+
+    this.getElement().append(button);
+
+    // throw new Error(`configView() for ${this.getElement()} not implemented`);
   }
+}
+
+export function getView(): RegistrationView {
+  return new RegistrationView(null);
 }
