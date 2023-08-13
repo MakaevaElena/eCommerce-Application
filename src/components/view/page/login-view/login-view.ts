@@ -5,8 +5,6 @@ import DefaultView from '../../default-view';
 import styleCss from './login-view.module.scss';
 
 export default class LoginView extends DefaultView {
-  private ClientApi = new ClientApi();
-
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
     classNames: [styleCss.login_form__email, styleCss.field],
@@ -23,6 +21,10 @@ export default class LoginView extends DefaultView {
 
   private emailElement = this.loginEmail.getElement() as HTMLInputElement;
 
+  private anonimApi: ClientApi;
+
+  private userApi?: ClientApi;
+
   constructor() {
     const params: ElementParams = {
       tag: TagName.SECTION,
@@ -33,6 +35,7 @@ export default class LoginView extends DefaultView {
     super(params);
 
     this.configView();
+    this.anonimApi = new ClientApi();
   }
 
   private configView() {
@@ -127,7 +130,8 @@ export default class LoginView extends DefaultView {
 
       if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
         if (email !== undefined) {
-          this.ClientApi.checkCustomerExist(email)
+          this.anonimApi
+            .checkCustomerExist(email)
             .then((response) => {
               if (response.body.results.length === 0) {
                 // if (body.results.length === 0) {
@@ -140,7 +144,8 @@ export default class LoginView extends DefaultView {
             .catch(console.error);
         }
 
-        this.ClientApi.getCustomer({ email, password })
+        this.anonimApi
+          .getCustomer({ email, password })
           .then(({ body }) => {
             if (body.customer) {
               console.log('body', body);
@@ -149,16 +154,20 @@ export default class LoginView extends DefaultView {
               window.sessionStorage.setItem(`${email}_isLogin`, 'true');
 
               // TODO REDIRECT TO HOME
-              this.ClientApi.createUserRoot(email, password);
+              // this.ClientApi.createUserRoot(email, password);
+              this.userApi = new ClientApi({ email, password });
 
-              this.ClientApi.getCartByCustomerId(body.customer.id)
+              this.userApi
+                .getCartByCustomerId(body.customer.id)
                 .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
                 .catch(() => {
-                  this.ClientApi.createCart(body.customer.id)
-                    .then((cart) => {
-                      console.log('new cart created', cart);
-                    })
-                    .catch((error) => console.log(error));
+                  if (this.userApi)
+                    this.userApi
+                      .createCart(body.customer.id)
+                      .then((cart) => {
+                        console.log('new cart created', cart);
+                      })
+                      .catch((error) => console.log(error));
                 });
             }
           })

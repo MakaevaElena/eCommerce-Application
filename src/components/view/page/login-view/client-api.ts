@@ -2,8 +2,20 @@ import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { anonimClient } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
 
+type LoginData = {
+  email: string;
+  password: string;
+};
+
 export default class ClientApi {
   private clientRoot = createApiBuilderFromCtpClient(anonimClient).withProjectKey({ projectKey: 'best-games' });
+
+  constructor(loginData?: LoginData) {
+    if (loginData) {
+      const userClient = createUser(loginData.email, loginData.password);
+      this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+    }
+  }
 
   public checkCustomerExist(email: string) {
     return this.returnCustomerByEmail(email).then((customer) => customer);
