@@ -1,8 +1,10 @@
 // @import '../../../styles/abstracts/variables.scss';
+@import './src/style/helper.scss';
 
 .registration-view {
-  display: flex;
-  flex-direction: column;
+  //display: flex;
+  //flex-direction: column;
+  background-color: $color-brand-primary;
 
   border: 1px solid blue;
 }

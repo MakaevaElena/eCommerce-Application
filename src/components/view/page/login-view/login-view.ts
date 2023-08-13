@@ -287,3 +287,7 @@ export default class LoginView extends DefaultView {
     });
   }
 }
+
+export function getView(): LoginView {
+  return new LoginView();
+}
