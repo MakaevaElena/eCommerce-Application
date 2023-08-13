@@ -1,7 +1,7 @@
 {
-    "name": "ts-template-project",
+    "name": "ecommerce-application",
     "version": "1.0.0",
-    "description": "The base for a TS-projects",
+    "description": "eCommerce-Application",
     "private": "true",
     "scripts": {
         "start": "webpack serve --open --config ./webpack.config.js --env mode=dev",
@@ -9,7 +9,8 @@
         "lint": "eslint . --ext .ts",
         "test": "jest",
         "format": "prettier --write src",
-        "pre-commit": "npm test & npm run format",
+        "check-format": "prettier --check src",
+        "pre-commit": "npm test & npm run check-format",
         "prepare": "husky install"
     },
     "repository": {
@@ -40,10 +41,12 @@
         "eslint-plugin-prettier": "^5.0.0",
         "html-loader": "^4.2.0",
         "html-webpack-plugin": "^5.5.3",
+        "husky": "^8.0.0",
         "jest": "^29.6.2",
         "jest-environment-jsdom": "^29.6.2",
+        "lint-staged": "^13.2.3",
         "mini-css-extract-plugin": "^2.7.6",
-        "prettier": "^3.0.0",
+        "prettier": "^3.0.1",
         "sass": "^1.64.1",
         "sass-loader": "^13.3.2",
         "sass-resources-loader": "^2.2.5",
@@ -55,8 +58,7 @@
         "webpack": "^5.88.2",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^4.15.1",
-        "webpack-merge": "^5.9.0",
-        "husky": "^8.0.0"
+        "webpack-merge": "^5.9.0"
     },
     "dependencies": {
         "@types/webpack": "^5.28.1"
