@@ -1,3 +1,4 @@
+import '../../../../style/global.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
@@ -12,10 +13,19 @@ export default class RegistrationView extends DefaultView {
     };
     super(params);
 
-    // this.configView();
+    this.configView();
   }
 
   private configView() {
-    throw new Error(`configView() for ${this.getElement()} not implemented`);
+    const button = document.createElement('button');
+    button.textContent = 'button';
+
+    this.getElement().append(button);
+
+    // throw new Error(`configView() for ${this.getElement()} not implemented`);
   }
+}
+
+export function getView(): RegistrationView {
+  return new RegistrationView();
 }

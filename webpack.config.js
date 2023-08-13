@@ -20,29 +20,32 @@ const baseConfig = {
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader,
-        {
-          loader: "css-loader",
-          options: {
-            modules: {
-              localIdentName: '[local]--[hash:base64:5]',
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[local]--[hash:base64:5]',
+              },
             },
           },
-        },
         ],
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [MiniCssExtractPlugin.loader,
-        {
-          loader: "css-loader",
-          options: {
-            modules: {
-              localIdentName: '[local]--[hash:base64:5]',
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[local]--[hash:base64:5]',
+              },
             },
           },
-        },
-          'sass-loader'],
+          'sass-loader',
+        ],
       },
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
