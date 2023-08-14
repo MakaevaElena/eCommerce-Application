@@ -1,9 +1,10 @@
 @import './src/style/helper';
 
 .inputShowPassword {
-  width: clamp(50px, 4rem, 72px);
+  width: clamp(42px - 1px, 4rem - 1px, 72px - 1px);
   @include flex();
-  height: clamp(20px, 2rem, 30px);
+  @include border(1px, solid, rgb(232, 240, 254));
+  height: clamp(22px + 2px, 2.5rem + 2px, 36px + 2px);
   font-family: 'Karla', sans-serif;
   color: black;
   border-radius: 2px 0 0 2px;
@@ -12,8 +13,8 @@
 }
 
 .input {
-  width: clamp(134px, 12rem, 236px);
-  height: clamp(14px, 2rem - 4px, 24px);
+  width: clamp(134px, 13rem, 270px);
+  height: clamp(22px, 2.5rem, 36px);
   font-family: 'Karla', sans-serif;
   font-size: inherit;
   @include border(1px, solid, rgb(232, 240, 254));
@@ -21,7 +22,7 @@
   outline: none;
 
   &_password {
-    width: clamp(134px - 50px, 12rem - 4rem, 236px - 72px);
+    width: clamp(134px - 42px, 13rem - 4rem, 270px - 72px);
     border-left: none;
     border-radius: 0 2px 2px 0;
   }
