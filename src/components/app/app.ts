@@ -1,4 +1,5 @@
 import Favicon from '../favicon/favicon';
+import '../../style/global.scss';
 import { PagePath } from '../router/pages';
 import Router, { Route } from '../router/router';
 import ViewStorage from '../view-storage/view-storage';
