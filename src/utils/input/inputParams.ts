@@ -1,15 +1,14 @@
 export type InputParams = {
   classNames: Array<string>;
-  textContent: string;
   callback: CallbackClick;
   attributes: InputAttributes;
 };
 
-type InputAttributes = {
+export type InputAttributes = {
   type: string;
   name: string;
-  title: string;
-  placeholder?: string;
+  placeholder: string;
+  title?: string;
   pattern?: string;
 };
 

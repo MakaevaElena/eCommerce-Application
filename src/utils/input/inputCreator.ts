@@ -1,4 +1,4 @@
-import { CallbackClick, InputParams } from './inputParams';
+import { CallbackClick, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
 
@@ -7,11 +7,8 @@ export default class InputCreator {
 
   private inputElement: HTMLInputElement;
 
-  private labelElement: HTMLLabelElement;
-
   constructor(params: InputParams) {
     this.inputElement = document.createElement('input');
-    this.labelElement = document.createElement('label');
     this.element = document.createElement(TagName.DIV);
     this.createElement(params);
   }
@@ -20,22 +17,17 @@ export default class InputCreator {
     return this.element;
   }
 
-  private createElement(params: InputParams): HTMLElement {
+  private createElement(params: InputParams): void {
     this.element.classList.add(styles.input__container);
     this.element.classList.add(...params.classNames);
+    this.createInput(params);
 
-    Object.entries(params.attributes).forEach(([attributeName, attribute]) => {
-      this.inputElement.setAttribute(attributeName, attribute);
-    });
     this.setCallback(params.callback);
-    this.labelElement.textContent = params.textContent;
 
     const symbol: HTMLSpanElement = document.createElement(TagName.SPAN);
     symbol.classList.add(styles.input__symbol);
 
-    this.labelElement.append(this.inputElement, symbol);
-    this.element.append(this.labelElement);
-    return this.element;
+    this.element.append(this.inputElement, symbol);
   }
 
   private setCallback(callback: CallbackClick) {
@@ -44,16 +36,39 @@ export default class InputCreator {
 
   private createInput(params: InputParams) {
     this.inputElement.classList.add(styles.input);
+    this.inputElement.required = true;
 
-    const defaultAttributes = {
-      placeholder: 'mandatory field',
-      required: 'true',
-    };
+    this.setAttributes(params.attributes);
 
-    Object.entries(defaultAttributes).forEach(([attributeName, attribute]) => {
-      this.inputElement.setAttribute(attributeName, attribute);
+    if (params.attributes.type === 'password') {
+      this.showPassword();
+    }
+  }
+
+  private setAttributes(attributes: InputAttributes) {
+    Object.entries(attributes).forEach(([attributeName, attributeValue]) => {
+      this.inputElement.setAttribute(attributeName, attributeValue);
     });
   }
 
-  private setAttributes(attributes) {}
+  private showPassword() {
+    const showPasswordButton = document.createElement('input');
+    showPasswordButton.type = 'checkbox';
+    const label = document.createElement('label');
+    label.textContent = 'show';
+    label.append(showPasswordButton);
+    label.classList.add(styles.inputShowPassword);
+    this.element.append(label);
+    this.inputElement.classList.add(styles.input_password);
+
+    showPasswordButton.addEventListener('click', this.toggleVisibilityHandler.bind(this));
+  }
+
+  private toggleVisibilityHandler() {
+    if (this.inputElement.type === 'password') {
+      this.inputElement.type = 'text';
+    } else {
+      this.inputElement.type = 'password';
+    }
+  }
 }
