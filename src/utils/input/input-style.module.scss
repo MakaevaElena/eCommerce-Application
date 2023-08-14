@@ -13,10 +13,10 @@
 
 .input {
   width: clamp(134px, 12rem, 236px);
-  height: clamp(14px, 2rem - 6px, 24px);
+  height: clamp(14px, 2rem - 4px, 24px);
   font-family: 'Karla', sans-serif;
   font-size: inherit;
-  @include border(2px, solid, rgb(232, 240, 254));
+  @include border(1px, solid, rgb(232, 240, 254));
   border-radius: 2px;
   outline: none;
 
