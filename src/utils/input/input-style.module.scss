@@ -1,28 +1,31 @@
 @import './src/style/helper';
 
 .inputShowPassword {
-  width: clamp(42px - 1px, 4rem - 1px, 72px - 1px);
+  width: clamp(42px, 5rem, 72px);
+  height: clamp(22px, 2.5rem, 36px);
   @include flex();
-  @include border(1px, solid, rgb(232, 240, 254));
-  height: clamp(22px + 2px, 2.5rem + 2px, 36px + 2px);
   font-family: 'Karla', sans-serif;
   color: black;
+  @include border(1px, solid, rgb(232, 240, 254));
+  border-right: none;
   border-radius: 2px 0 0 2px;
   background-color: rgb(232, 240, 254);
   cursor: pointer;
 }
 
 .input {
-  width: clamp(134px, 13rem, 270px);
+  width: clamp(134px, 16rem, 270px);
   height: clamp(22px, 2.5rem, 36px);
+  padding: 0;
   font-family: 'Karla', sans-serif;
   font-size: inherit;
+  text-align: center;
   @include border(1px, solid, rgb(232, 240, 254));
   border-radius: 2px;
   outline: none;
 
   &_password {
-    width: clamp(134px - 42px, 13rem - 4rem, 270px - 72px);
+    width: clamp(134px - 42px, 16rem - 5rem, 270px - 72px);
     border-left: none;
     border-radius: 0 2px 2px 0;
   }
@@ -44,18 +47,20 @@
     background-color: transparentize($color-brand-secondary, 0.3);
   }
 
-  &__symbol:after {
-    display: inline-block;
-    content: '✖';
-    width: 1.5rem;
-    height: 1.5rem;
-    text-align: center;
-    color: transparentize($color-brand-primary, 0.3);
-    font-size: 1.5rem;
+  &__symbol {
+    &:after {
+      display: inline-block;
+      content: '✖';
+      width: 1.5rem;
+      height: 1.5rem;
+      text-align: center;
+      color: transparentize($color-brand-primary, 0.3);
+      font-size: 1.5rem;
+    }
   }
 
   &:valid {
-    & + .input__symbol::after {
+    & + .input__symbol:after {
       content: '✓';
       color: $color-text-primary;
     }
