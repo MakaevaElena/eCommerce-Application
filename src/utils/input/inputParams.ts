@@ -1,16 +1,18 @@
 export type InputParams = {
   classNames: Array<string>;
   attributes: InputAttributes;
-  callback?: Callback;
-  eventName?: keyof HTMLElementTagNameMap;
+  callback?: CallbackClick;
+  eventName?: Event;
 };
 
 export type InputAttributes = {
   type: string;
   name: string;
-  placeholder: string;
+  placeholder?: string;
   title?: string;
   pattern?: string;
+  max?: string;
 };
 
-export type Callback = (event: Event) => void;
+export type CallbackClick = (event: Event) => void;
+// export type Callback = (event: Event) => void;

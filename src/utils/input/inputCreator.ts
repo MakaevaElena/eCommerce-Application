@@ -1,6 +1,7 @@
-import { Callback, InputAttributes, InputParams } from './inputParams';
+import { CallbackClick, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
+import Events from '../../enum/events';
 
 export default class InputCreator {
   private element: HTMLDivElement;
@@ -17,23 +18,30 @@ export default class InputCreator {
     return this.element;
   }
 
+  getInputValue(): string {
+    return this.inputElement.value;
+  }
+
+  getInput(): HTMLInputElement {
+    return this.inputElement;
+  }
+
   private createElement(params: InputParams): void {
     this.element.classList.add(styles.input__container);
     this.element.classList.add(...params.classNames);
     this.createInput(params);
 
-    if (typeof params.callback !== 'undefined' && typeof params.eventName !== 'undefined') {
-      this.setCallback(params.callback, params.eventName);
+    if (typeof params.callback !== 'undefined') {
+      this.setCallback(params.callback);
     }
 
     const symbol: HTMLSpanElement = document.createElement(TagName.SPAN);
     symbol.classList.add(styles.input__symbol);
-
     this.element.append(this.inputElement, symbol);
   }
 
-  private setCallback<K extends keyof HTMLElementTagNameMap>(callback: Callback, event: K) {
-    this.inputElement.addEventListener(event, callback);
+  private setCallback(callback: CallbackClick) {
+    this.inputElement.addEventListener(Events.CLICK, callback);
   }
 
   private createInput(params: InputParams) {
