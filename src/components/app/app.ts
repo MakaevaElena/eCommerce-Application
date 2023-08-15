@@ -51,10 +51,14 @@ export default class App {
       {
         path: ``,
         callback: async () => {
-          const { getView } = await import('../view/page/index-view/index-view');
+          const { IndexView } = await import('../view/page/index-view/index-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView();
+            : new IndexView();
+          // const { getView } = await import('../view/page/index-view/index-view');
+          // const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
+          //   ? this.viewStorage.get(PagePath.INDEX)
+          //   : getView();
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
@@ -64,10 +68,10 @@ export default class App {
       {
         path: `${PagePath.INDEX}`,
         callback: async () => {
-          const { getView } = await import('../view/page/index-view/index-view');
+          const { IndexView } = await import('../view/page/index-view/index-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView();
+            : new IndexView();
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);

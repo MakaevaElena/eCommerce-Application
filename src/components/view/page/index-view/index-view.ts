@@ -24,7 +24,3 @@ export default class IndexView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 }
-
-export function getView(): IndexView {
-  return new IndexView();
-}
