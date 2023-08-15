@@ -4,11 +4,13 @@
 .registration-view {
   //display: flex;
   //flex-direction: column;
-  background-color: $color-brand-primary;
-
-  border: 1px solid blue;
+  //background-color: $color-brand-primary;
 }
 
 .registration-view__form {
-  background-color: aquamarine;
+  //background-color: transparentize($color-brand-secondary, 0.5);
+}
+
+.label {
+  text-align: center;
 }

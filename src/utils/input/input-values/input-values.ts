@@ -25,7 +25,7 @@ export enum InputNames {
 
 export enum InputPlaceholders {
   PASSWORD = 'PASSWORD',
-  EMAIL = 'example@email.ru',
+  EMAIL = 'EMAIL',
   REPEAT_PASSWORD = 'RETRY THE PASSWORD',
   FIRST_NAME = 'FIRST NAME',
   LAST_NAME = 'LAST NAME',
@@ -48,8 +48,14 @@ export enum InputTittles {
 export enum InputPatterns {
   PASSWORD = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$',
   TEXT = '^(?!.*\\d)(?!.*[!@#$%^&*])[А-Яа-яA-Za-z\\d!@#$%^&*]{1,}$',
-  EASY_TEXT = '',
-  DATE = 'date?',
   POSTAL = 'postal',
   COUNTRY = 'country',
+  DATE_OF_BIRTH_MAX = '13',
+}
+
+export enum InputCountries {}
+
+export enum InputLabels {
+  SHIPPING_ADDRESS = 'DELIVERY ADDRESS',
+  BILLING_ADDRESS = 'BILLING ADDRESS',
 }

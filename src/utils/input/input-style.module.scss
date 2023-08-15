@@ -20,6 +20,7 @@
   font-family: 'Karla', sans-serif;
   font-size: inherit;
   text-align: center;
+
   @include border(1px, solid, rgb(232, 240, 254));
   border-radius: 2px;
   outline: none;
@@ -30,19 +31,22 @@
     border-radius: 0 2px 2px 0;
   }
 
+  &::placeholder {
+    color: darken($color-text-primary, 10%);
+  }
+
   &:valid {
     background-color: rgb(232, 240, 254);
   }
 
   &:invalid {
-    color: $color-text-secondary;
+    color: darken($color-text-primary, 10%);
     background-color: transparentize($color-brand-primary, 0.3);
   }
 
   &__container {
     position: relative;
     margin: 0.5rem auto;
-    max-width: clamp(500px, 80%, 800px);
     @include flex(center);
     background-color: transparentize($color-brand-secondary, 0.3);
   }
