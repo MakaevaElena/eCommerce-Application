@@ -32,6 +32,7 @@ export default class ClientApi {
       .execute();
   }
 
+  // helen@mail.ru
   // 'johndoe@example.com'
   // '123!@#qweQWE'
   public getCustomer({ email, password }: { email: string; password: string }) {
@@ -78,4 +79,8 @@ export default class ClientApi {
     console.log(this.clientRoot);
     return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
+
+  public logout = (email: string) => {
+    window.localStorage.setItem(`${email}_isLogin`, 'false');
+  };
 }

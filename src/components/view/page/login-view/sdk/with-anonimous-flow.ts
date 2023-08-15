@@ -1,3 +1,5 @@
+// import { v4 as uuidv4 } from 'uuid';
+
 import {
   ClientBuilder,
   TokenCache,
@@ -33,7 +35,7 @@ const options: AnonymousAuthMiddlewareOptions = {
   credentials: {
     clientId: CTP_CLIENT_ID,
     clientSecret: CTP_CLIENT_SECRET,
-    anonymousId: 'anonymousId-test', // a unique id
+    anonymousId: `best-games-${Math.random()}`, // a unique id
   },
   scopes: [`manage_project:${CTP_PROJECT_KEY}`],
 };

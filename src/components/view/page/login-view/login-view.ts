@@ -4,7 +4,12 @@ import ElementCreator, { ElementParams } from '../../../../utils/element-creator
 import DefaultView from '../../default-view';
 import styleCss from './login-view.module.scss';
 
+import { PagePath } from '../../../router/pages';
+import Router from '../../../router/router';
+
 export default class LoginView extends DefaultView {
+  private router: Router;
+
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
     classNames: [styleCss.login_form__email, styleCss.field],
@@ -25,7 +30,7 @@ export default class LoginView extends DefaultView {
 
   private userApi?: ClientApi;
 
-  constructor() {
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       // classNames: Object.values(styleCss),
@@ -33,6 +38,8 @@ export default class LoginView extends DefaultView {
       textContent: '',
     };
     super(params);
+
+    this.router = router;
 
     this.configView();
 
@@ -135,7 +142,6 @@ export default class LoginView extends DefaultView {
             .checkCustomerExist(email)
             .then((response) => {
               if (response.body.results.length === 0) {
-                // if (body.results.length === 0) {
                 this.emailElement.setCustomValidity(`This email address has not been registered.`);
                 this.emailElement.reportValidity();
               } else {
@@ -147,24 +153,25 @@ export default class LoginView extends DefaultView {
 
         this.anonimApi
           .getCustomer({ email, password })
-          .then(({ body }) => {
-            if (body.customer) {
-              console.log('body', body);
+          .then((response) => {
+            if (response.body.customer) {
+              console.log('all response', response);
 
               this.createMessagePopup('Welcome! You are logged!.');
-              window.sessionStorage.setItem(`${email}_isLogin`, 'true');
+              window.localStorage.setItem(`${email}_isLogin`, 'true');
 
               // TODO REDIRECT TO HOME
-              // this.ClientApi.createUserRoot(email, password);
+              this.router.navigate(PagePath.INDEX);
+
               this.userApi = new ClientApi({ email, password });
 
               this.userApi
-                .getCartByCustomerId(body.customer.id)
+                .getCartByCustomerId(response.body.customer.id)
                 .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
                 .catch(() => {
                   if (this.userApi)
                     this.userApi
-                      .createCart(body.customer.id)
+                      .createCart(response.body.customer.id)
                       .then((cart) => {
                         console.log('new cart created', cart);
                       })
@@ -291,6 +298,6 @@ export default class LoginView extends DefaultView {
 }
 
 //
-export function getView(): LoginView {
-  return new LoginView();
+export function getView(router: Router): LoginView {
+  return new LoginView(router);
 }
