@@ -6,12 +6,18 @@ import Events from '../../enum/events';
 export default class InputCreator {
   private element: HTMLDivElement;
 
+  private input: HTMLInputElement;
+
   private inputElement: HTMLInputElement;
+
+  private messageHint: string;
 
   constructor(params: InputParams) {
     this.inputElement = document.createElement('input');
     this.element = document.createElement(TagName.DIV);
     this.createElement(params);
+    this.messageHint = params.attributes.title!;
+    this.input = this.getInput();
   }
 
   getElement(): HTMLDivElement {

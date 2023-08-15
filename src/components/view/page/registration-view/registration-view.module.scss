@@ -1,16 +1,21 @@
-// @import '../../../styles/abstracts/variables.scss';
 @import './src/style/helper.scss';
 
-.registration-view {
-  //display: flex;
-  //flex-direction: column;
-  //background-color: $color-brand-primary;
-}
-
-.registration-view__form {
-  //background-color: transparentize($color-brand-secondary, 0.5);
-}
-
-.label {
+.registrationView {
   text-align: center;
+
+  &__form {
+    margin: 1rem;
+    @include flex(space-around, start);
+    flex-wrap: wrap;
+    background-color: transparentize($color-brand-secondary, 0.4);
+  }
+
+  &__mainInputs {
+    margin: 1rem;
+  }
+
+  &__label {
+    margin: 1rem;
+    text-align: center;
+  }
 }

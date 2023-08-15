@@ -48,7 +48,7 @@
     position: relative;
     margin: 0.5rem auto;
     @include flex(center);
-    background-color: transparentize($color-brand-secondary, 0.3);
+    background-color: unset;
   }
 
   &__symbol {
@@ -69,4 +69,9 @@
       color: $color-text-primary;
     }
   }
+}
+
+.hint {
+  display: none;
+  position: absolute;
 }

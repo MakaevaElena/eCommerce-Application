@@ -17,6 +17,8 @@ import InputsGroups from '../../../../utils/input/input-values/inputs-groups';
 export default class RegistrationView extends DefaultView {
   inputsParams: Array<InputParams>;
 
+  inputs: Array<HTMLDivElement>;
+
   mainInputsGroup: Array<HTMLDivElement>;
 
   shippingInputsGroup: Array<HTMLDivElement>;
@@ -26,19 +28,21 @@ export default class RegistrationView extends DefaultView {
   constructor() {
     const params: ElementParams = {
       tag: TagName.SECTION,
-      classNames: Object.values(styles),
-      textContent: 'RegistrationView',
+      classNames: [styles.registrationView],
+      textContent: '',
     };
     super(params);
+    this.inputs = [];
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
     this.inputsParams = this.createParams();
-    this.fillInputsGroups();
+
     this.configView();
   }
 
   private configView() {
+    this.fillInputsGroups();
     const form = this.createForm();
     this.getElement().append(form);
   }
@@ -46,6 +50,7 @@ export default class RegistrationView extends DefaultView {
   private fillInputsGroups(): void {
     this.inputsParams.forEach((inputParams: InputParams) => {
       const input = new InputCreator(inputParams);
+      this.inputs.push(input.getElement());
       if (inputParams.group === InputsGroups.MAIN) {
         this.mainInputsGroup.push(input.getElement());
       } else if (inputParams.group === InputsGroups.SHIPPING) {
@@ -58,32 +63,30 @@ export default class RegistrationView extends DefaultView {
 
   private createForm(): HTMLFormElement {
     const form = document.createElement('form');
+    // form.noValidate = true;
+    form.classList.add(styles.registrationView__form);
+    const mainBlock = document.createElement(TagName.DIV);
+    mainBlock.classList.add(styles.registrationView__mainInputs);
+    mainBlock.append(...this.mainInputsGroup);
 
     const shippingLabelGroup = this.creatLabelWithGroup(InputLabels.SHIPPING_ADDRESS, this.shippingInputsGroup);
     const billingLabelGroup = this.creatLabelWithGroup(InputLabels.BILLING_ADDRESS, this.billingInputsGroup);
 
-    form.append(...this.mainInputsGroup, shippingLabelGroup, billingLabelGroup);
+    const button = document.createElement('button');
+    button.type = 'submit';
+    button.textContent = 'submit';
+
+    form.append(mainBlock, shippingLabelGroup, billingLabelGroup, button);
     return form;
   }
 
   private creatLabelWithGroup(name: string, group: Array<HTMLDivElement>): HTMLLabelElement {
     const labelWithGroup = document.createElement('label');
     labelWithGroup.textContent = name;
-    labelWithGroup.classList.add(styles.label);
+    labelWithGroup.classList.add(styles.registrationView__label);
     labelWithGroup.append(...group);
     return labelWithGroup;
   }
-
-  //
-  // private inputsCreatorFromParams(params: Array<InputParams>) {
-  //   const inputs: Array<HTMLDivElement> = [];
-  //   params.forEach((inputParams) => {
-  //     const inputElement = new InputCreator(inputParams);
-  //     inputs.push(inputElement.getElement());
-  //   });
-  //
-  //   return inputs;
-  // }
 
   private passwordCheck(event: Event) {
     console.log(event);
