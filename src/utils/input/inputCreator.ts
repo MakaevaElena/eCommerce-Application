@@ -26,9 +26,12 @@ export default class InputCreator {
     return this.inputElement;
   }
 
+  getTittle(): string {
+    return this.getInput().title;
+  }
+
   private createElement(params: InputParams): void {
-    this.element.classList.add(styles.input__container);
-    this.element.classList.add(...params.classNames);
+    this.element.classList.add(styles.input__container, ...params.classNames);
     this.createInput(params);
 
     if (typeof params.callback !== 'undefined') {
