@@ -205,19 +205,20 @@ export default class LoginView extends DefaultView {
 
             this.userApi = new ClientApi({ email, password });
             // this.userApi.getCustomer({ email, password });
+            this.userApi.returnCustomerById(response.body.customer.id);
 
-            this.userApi
-              .getCartByCustomerId(response.body.customer.id)
-              .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
-              .catch(() => {
-                if (this.userApi)
-                  this.userApi
-                    .createCart(response.body.customer.id)
-                    .then((cart) => {
-                      console.log('new cart created', cart);
-                    })
-                    .catch((error) => console.log(error));
-              });
+            // this.userApi
+            //   .getCartByCustomerId(response.body.customer.id)
+            //   .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
+            //   .catch(() => {
+            //     if (this.userApi)
+            //       this.userApi
+            //         .createCart(response.body.customer.id)
+            //         .then((cart) => {
+            //           console.log('new cart created', cart);
+            //         })
+            //         .catch((error) => console.log(error));
+            // });
           }
         })
         .catch(() => {

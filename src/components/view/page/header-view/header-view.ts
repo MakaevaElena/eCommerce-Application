@@ -70,6 +70,9 @@ export default class HeaderView extends DefaultView {
       this.rerenderHeader();
     });
 
+    if (localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false') {
+      logoutButton.getElement().classList.add(styleCss.hide);
+    }
     this.getCreator().addInnerElement(logoutButton);
   }
 

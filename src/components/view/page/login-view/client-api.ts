@@ -32,6 +32,18 @@ export default class ClientApi {
       .execute();
   }
 
+  public returnCustomerById(id: string) {
+    return this.clientRoot
+      .customers()
+      .get({
+        queryArgs: {
+          where: `id="${id}"`,
+        },
+      })
+      .execute();
+  }
+
+  // helen@mail.ru
   // 'johndoe@example.com'
   // '123!@#qweQWE'
   public getCustomer({ email, password }: { email: string; password: string }) {
@@ -65,7 +77,7 @@ export default class ClientApi {
       .carts()
       .post({
         body: {
-          key: `test-cart-key-${12345}`,
+          key: `test-cart-key-${Math.random()}`,
           currency: 'RUB',
           country: 'RU',
           customerId,
