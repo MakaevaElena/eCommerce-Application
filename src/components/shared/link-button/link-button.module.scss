@@ -37,3 +37,16 @@
   background: transparent;
   pointer-events: none;
 }
+
+.selected {
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+  background-color: yellow;
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}

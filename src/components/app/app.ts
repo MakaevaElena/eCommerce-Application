@@ -6,6 +6,7 @@ import DefaultView from '../view/default-view';
 import FooterView from '../view/page/footer-view/footer-view';
 import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
+import Observer from '../../observer/observer';
 
 export default class App {
   private favicon: Favicon;
@@ -20,7 +21,11 @@ export default class App {
 
   private viewStorage: ViewStorage = new ViewStorage();
 
+  private observer: Observer;
+
   constructor() {
+    this.observer = new Observer();
+
     this.favicon = new Favicon();
 
     const routes: Route[] = this.getRoutes();
@@ -28,7 +33,7 @@ export default class App {
     this.router = new Router(routes);
 
     this.main = new MainView();
-    this.header = new HeaderView(this.router);
+    this.header = new HeaderView(this.router, this.observer);
     this.footer = new FooterView();
   }
 
@@ -80,7 +85,7 @@ export default class App {
           const { getView } = await import('../view/page/login-view/login-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
-            : getView();
+            : getView(this.observer);
           if (view) {
             this.viewStorage.set(PagePath.LOGIN, view);
             this.setContent(PagePath.LOGIN, view);

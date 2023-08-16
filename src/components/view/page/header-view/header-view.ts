@@ -1,21 +1,32 @@
 import TagName from '../../../../enum/tag-name';
-import { ElementParams, InsertableElement } from '../../../../utils/element-creator';
+import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
 import Router, { Route } from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
 import styleCss from './header-view.module.scss';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class HeaderView extends DefaultView {
   private router: Router;
 
-  constructor(router: Router) {
+  private observer: Observer;
+
+  private headerLinks: Map<string, LinkButton>;
+
+  constructor(router: Router, observer: Observer) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['header-view']],
       textContent: '',
     };
     super(params);
+
+    this.observer = observer;
+    observer?.subscribe(EventName.LOGIN, this.rerenderHeader.bind(this));
+
+    this.headerLinks = new Map();
 
     this.router = router;
     this.configView();
@@ -28,6 +39,7 @@ export default class HeaderView extends DefaultView {
 
   private configView() {
     this.createLinkButtons();
+    this.createLogoutButton();
   }
 
   private createLinkButtons() {
@@ -36,10 +48,34 @@ export default class HeaderView extends DefaultView {
       const title = LinkName[key as keyof typeof LinkName];
       const route = this.getRoute(path);
       if (route) {
-        const link = new LinkButton(title, () => this.router.navigate(path));
+        const link = new LinkButton(title, () => this.router.navigate(path), this.headerLinks);
+
+        this.headerLinks.set(LinkName[key as keyof typeof LinkName], link);
+
         this.getCreator().addInnerElement(link.getElement());
       }
     });
+  }
+
+  private createLogoutButton() {
+    const logoutButton = new ElementCreator({
+      tag: TagName.BUTTON,
+      classNames: [styleCss['header__logout-button'], styleCss['link-button']],
+      textContent: 'Logout',
+    });
+
+    logoutButton.getElement().addEventListener('click', () => {
+      localStorage.setItem(`isLogin`, 'false');
+      this.observer.notify(EventName.LOGOUT);
+      this.rerenderHeader();
+    });
+
+    this.getCreator().addInnerElement(logoutButton);
+  }
+
+  private rerenderHeader() {
+    this.getCreator().clearInnerContent();
+    this.configView();
   }
 
   private getRoute(routeName: string): Route | undefined {

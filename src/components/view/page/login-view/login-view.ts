@@ -3,6 +3,8 @@ import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
 import styleCss from './login-view.module.scss';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class LoginView extends DefaultView {
   private loginEmail = new ElementCreator({
@@ -21,11 +23,13 @@ export default class LoginView extends DefaultView {
 
   private emailElement = this.loginEmail.getElement() as HTMLInputElement;
 
+  private observer: Observer;
+
   private anonimApi: ClientApi;
 
   private userApi?: ClientApi;
 
-  constructor() {
+  constructor(observer: Observer) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       // classNames: Object.values(styleCss),
@@ -33,6 +37,8 @@ export default class LoginView extends DefaultView {
       textContent: '',
     };
     super(params);
+
+    this.observer = observer;
 
     this.configView();
     this.anonimApi = new ClientApi();
@@ -151,9 +157,11 @@ export default class LoginView extends DefaultView {
               console.log('body', body);
 
               this.createMessagePopup('Welcome! You are logged!.');
-              window.sessionStorage.setItem(`${email}_isLogin`, 'true');
+              // window.sessionStorage.setItem(`${email}_isLogin`, 'true');
+              localStorage.setItem(`isLogin`, 'true');
 
               // TODO REDIRECT TO HOME
+              this.observer.notify(EventName.LOGOUT);
               // this.ClientApi.createUserRoot(email, password);
               this.userApi = new ClientApi({ email, password });
 
@@ -289,6 +297,6 @@ export default class LoginView extends DefaultView {
 }
 
 //
-export function getView(): LoginView {
-  return new LoginView();
+export function getView(observer: Observer): LoginView {
+  return new LoginView(observer);
 }
