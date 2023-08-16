@@ -6,7 +6,12 @@ import styleCss from './login-view.module.scss';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 
+import { PagePath } from '../../../router/pages';
+import Router from '../../../router/router';
+
 export default class LoginView extends DefaultView {
+  private router: Router;
+
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
     classNames: [styleCss.login_form__email, styleCss.field],
@@ -29,7 +34,7 @@ export default class LoginView extends DefaultView {
 
   private userApi?: ClientApi;
 
-  constructor(observer: Observer) {
+  constructor(router: Router, observer: Observer) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       // classNames: Object.values(styleCss),
@@ -37,11 +42,18 @@ export default class LoginView extends DefaultView {
       textContent: '',
     };
     super(params);
+    this.router = router;
 
     this.observer = observer;
 
-    this.configView();
     this.anonimApi = new ClientApi();
+
+    if (localStorage.getItem('isLogin') === 'true') {
+      console.log('localStorage', localStorage.getItem('isLogin'));
+      this.router.navigate(PagePath.INDEX);
+    } else {
+      this.configView();
+    }
   }
 
   private configView() {
@@ -120,6 +132,10 @@ export default class LoginView extends DefaultView {
 
     showPasswordButton.getElement().addEventListener('click', (event) => this.showPassword(event));
 
+    toRegistrationLinkButton.getElement().addEventListener('click', () => {
+      this.router.navigate(PagePath.REGISTRATION);
+    });
+
     loginSubmitButton.getElement().addEventListener('click', (event) => {
       event.preventDefault();
       const email = this.emailElement.value;
@@ -159,6 +175,8 @@ export default class LoginView extends DefaultView {
               this.createMessagePopup('Welcome! You are logged!.');
               // window.sessionStorage.setItem(`${email}_isLogin`, 'true');
               localStorage.setItem(`isLogin`, 'true');
+
+              this.router.navigate(PagePath.INDEX);
 
               // TODO REDIRECT TO HOME
               this.observer.notify(EventName.LOGOUT);
@@ -297,6 +315,6 @@ export default class LoginView extends DefaultView {
 }
 
 //
-export function getView(observer: Observer): LoginView {
-  return new LoginView(observer);
+export function getView(router: Router, observer: Observer): LoginView {
+  return new LoginView(router, observer);
 }

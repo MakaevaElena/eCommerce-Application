@@ -85,7 +85,7 @@ export default class App {
           const { getView } = await import('../view/page/login-view/login-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
-            : getView(this.observer);
+            : getView(this.router, this.observer);
           if (view) {
             this.viewStorage.set(PagePath.LOGIN, view);
             this.setContent(PagePath.LOGIN, view);
