@@ -132,76 +132,10 @@ export default class LoginView extends DefaultView {
 
     showPasswordButton.getElement().addEventListener('click', (event) => this.showPassword(event));
 
+    loginSubmitButton.getElement().addEventListener('click', (event) => this.submitLogin(event));
+
     toRegistrationLinkButton.getElement().addEventListener('click', () => {
       this.router.navigate(PagePath.REGISTRATION);
-    });
-
-    loginSubmitButton.getElement().addEventListener('click', (event) => {
-      event.preventDefault();
-      const email = this.emailElement.value;
-      const password = this.passwordElement.value;
-
-      if (!email) {
-        this.emailElement.setCustomValidity(`Please fill the field email.`);
-        this.emailElement.reportValidity();
-      }
-      if (!password) {
-        this.passwordElement.setCustomValidity(`Please fill the field password.`);
-        this.passwordElement.reportValidity();
-      }
-
-      if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
-        if (email !== undefined) {
-          this.anonimApi
-            .checkCustomerExist(email)
-            .then((response) => {
-              if (response.body.results.length === 0) {
-                // if (body.results.length === 0) {
-                this.emailElement.setCustomValidity(`This email address has not been registered.`);
-                this.emailElement.reportValidity();
-              } else {
-                console.log();
-              }
-            })
-            .catch(console.error);
-        }
-
-        this.anonimApi
-          .getCustomer({ email, password })
-          .then(({ body }) => {
-            if (body.customer) {
-              console.log('body', body);
-
-              this.createMessagePopup('Welcome! You are logged!.');
-              // window.sessionStorage.setItem(`${email}_isLogin`, 'true');
-              localStorage.setItem(`isLogin`, 'true');
-
-              this.router.navigate(PagePath.INDEX);
-
-              // TODO REDIRECT TO HOME
-              this.observer.notify(EventName.LOGOUT);
-              // this.ClientApi.createUserRoot(email, password);
-              this.userApi = new ClientApi({ email, password });
-
-              this.userApi
-                .getCartByCustomerId(body.customer.id)
-                .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
-                .catch(() => {
-                  if (this.userApi)
-                    this.userApi
-                      .createCart(body.customer.id)
-                      .then((cart) => {
-                        console.log('new cart created', cart);
-                      })
-                      .catch((error) => console.log(error));
-                });
-            }
-          })
-          .catch(() => {
-            this.passwordElement.setCustomValidity(`Password is wrong!`);
-            this.passwordElement.reportValidity();
-          });
-      }
     });
 
     loginForm.addInnerElement(loginTitle);
@@ -225,6 +159,71 @@ export default class LoginView extends DefaultView {
       this.passwordElement.setAttribute('type', 'text');
     } else {
       this.passwordElement.setAttribute('type', 'password');
+    }
+  }
+
+  private submitLogin(event: Event) {
+    event.preventDefault();
+    const email = this.emailElement.value;
+    const password = this.passwordElement.value;
+
+    if (!email) {
+      this.emailElement.setCustomValidity(`Please fill the field email.`);
+      this.emailElement.reportValidity();
+    }
+    if (!password) {
+      this.passwordElement.setCustomValidity(`Please fill the field password.`);
+      this.passwordElement.reportValidity();
+    }
+
+    if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
+      if (email !== undefined) {
+        this.anonimApi
+          .checkCustomerExist(email)
+          .then((response) => {
+            if (response.body.results.length === 0) {
+              this.emailElement.setCustomValidity(`This email address has not been registered.`);
+              this.emailElement.reportValidity();
+            } else {
+              console.log();
+            }
+          })
+          .catch(console.error);
+      }
+
+      this.anonimApi
+        .getCustomer({ email, password })
+        .then((response) => {
+          if (response.body.customer) {
+            console.log('all response', response);
+
+            this.createMessagePopup('Welcome! You are logged!.');
+            window.localStorage.setItem(`isLogin`, 'true');
+            this.observer.notify(EventName.LOGIN);
+
+            this.router.navigate(PagePath.INDEX);
+
+            this.userApi = new ClientApi({ email, password });
+            // this.userApi.getCustomer({ email, password });
+
+            this.userApi
+              .getCartByCustomerId(response.body.customer.id)
+              .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
+              .catch(() => {
+                if (this.userApi)
+                  this.userApi
+                    .createCart(response.body.customer.id)
+                    .then((cart) => {
+                      console.log('new cart created', cart);
+                    })
+                    .catch((error) => console.log(error));
+              });
+          }
+        })
+        .catch(() => {
+          this.passwordElement.setCustomValidity(`Password is wrong!`);
+          this.passwordElement.reportValidity();
+        });
     }
   }
 
