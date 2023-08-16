@@ -34,7 +34,7 @@ export default class LoginView extends DefaultView {
 
   private userApi?: ClientApi;
 
-  constructor(router: Router, observer: Observer) {
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       // classNames: Object.values(styleCss),
@@ -44,7 +44,8 @@ export default class LoginView extends DefaultView {
     super(params);
     this.router = router;
 
-    this.observer = observer;
+    this.observer = Observer.getInstance();
+    this.observer?.subscribe(EventName.LOGOUT, this.updateLoginPage.bind(this));
 
     this.anonimApi = new ClientApi();
 
@@ -58,6 +59,11 @@ export default class LoginView extends DefaultView {
 
   private configView() {
     this.renderForm();
+  }
+
+  private updateLoginPage() {
+    this.getCreator().clearInnerContent();
+    this.configView();
   }
 
   private renderForm() {
@@ -315,6 +321,6 @@ export default class LoginView extends DefaultView {
 }
 
 //
-export function getView(router: Router, observer: Observer): LoginView {
-  return new LoginView(router, observer);
+export function getView(router: Router): LoginView {
+  return new LoginView(router);
 }

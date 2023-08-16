@@ -15,7 +15,7 @@ export default class HeaderView extends DefaultView {
 
   private headerLinks: Map<string, LinkButton>;
 
-  constructor(router: Router, observer: Observer) {
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['header-view']],
@@ -23,8 +23,8 @@ export default class HeaderView extends DefaultView {
     };
     super(params);
 
-    this.observer = observer;
-    observer?.subscribe(EventName.LOGIN, this.rerenderHeader.bind(this));
+    this.observer = Observer.getInstance();
+    this.observer?.subscribe(EventName.LOGIN, this.updateHeader.bind(this));
 
     this.headerLinks = new Map();
 
@@ -67,7 +67,7 @@ export default class HeaderView extends DefaultView {
     logoutButton.getElement().addEventListener('click', () => {
       localStorage.setItem(`isLogin`, 'false');
       this.observer.notify(EventName.LOGOUT);
-      this.rerenderHeader();
+      this.updateHeader();
       this.router.navigate(PagePath.LOGIN);
     });
 
@@ -77,7 +77,7 @@ export default class HeaderView extends DefaultView {
     this.getCreator().addInnerElement(logoutButton);
   }
 
-  private rerenderHeader() {
+  private updateHeader() {
     this.getCreator().clearInnerContent();
     this.configView();
   }
