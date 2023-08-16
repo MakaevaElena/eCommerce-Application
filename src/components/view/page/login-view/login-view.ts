@@ -9,6 +9,30 @@ import EventName from '../../../../enum/event-name';
 import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 
+const checkOneNumber = /(?=.*[0-9])/g;
+const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
+const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
+const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
+const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
+const checkWightSpace = /(^\S*$)/;
+const checkEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}/;
+
+enum Message {
+  FILL_EMAIL = `Please fill the field email.`,
+  FILL_PASSWORD = `Please fill the field password.`,
+  MAIL_NOT_REGISTERED = `This email address has not been registered.`,
+  SUCCESS_LOGIN = 'Welcome! You are logged!.',
+  PASSWORD_IS_WRONG = `Password is wrong!`,
+  EMAIL_CONTAIN_WHITESPACE = `Email address must not contain leading or trailing whitespace.`,
+  EMAIL_WRONG_FORMAT = `Email address must be properly formatted (e.g., user@example.com).`,
+  PASSWORD_CONTAIN_WHITESPACE = `Password must not contain leading or trailing whitespace.`,
+  PASSWORD_NOT_CONTAIN_DIGIT = `Password must contain at least one digit (0-9).`,
+  PASSWORD_NOT_CONTAIN_LOWER_LETTER = `Password must contain at least one lowercase letter (a-z).`,
+  PASSWORD_NOT_CONTAIN_UPPER_LETTER = `Password must contain at least one uppercase letter (A-Z).`,
+  PASSWORD_NOT_CONTAIN_SIMBOLS = `Password must contain at least one special character (e.g., !@#$%^&*).`,
+  PASSWORD_LENGTH_NOT_ENOUTH = `Password must be at least 8 characters long.`,
+}
+
 export default class LoginView extends DefaultView {
   private router: Router;
 
@@ -174,11 +198,11 @@ export default class LoginView extends DefaultView {
     const password = this.passwordElement.value;
 
     if (!email) {
-      this.emailElement.setCustomValidity(`Please fill the field email.`);
+      this.emailElement.setCustomValidity(Message.FILL_EMAIL);
       this.emailElement.reportValidity();
     }
     if (!password) {
-      this.passwordElement.setCustomValidity(`Please fill the field password.`);
+      this.passwordElement.setCustomValidity(Message.FILL_PASSWORD);
       this.passwordElement.reportValidity();
     }
 
@@ -188,7 +212,7 @@ export default class LoginView extends DefaultView {
           .checkCustomerExist(email)
           .then((response) => {
             if (response.body.results.length === 0) {
-              this.emailElement.setCustomValidity(`This email address has not been registered.`);
+              this.emailElement.setCustomValidity(Message.MAIL_NOT_REGISTERED);
               this.emailElement.reportValidity();
             } else {
               console.log();
@@ -203,7 +227,7 @@ export default class LoginView extends DefaultView {
           if (response.body.customer) {
             console.log('all response', response);
 
-            this.createMessagePopup('Welcome! You are logged!.');
+            this.createMessagePopup(Message.SUCCESS_LOGIN);
             window.localStorage.setItem(`isLogin`, 'true');
             this.observer.notify(EventName.LOGIN);
 
@@ -228,25 +252,23 @@ export default class LoginView extends DefaultView {
           }
         })
         .catch(() => {
-          this.passwordElement.setCustomValidity(`Password is wrong!`);
+          this.passwordElement.setCustomValidity(Message.PASSWORD_IS_WRONG);
           this.passwordElement.reportValidity();
         });
     }
   }
 
   private validateEmail() {
-    const regExp = /[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}/;
-    const checkWightSpace = /(^\S*$)/;
     const { value } = this.loginEmail.getElement() as HTMLInputElement;
     this.emailElement.setCustomValidity('');
 
     switch (true) {
       case !checkWightSpace.test(value):
-        this.emailElement.setCustomValidity(`Email address must not contain leading or trailing whitespace.`);
+        this.emailElement.setCustomValidity(Message.EMAIL_CONTAIN_WHITESPACE);
         break;
 
-      case !regExp.test(value):
-        this.emailElement.setCustomValidity(`Email address must be properly formatted (e.g., user@example.com).`);
+      case !checkEmail.test(value):
+        this.emailElement.setCustomValidity(Message.EMAIL_WRONG_FORMAT);
         break;
 
       default:
@@ -259,41 +281,32 @@ export default class LoginView extends DefaultView {
   }
 
   private validatePassword() {
-    const checkOneNumber = /(?=.*[0-9])/g;
-    const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
-    const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
-    const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
-    const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
-    const checkWightSpace = /(^\S*$)/;
-
     const { value } = this.passwordElement;
     this.passwordElement.setCustomValidity('');
 
     switch (true) {
       case !checkWightSpace.test(value):
-        this.passwordElement.setCustomValidity(`Password must not contain leading or trailing whitespace.`);
+        this.passwordElement.setCustomValidity(Message.PASSWORD_CONTAIN_WHITESPACE);
         break;
 
       case !checkOneNumber.test(value):
-        this.passwordElement.setCustomValidity(`Password must contain at least one digit (0-9).`);
+        this.passwordElement.setCustomValidity(Message.PASSWORD_NOT_CONTAIN_DIGIT);
         break;
 
       case !checkOneLowerLatinSimbol.test(value):
-        this.passwordElement.setCustomValidity(`Password must contain at least one lowercase letter (a-z).`);
+        this.passwordElement.setCustomValidity(Message.PASSWORD_NOT_CONTAIN_LOWER_LETTER);
         break;
 
       case !checkOneUpperLatinSimbol.test(value):
-        this.passwordElement.setCustomValidity(`Password must contain at least one uppercase letter (A-Z).`);
+        this.passwordElement.setCustomValidity(Message.PASSWORD_NOT_CONTAIN_UPPER_LETTER);
         break;
 
       case !checkSpecialSimbols.test(value):
-        this.passwordElement.setCustomValidity(
-          `Password must contain at least one special character (e.g., !@#$%^&*).`
-        );
+        this.passwordElement.setCustomValidity(Message.PASSWORD_NOT_CONTAIN_SIMBOLS);
         break;
 
       case !checkLenght.test(value):
-        this.passwordElement.setCustomValidity(`Password must be at least 8 characters long.`);
+        this.passwordElement.setCustomValidity(Message.PASSWORD_LENGTH_NOT_ENOUTH);
         break;
 
       default:

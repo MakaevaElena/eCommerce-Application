@@ -6,7 +6,7 @@ import DefaultView from '../view/default-view';
 import FooterView from '../view/page/footer-view/footer-view';
 import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
-// import Observer from '../../observer/observer';
+import '../../style/global.scss';
 
 export default class App {
   private favicon: Favicon;
@@ -21,11 +21,7 @@ export default class App {
 
   private viewStorage: ViewStorage = new ViewStorage();
 
-  // private observer: Observer;
-
   constructor() {
-    // this.observer = new Observer();
-
     this.favicon = new Favicon();
 
     const routes: Route[] = this.getRoutes();
