@@ -1,4 +1,4 @@
-import ClientApi from './client-api';
+import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
@@ -88,6 +88,7 @@ export default class LoginView extends DefaultView {
   private updateLoginPage() {
     this.getCreator().clearInnerContent();
     this.configView();
+    this.anonimApi = new ClientApi();
   }
 
   private renderForm() {

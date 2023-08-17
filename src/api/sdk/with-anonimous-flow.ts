@@ -44,9 +44,11 @@ const httpMiddlewareOptions: HttpMiddlewareOptions = {
   fetch,
 };
 
-export const anonimClient = new ClientBuilder()
-  .withAnonymousSessionFlow(options)
-  .withProjectKey(CTP_PROJECT_KEY)
-  .withHttpMiddleware(httpMiddlewareOptions)
-  .withLoggerMiddleware()
-  .build();
+export const anonimClient = () => {
+  return new ClientBuilder()
+    .withAnonymousSessionFlow(options)
+    .withProjectKey(CTP_PROJECT_KEY)
+    .withHttpMiddleware(httpMiddlewareOptions)
+    .withLoggerMiddleware()
+    .build();
+};
