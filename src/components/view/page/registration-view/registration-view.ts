@@ -166,7 +166,15 @@ export default class RegistrationView extends DefaultView {
   }
 
   private passwordCheckHandler(event: Event) {
-    console.log(event);
+    const checkingInput = this.inputs[Inputs.REPEAT_PASSWORD];
+    const mainPassword = this.inputs[Inputs.PASSWORD].getInputValue();
+    const checkPassword = checkingInput.getInputValue();
+
+    if (mainPassword === checkPassword) {
+      checkingInput.setCustomValidity('');
+    } else {
+      checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
+    }
   }
 
   private validateCountryShippingHandler() {
@@ -238,6 +246,7 @@ export default class RegistrationView extends DefaultView {
       {
         classNames: [styles.registrationView__form],
         group: InputsGroups.MAIN,
+        callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
         attributes: {
           type: InputTypes.PASSWORD,
           name: InputNames.REPEAT_PASSWORD,

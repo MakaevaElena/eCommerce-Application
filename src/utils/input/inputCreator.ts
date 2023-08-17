@@ -2,11 +2,10 @@ import { CallbackListener, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
+import { InputTypes } from './input-values/input-values';
 
 export default class InputCreator {
   private element: HTMLDivElement;
-
-  // private input: HTMLInputElement;
 
   private inputElement: HTMLInputElement;
 
@@ -17,7 +16,6 @@ export default class InputCreator {
     this.element = document.createElement(TagName.DIV);
     this.createElement(params);
     this.messageHint = params.attributes.title!;
-    // this.input = this.getInput();
   }
 
   setCustomValidity(message: string): void {
@@ -72,21 +70,13 @@ export default class InputCreator {
     this.inputElement.addEventListener(event, callback);
   }
 
-  private setCallbackClick(callback: CallbackListener) {
-    this.inputElement.addEventListener(Events.CLICK, callback);
-  }
-
-  private setCallbackBlur(callback: CallbackListener) {
-    this.inputElement.addEventListener(Events.BLUR, callback);
-  }
-
   private createInput(params: InputParams) {
     this.inputElement.classList.add(styles.input);
     this.inputElement.required = true;
 
     this.setAttributes(params.attributes);
 
-    if (params.attributes.type === 'password') {
+    if (params.attributes.type === InputTypes.PASSWORD) {
       this.showPassword();
     }
   }
@@ -99,7 +89,7 @@ export default class InputCreator {
 
   private showPassword() {
     const showPasswordButton = document.createElement('input');
-    showPasswordButton.type = 'checkbox';
+    showPasswordButton.type = InputTypes.CHECKBOX;
     const label = document.createElement('label');
     label.textContent = 'show';
     label.append(showPasswordButton);
@@ -111,10 +101,14 @@ export default class InputCreator {
   }
 
   private toggleVisibilityHandler() {
-    if (this.inputElement.type === 'password') {
-      this.inputElement.type = 'text';
+    if (this.inputElement.type === InputTypes.PASSWORD) {
+      this.inputElement.type = InputTypes.TEXT;
     } else {
-      this.inputElement.type = 'password';
+      this.inputElement.type = InputTypes.PASSWORD;
     }
+  }
+
+  private showErrorhandler() {
+    console.log('show error');
   }
 }
