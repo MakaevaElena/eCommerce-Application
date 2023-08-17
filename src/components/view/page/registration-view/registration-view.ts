@@ -197,7 +197,7 @@ export default class RegistrationView extends DefaultView {
         postal.setPattern(pattern);
 
         const title = Array.from(Object.values(PostalTitles))[numberGroup];
-        postal.setTitle(title);
+        postal.setTitle(`${country}\`s postal ${title}`);
         console.log(numberGroup);
       }
     });
