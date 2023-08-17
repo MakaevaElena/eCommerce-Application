@@ -16,7 +16,7 @@ type CustomerData = {
   key: string;
 };
 
-export default class ClientApi {
+export default class RegApi {
   private clientRoot = createApiBuilderFromCtpClient(anonimClient).withProjectKey({ projectKey: 'best-games' });
 
   constructor(loginData?: LoginData) {
