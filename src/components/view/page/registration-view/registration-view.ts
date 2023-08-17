@@ -13,17 +13,23 @@ import {
 import InputCreator from '../../../../utils/input/inputCreator';
 import DefaultView from '../../default-view';
 import InputsGroups from '../../../../utils/input/input-values/inputs-groups';
+import InputsList from './inputs-params/inputs-list';
+import Events from '../../../../enum/events';
+import ButtonTypes from '../../../../enum/button-types';
+import Inputs from './inputs-params/inputs';
 
 export default class RegistrationView extends DefaultView {
   inputsParams: Array<InputParams>;
 
-  inputs: Array<HTMLDivElement>;
+  inputs: Array<InputCreator>;
 
   mainInputsGroup: Array<HTMLDivElement>;
 
   shippingInputsGroup: Array<HTMLDivElement>;
 
   billingInputsGroup: Array<HTMLDivElement>;
+
+  countryList: HTMLDataListElement;
 
   constructor() {
     const params: ElementParams = {
@@ -36,6 +42,7 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
+    this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
 
     this.configView();
@@ -44,13 +51,82 @@ export default class RegistrationView extends DefaultView {
   private configView() {
     this.fillInputsGroups();
     const form = this.createForm();
-    this.getElement().append(form);
+    this.getElement().append(form, this.countryList);
+  }
+
+  private createCountryListElement(): HTMLDataListElement {
+    const countryListElement = document.createElement('datalist');
+    countryListElement.id = InputsList.COUNTRY;
+
+    const optionValues = this.createCountryList();
+    optionValues.forEach((optionValue) => {
+      const optionElement = this.createOptionElement(optionValue);
+      countryListElement.append(optionElement);
+    });
+
+    return countryListElement;
+  }
+
+  private createOptionElement(value: string): HTMLOptionElement {
+    const optionElement = document.createElement('option');
+    optionElement.value = value;
+    return optionElement;
+  }
+
+  private createCountryList(): Array<string> {
+    // const z = SixDigitsPostalCodeCountries
+    const sixDigitsPostalCodeCountries = ['zzz'];
+    const fiveDigitsPostalCodeCountries = ['Czech Republic', 'Greece', 'Slovakia', 'Sweden'];
+    const fourDigitsPostalCodeCountries = [
+      'Guinea',
+      'Iceland',
+      'Lesotho',
+      'Madagascar',
+      'Oman',
+      'Palestine',
+      'Papua New Guinea',
+      'Afghanistan',
+      'Albania',
+      'Argentina',
+      'Armenia',
+      'Australia',
+      'Austria',
+      'Bangladesh',
+      'Belgium',
+      'Bulgaria',
+      'Cape Verde',
+      'Christmas Island',
+      'Christmas Island',
+      'Greenland',
+      'Hungary',
+      'Liechtenstein',
+      'Liechtenstein',
+    ];
+    const twoDigitsPostalCodeCountries = ['Jamaica', 'Singapore'];
+    const twoLetterThreeDigitsPostalCodeCountries = ['Faroe Islands', 'Barbados'];
+    const twoLetterFourDigitsPostalCodeCountries = [
+      'Azerbaijan',
+      'Latvia',
+      'British Virgin Islands',
+      'Saint Kitts and Nevis',
+      'Saint Vincent and the Grenadines',
+      'Samoa',
+      'Moldova',
+    ];
+    const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania', 'Andorra'];
+    const allCountry = [
+      ...sixDigitsPostalCodeCountries,
+      ...fiveDigitsPostalCodeCountries,
+      ...fourDigitsPostalCodeCountries,
+      ...twoDigitsPostalCodeCountries,
+    ];
+    return allCountry.sort();
   }
 
   private fillInputsGroups(): void {
     this.inputsParams.forEach((inputParams: InputParams) => {
       const input = new InputCreator(inputParams);
-      this.inputs.push(input.getElement());
+      this.inputs.push(input);
       if (inputParams.group === InputsGroups.MAIN) {
         this.mainInputsGroup.push(input.getElement());
       } else if (inputParams.group === InputsGroups.SHIPPING) {
@@ -63,7 +139,6 @@ export default class RegistrationView extends DefaultView {
 
   private createForm(): HTMLFormElement {
     const form = document.createElement('form');
-    // form.noValidate = true;
     form.classList.add(styles.registrationView__form);
     const mainBlock = document.createElement(TagName.DIV);
     mainBlock.classList.add(styles.registrationView__mainInputs);
@@ -72,8 +147,8 @@ export default class RegistrationView extends DefaultView {
     const shippingLabelGroup = this.creatLabelWithGroup(InputLabels.SHIPPING_ADDRESS, this.shippingInputsGroup);
     const billingLabelGroup = this.creatLabelWithGroup(InputLabels.BILLING_ADDRESS, this.billingInputsGroup);
 
-    const button = document.createElement('button');
-    button.type = 'submit';
+    const button = document.createElement(TagName.BUTTON);
+    button.type = ButtonTypes.SUBMIT;
     button.textContent = 'submit';
 
     form.append(mainBlock, shippingLabelGroup, billingLabelGroup, button);
@@ -88,8 +163,30 @@ export default class RegistrationView extends DefaultView {
     return labelWithGroup;
   }
 
-  private passwordCheck(event: Event) {
+  private passwordCheckHandler(event: Event) {
     console.log(event);
+  }
+
+  private changePostalHandle() {
+    console.log('change postal');
+  }
+  private validateCountryShippingHandler() {
+    this.validateCountryList(this.inputs[Inputs.SHIPPING_COUNTRY]);
+  }
+
+  private validateCountryBillingHandler() {
+    this.validateCountryList(this.inputs[Inputs.BILLING_COUNTRY]);
+  }
+
+  private validateCountryList(inputCreator: InputCreator): void {
+    const countryList = this.createCountryList();
+    const input = inputCreator;
+    const selectedCountry = input.getInputValue();
+    if (countryList.includes(selectedCountry)) {
+      input.setCustomValidity('');
+    } else {
+      input.setCustomValidity('fgfgfg');
+    }
   }
 
   private maxPossibleDate(minYears: string): string {
@@ -126,7 +223,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.PASSWORD,
@@ -139,7 +235,6 @@ export default class RegistrationView extends DefaultView {
       {
         classNames: [styles.registrationView__form],
         group: InputsGroups.MAIN,
-        callback: this.passwordCheck.bind(this),
         attributes: {
           type: InputTypes.TEXT,
           name: InputNames.FIRST_NAME,
@@ -150,7 +245,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.TEXT,
@@ -162,7 +256,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.DATE,
@@ -173,7 +266,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.SHIPPING,
         attributes: {
           type: InputTypes.TEXT,
@@ -184,7 +276,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.SHIPPING,
         attributes: {
           type: InputTypes.TEXT,
@@ -195,7 +286,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.SHIPPING,
         attributes: {
           type: InputTypes.TEXT,
@@ -206,18 +296,18 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
+        callback: [[this.validateCountryShippingHandler.bind(this), Events.CHANGE]],
         group: InputsGroups.SHIPPING,
         attributes: {
           type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_POSTAL,
+          name: InputNames.SHIPPING_COUNTRY,
           title: InputTittles.COUNTRY_HINT,
           placeholder: InputPlaceholders.COUNTRY,
+          list: InputsList.COUNTRY,
         },
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
@@ -228,7 +318,6 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
@@ -239,24 +328,28 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
           name: InputNames.SHIPPING_POSTAL,
           title: InputTittles.POSTAL_HINT,
           placeholder: InputPlaceholders.POSTAL,
+          pattern: InputPatterns.TWO_LETTERS_FIVE_DIGITS,
         },
       },
       {
         classNames: [styles.registrationView__form],
-        callback: this.passwordCheck.bind(this),
+        callback: [
+          [this.changePostalHandle.bind(this), Events.CHANGE],
+          [this.validateCountryBillingHandler.bind(this), Events.CHANGE],
+        ],
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_POSTAL,
+          name: InputNames.BILLING_COUNTRY,
           title: InputTittles.COUNTRY_HINT,
           placeholder: InputPlaceholders.COUNTRY,
+          list: InputsList.COUNTRY,
         },
       },
     ];
