@@ -17,19 +17,21 @@ import InputsList from './inputs-params/inputs-list';
 import Events from '../../../../enum/events';
 import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
+import PostalPaterns from './inputs-params/postal-paterns';
+import PostalTitles from './inputs-params/postal-titles';
 
 export default class RegistrationView extends DefaultView {
-  inputsParams: Array<InputParams>;
+  private inputsParams: Array<InputParams>;
 
-  inputs: Array<InputCreator>;
+  private inputs: Array<InputCreator>;
 
-  mainInputsGroup: Array<HTMLDivElement>;
+  private mainInputsGroup: Array<HTMLDivElement>;
 
-  shippingInputsGroup: Array<HTMLDivElement>;
+  private shippingInputsGroup: Array<HTMLDivElement>;
 
-  billingInputsGroup: Array<HTMLDivElement>;
+  private billingInputsGroup: Array<HTMLDivElement>;
 
-  countryList: HTMLDataListElement;
+  private countryList: HTMLDataListElement;
 
   constructor() {
     const params: ElementParams = {
@@ -58,7 +60,7 @@ export default class RegistrationView extends DefaultView {
     const countryListElement = document.createElement('datalist');
     countryListElement.id = InputsList.COUNTRY;
 
-    const optionValues = this.createCountryList();
+    const optionValues = this.createCountryList().flat().sort();
     optionValues.forEach((optionValue) => {
       const optionElement = this.createOptionElement(optionValue);
       countryListElement.append(optionElement);
@@ -73,8 +75,7 @@ export default class RegistrationView extends DefaultView {
     return optionElement;
   }
 
-  private createCountryList(): Array<string> {
-    // const z = SixDigitsPostalCodeCountries
+  private createCountryList(): Array<Array<string>> {
     const sixDigitsPostalCodeCountries = ['zzz'];
     const fiveDigitsPostalCodeCountries = ['Czech Republic', 'Greece', 'Slovakia', 'Sweden'];
     const fourDigitsPostalCodeCountries = [
@@ -96,10 +97,8 @@ export default class RegistrationView extends DefaultView {
       'Bulgaria',
       'Cape Verde',
       'Christmas Island',
-      'Christmas Island',
       'Greenland',
       'Hungary',
-      'Liechtenstein',
       'Liechtenstein',
     ];
     const twoDigitsPostalCodeCountries = ['Jamaica', 'Singapore'];
@@ -114,13 +113,16 @@ export default class RegistrationView extends DefaultView {
       'Moldova',
     ];
     const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania', 'Andorra'];
-    const allCountry = [
-      ...sixDigitsPostalCodeCountries,
-      ...fiveDigitsPostalCodeCountries,
-      ...fourDigitsPostalCodeCountries,
-      ...twoDigitsPostalCodeCountries,
+    const allCountries = [
+      sixDigitsPostalCodeCountries,
+      fiveDigitsPostalCodeCountries,
+      fourDigitsPostalCodeCountries,
+      twoDigitsPostalCodeCountries,
+      twoLetterThreeDigitsPostalCodeCountries,
+      twoLetterFourDigitsPostalCodeCountries,
+      twoLetterFiveDigitsPostalCodeCountries,
     ];
-    return allCountry.sort();
+    return allCountries;
   }
 
   private fillInputsGroups(): void {
@@ -167,26 +169,38 @@ export default class RegistrationView extends DefaultView {
     console.log(event);
   }
 
-  private changePostalHandle() {
-    console.log('change postal');
-  }
   private validateCountryShippingHandler() {
-    this.validateCountryList(this.inputs[Inputs.SHIPPING_COUNTRY]);
+    this.validateCountryList(this.inputs[Inputs.SHIPPING_COUNTRY], this.inputs[Inputs.SHIPPING_POSTAL]);
   }
 
   private validateCountryBillingHandler() {
-    this.validateCountryList(this.inputs[Inputs.BILLING_COUNTRY]);
+    this.validateCountryList(this.inputs[Inputs.BILLING_COUNTRY], this.inputs[Inputs.BILLING_POSTAL]);
   }
 
-  private validateCountryList(inputCreator: InputCreator): void {
+  private validateCountryList(inputCountry: InputCreator, inputPostal: InputCreator): void {
     const countryList = this.createCountryList();
-    const input = inputCreator;
-    const selectedCountry = input.getInputValue();
-    if (countryList.includes(selectedCountry)) {
-      input.setCustomValidity('');
+    const country = inputCountry;
+    const postal = inputPostal;
+    const selectedCountry = country.getInputValue();
+    if (countryList.flat().includes(selectedCountry)) {
+      country.setCustomValidity('');
+      this.changePostalPattern(postal, countryList, selectedCountry);
     } else {
-      input.setCustomValidity('fgfgfg');
+      country.setCustomValidity(InputTittles.COUNTRY_HINT);
     }
+  }
+
+  private changePostalPattern(postal: InputCreator, countryList: Array<Array<string>>, country: string): void {
+    countryList.forEach((countryGroup: Array<string>, numberGroup: number) => {
+      if (countryGroup.includes(country)) {
+        const pattern = Array.from(Object.values(PostalPaterns))[numberGroup];
+        postal.setPattern(pattern);
+
+        const title = Array.from(Object.values(PostalTitles))[numberGroup];
+        postal.setTitle(title);
+        console.log(numberGroup);
+      }
+    });
   }
 
   private maxPossibleDate(minYears: string): string {
@@ -331,18 +345,14 @@ export default class RegistrationView extends DefaultView {
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_POSTAL,
+          name: InputNames.BILLING_POSTAL,
           title: InputTittles.POSTAL_HINT,
           placeholder: InputPlaceholders.POSTAL,
-          pattern: InputPatterns.TWO_LETTERS_FIVE_DIGITS,
         },
       },
       {
         classNames: [styles.registrationView__form],
-        callback: [
-          [this.changePostalHandle.bind(this), Events.CHANGE],
-          [this.validateCountryBillingHandler.bind(this), Events.CHANGE],
-        ],
+        callback: [[this.validateCountryBillingHandler.bind(this), Events.CHANGE]],
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,

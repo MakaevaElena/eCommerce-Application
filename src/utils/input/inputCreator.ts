@@ -36,8 +36,16 @@ export default class InputCreator {
     return this.inputElement;
   }
 
-  getTittle(): string {
+  getTitle(): string {
     return this.getInput().title;
+  }
+
+  setTitle(title: string): void {
+    this.inputElement.title = title;
+  }
+
+  setPattern(title: string): void {
+    this.inputElement.pattern = title;
   }
 
   private createElement(params: InputParams): void {
