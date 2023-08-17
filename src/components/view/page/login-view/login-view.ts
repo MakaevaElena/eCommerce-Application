@@ -88,6 +88,7 @@ export default class LoginView extends DefaultView {
   private updateLoginPage() {
     this.getCreator().clearInnerContent();
     this.configView();
+    this.anonimApi = new ClientApi();
   }
 
   private renderForm() {

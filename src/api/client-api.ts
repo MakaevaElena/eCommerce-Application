@@ -17,7 +17,7 @@ type CustomerData = {
 };
 
 export default class ClientApi {
-  private clientRoot = createApiBuilderFromCtpClient(anonimClient).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot = createApiBuilderFromCtpClient(anonimClient()).withProjectKey({ projectKey: 'best-games' });
 
   constructor(loginData?: LoginData) {
     if (loginData) {
