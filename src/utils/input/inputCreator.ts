@@ -1,4 +1,4 @@
-import { CallbackClick, InputAttributes, InputParams } from './inputParams';
+import { CallbackListener, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
@@ -6,7 +6,7 @@ import Events from '../../enum/events';
 export default class InputCreator {
   private element: HTMLDivElement;
 
-  private input: HTMLInputElement;
+  // private input: HTMLInputElement;
 
   private inputElement: HTMLInputElement;
 
@@ -17,7 +17,11 @@ export default class InputCreator {
     this.element = document.createElement(TagName.DIV);
     this.createElement(params);
     this.messageHint = params.attributes.title!;
-    this.input = this.getInput();
+    // this.input = this.getInput();
+  }
+
+  setCustomValidity(message: string): void {
+    this.inputElement.setCustomValidity(message);
   }
 
   getElement(): HTMLDivElement {
@@ -41,7 +45,14 @@ export default class InputCreator {
     this.createInput(params);
 
     if (typeof params.callback !== 'undefined') {
-      this.setCallback(params.callback);
+      enum CallbackParms {
+        HANDLER,
+        EVENT,
+      }
+
+      params.callback.forEach((callbackParams) => {
+        this.setCallback(callbackParams[CallbackParms.HANDLER], callbackParams[CallbackParms.EVENT]);
+      });
     }
 
     const symbol: HTMLSpanElement = document.createElement(TagName.SPAN);
@@ -49,8 +60,16 @@ export default class InputCreator {
     this.element.append(this.inputElement, symbol);
   }
 
-  private setCallback(callback: CallbackClick) {
+  private setCallback(callback: CallbackListener, event: string) {
+    this.inputElement.addEventListener(event, callback);
+  }
+
+  private setCallbackClick(callback: CallbackListener) {
     this.inputElement.addEventListener(Events.CLICK, callback);
+  }
+
+  private setCallbackBlur(callback: CallbackListener) {
+    this.inputElement.addEventListener(Events.BLUR, callback);
   }
 
   private createInput(params: InputParams) {

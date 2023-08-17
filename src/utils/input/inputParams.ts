@@ -2,8 +2,8 @@ export type InputParams = {
   classNames: Array<string>;
   group: Group;
   attributes: InputAttributes;
-  callback?: CallbackClick;
-  eventName?: Event;
+  callback?: Array<[CallbackListener, string]>;
+  eventName?: string;
 };
 
 export type InputAttributes = {
@@ -13,9 +13,10 @@ export type InputAttributes = {
   title?: string;
   pattern?: string;
   max?: string;
+  list?: string;
 };
 
-export type CallbackClick = (event: Event) => void;
+export type CallbackListener = (event: Event) => void;
 // export type Callback = (event: Event) => void;
 
 export type Group = 'main' | 'shipping' | 'billing';
