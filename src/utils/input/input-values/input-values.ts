@@ -48,8 +48,8 @@ export enum InputTittles {
   FOUR_DIGITS = 'Must consist of four numbers',
   THREE_DIGITS = 'Must consist of three numbers',
   TWO_DIGITS = 'Must consist of two numbers',
-  TWO_LETTERS_FOUR_DIGITS = 'Must consist of two capital letters and six numbers',
-  TWO_LETTERS_FIVE_DIGITS = 'Must consist of two capital letters and six numbers',
+  TWO_LETTERS_FOUR_DIGITS = 'Must consist of two capital letters and four numbers',
+  TWO_LETTERS_FIVE_DIGITS = 'Must consist of two capital letters and five numbers',
 }
 
 export enum InputPatterns {
@@ -61,7 +61,7 @@ export enum InputPatterns {
   THREE_DIGITS = '^[0-9]{3,3}$',
   TWO_DIGITS = '^[0-9]{2,2}$',
   TWO_LETTERS_FOUR_DIGITS = '^[A-Z][A-Z][0-9]{6,6}$',
-  TWO_LETTERS_FIVE_DIGITS = '^[A-Z][A-Z][0-9]{6,6}$',
+  TWO_LETTERS_FIVE_DIGITS = '^[A-Z][A-Z][0-9]{7,7}$',
   POSTAL = 'postal',
   COUNTRY = 'country',
   DATE_OF_BIRTH_MAX = '13',
