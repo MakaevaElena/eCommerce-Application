@@ -1,4 +1,4 @@
-import ClientApi from './client-api';
+import ClientApi from '../../../app/api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
