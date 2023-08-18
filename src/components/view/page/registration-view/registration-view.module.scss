@@ -18,4 +18,9 @@
     margin: 1rem;
     text-align: center;
   }
+
+  &__button {
+    width: 100%;
+    @include flex(center);
+  }
 }

@@ -153,7 +153,11 @@ export default class RegistrationView extends DefaultView {
     button.type = ButtonTypes.SUBMIT;
     button.textContent = 'submit';
 
-    form.append(mainBlock, shippingLabelGroup, billingLabelGroup, button);
+    const buttonWrap = document.createElement(TagName.DIV);
+    buttonWrap.classList.add(styles.registrationView__button);
+    buttonWrap.append(button);
+
+    form.append(mainBlock, shippingLabelGroup, billingLabelGroup, buttonWrap);
     return form;
   }
 
@@ -165,7 +169,7 @@ export default class RegistrationView extends DefaultView {
     return labelWithGroup;
   }
 
-  private passwordCheckHandler(event: Event) {
+  private passwordCheckHandler() {
     const checkingInput = this.inputs[Inputs.REPEAT_PASSWORD];
     const mainPassword = this.inputs[Inputs.PASSWORD].getInputValue();
     const checkPassword = checkingInput.getInputValue();
@@ -174,6 +178,8 @@ export default class RegistrationView extends DefaultView {
       checkingInput.setCustomValidity('');
     } else {
       checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
+      checkingInput.setTitle(InputTittles.PASSWORD_REPEAT);
+      // checkingInput.setMessageError(InputTittles.PASSWORD_REPEAT);
     }
   }
 
@@ -191,24 +197,36 @@ export default class RegistrationView extends DefaultView {
     const postal = inputPostal;
     const selectedCountry = country.getInputValue();
     if (countryList.flat().includes(selectedCountry)) {
+      this.changePostalPatternWithCountry(postal, countryList, selectedCountry);
       country.setCustomValidity('');
-      this.changePostalPattern(postal, countryList, selectedCountry);
     } else {
       country.setCustomValidity(InputTittles.COUNTRY_HINT);
+      this.changePostalPatternWithOutCountry(postal);
     }
   }
 
-  private changePostalPattern(postal: InputCreator, countryList: Array<Array<string>>, country: string): void {
+  private changePostalPatternWithCountry(
+    postal: InputCreator,
+    countryList: Array<Array<string>>,
+    country: string
+  ): void {
     countryList.forEach((countryGroup: Array<string>, numberGroup: number) => {
       if (countryGroup.includes(country)) {
         const pattern = Array.from(Object.values(PostalPaterns))[numberGroup];
         postal.setPattern(pattern);
-
         const title = Array.from(Object.values(PostalTitles))[numberGroup];
-        postal.setTitle(`${country}\`s postal ${title}`);
-        console.log(numberGroup);
+        const messageError = `${country}\`s postal ${title}`;
+        postal.setTitle(messageError);
+        postal.setMessageError(messageError);
+        postal.setCustomValidity('');
       }
     });
+  }
+
+  private changePostalPatternWithOutCountry(postal: InputCreator) {
+    postal.setTitle(InputTittles.WRONG_COUNTRY);
+    postal.setMessageError(InputTittles.WRONG_COUNTRY);
+    postal.setCustomValidity(InputTittles.WRONG_COUNTRY);
   }
 
   private maxPossibleDate(minYears: string): string {
@@ -334,7 +352,7 @@ export default class RegistrationView extends DefaultView {
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_STREET,
+          name: InputNames.BILLING_STREET,
           title: InputTittles.EASY_TEXT,
           placeholder: InputPlaceholders.STREET,
         },
@@ -344,7 +362,7 @@ export default class RegistrationView extends DefaultView {
         group: InputsGroups.BILLING,
         attributes: {
           type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_CITY,
+          name: InputNames.BILLING_CITY,
           title: InputTittles.EASY_TEXT,
           placeholder: InputPlaceholders.CITY,
         },

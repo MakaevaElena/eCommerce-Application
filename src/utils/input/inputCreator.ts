@@ -9,13 +9,29 @@ export default class InputCreator {
 
   private inputElement: HTMLInputElement;
 
-  private messageHint: string;
+  private messageElement: HTMLSpanElement;
+
+  private messageText: string;
+
+  private title: string;
 
   constructor(params: InputParams) {
     this.inputElement = document.createElement('input');
+    this.messageElement = document.createElement(TagName.SPAN);
     this.element = document.createElement(TagName.DIV);
     this.createElement(params);
-    this.messageHint = params.attributes.title!;
+    this.inputElement.addEventListener(Events.CHANGE, this.showErrorhandler.bind(this));
+    if (params.attributes.title) {
+      this.title = params.attributes.title;
+      this.messageText = this.title;
+    } else {
+      this.title = '';
+      this.messageText = this.inputElement.validationMessage;
+    }
+  }
+
+  setMessageError(message: string) {
+    this.messageElement.textContent = message;
   }
 
   setCustomValidity(message: string): void {
@@ -40,6 +56,7 @@ export default class InputCreator {
 
   setTitle(title: string): void {
     this.inputElement.title = title;
+    this.title = title;
   }
 
   setPattern(title: string): void {
@@ -61,9 +78,10 @@ export default class InputCreator {
       });
     }
 
-    const symbol: HTMLSpanElement = document.createElement(TagName.SPAN);
-    symbol.classList.add(styles.input__symbol);
-    this.element.append(this.inputElement, symbol);
+    this.messageElement = document.createElement(TagName.SPAN);
+    this.showErrorhandler();
+    this.messageElement.classList.add(styles.input__symbol);
+    this.element.append(this.inputElement, this.messageElement);
   }
 
   private setCallback(callback: CallbackListener, event: string) {
@@ -109,6 +127,11 @@ export default class InputCreator {
   }
 
   private showErrorhandler() {
-    console.log('show error');
+    this.messageText = this.inputElement.validationMessage;
+
+    if (this.inputElement.validity.patternMismatch) {
+      this.messageText = this.title;
+    }
+    this.messageElement.textContent = this.messageText;
   }
 }

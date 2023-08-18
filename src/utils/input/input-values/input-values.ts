@@ -29,7 +29,6 @@ export enum InputPlaceholders {
   REPEAT_PASSWORD = 'RETRY THE PASSWORD',
   FIRST_NAME = 'FIRST NAME',
   LAST_NAME = 'LAST NAME',
-  DATE_OF_BIRTH = 'DAY OF BIRTH',
   CITY = 'CITY',
   STREET = 'STREET',
   POSTAL = 'POSTAL',
@@ -44,6 +43,7 @@ export enum InputTittles {
   TEXT = 'Must contain at least one character and no special characters or numbers',
   POSTAL_HINT = 'Must follow the format for the country (e.g., 12345 or A1B 2C3 for the U.S. and Canada, respectively)',
   COUNTRY_HINT = 'Must be a valid country from a predefined list or autocomplete field',
+  WRONG_COUNTRY = 'Select country',
 }
 
 export enum InputPatterns {
