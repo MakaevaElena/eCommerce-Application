@@ -7,8 +7,17 @@ type LoginData = {
   password: string;
 };
 
+type CustomerData = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  countryCode: string;
+  key: string;
+};
+
 export default class ClientApi {
-  private clientRoot = createApiBuilderFromCtpClient(anonimClient).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot = createApiBuilderFromCtpClient(anonimClient()).withProjectKey({ projectKey: 'best-games' });
 
   constructor(loginData?: LoginData) {
     if (loginData) {
@@ -32,6 +41,18 @@ export default class ClientApi {
       .execute();
   }
 
+  public returnCustomerById(id: string) {
+    return this.clientRoot
+      .customers()
+      .get({
+        queryArgs: {
+          where: `id="${id}"`,
+        },
+      })
+      .execute();
+  }
+
+  // helen@mail.ru
   // 'johndoe@example.com'
   // '123!@#qweQWE'
   public getCustomer({ email, password }: { email: string; password: string }) {
@@ -65,7 +86,7 @@ export default class ClientApi {
       .carts()
       .post({
         body: {
-          key: `test-cart-key-${12345}`,
+          key: `test-cart-key-${Math.random()}`,
           currency: 'RUB',
           country: 'RU',
           customerId,
@@ -77,5 +98,42 @@ export default class ClientApi {
   public getCartByCustomerId(id: string) {
     console.log(this.clientRoot);
     return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
+  }
+
+  // REGISTRATION
+
+  private createCustomerDraft(customerData: CustomerData) {
+    const { email, password, firstName, lastName, countryCode, key } = customerData;
+
+    return {
+      email,
+      password,
+      key,
+      firstName,
+      lastName,
+      addresses: [
+        {
+          country: countryCode,
+        },
+      ],
+      defaultShippingAddress: 0,
+    };
+  }
+
+  public createCustomer(customerData: CustomerData) {
+    try {
+      const customer = this.clientRoot
+        // .withProjectKey({ projectKey: this.projectKey })
+        .customers()
+        .post({
+          body: this.createCustomerDraft(customerData),
+        })
+        .execute();
+
+      // check to make sure status is 201
+      return customer;
+    } catch (error) {
+      return error;
+    }
   }
 }

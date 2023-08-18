@@ -33,7 +33,7 @@ const options: AnonymousAuthMiddlewareOptions = {
   credentials: {
     clientId: CTP_CLIENT_ID,
     clientSecret: CTP_CLIENT_SECRET,
-    anonymousId: 'anonymousId-test', // a unique id
+    anonymousId: `best-games-${Math.random()}`, // a unique id
   },
   scopes: [`manage_project:${CTP_PROJECT_KEY}`],
 };
@@ -44,9 +44,11 @@ const httpMiddlewareOptions: HttpMiddlewareOptions = {
   fetch,
 };
 
-export const anonimClient = new ClientBuilder()
-  .withAnonymousSessionFlow(options)
-  .withProjectKey(CTP_PROJECT_KEY)
-  .withHttpMiddleware(httpMiddlewareOptions)
-  .withLoggerMiddleware()
-  .build();
+export const anonimClient = () => {
+  return new ClientBuilder()
+    .withAnonymousSessionFlow(options)
+    .withProjectKey(CTP_PROJECT_KEY)
+    .withHttpMiddleware(httpMiddlewareOptions)
+    .withLoggerMiddleware()
+    .build();
+};
