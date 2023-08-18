@@ -3,6 +3,7 @@ import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
 import { InputTypes } from './input-values/input-values';
+import TextContents from '../../components/view/page/registration-view/countries/text-contents';
 
 export default class InputCreator {
   private element: HTMLDivElement;
@@ -52,6 +53,10 @@ export default class InputCreator {
 
   setCustomValidity(message: string): void {
     this.inputElement.setCustomValidity(message);
+  }
+
+  setInputValue(value: string): void {
+    this.inputElement.value = value;
   }
 
   getElement(): HTMLDivElement {
@@ -128,13 +133,13 @@ export default class InputCreator {
     const showPasswordButton = document.createElement('input');
     showPasswordButton.type = InputTypes.CHECKBOX;
     const label = document.createElement('label');
-    label.textContent = 'show';
+    label.textContent = TextContents.SHOW_BUTTON;
     label.append(showPasswordButton);
     label.classList.add(styles.inputShowPassword);
     this.element.append(label);
     this.inputElement.classList.add(styles.input_password);
 
-    showPasswordButton.addEventListener('click', this.toggleVisibilityHandler.bind(this));
+    showPasswordButton.addEventListener(Events.CLICK, this.toggleVisibilityHandler.bind(this));
   }
 
   private toggleVisibilityHandler() {

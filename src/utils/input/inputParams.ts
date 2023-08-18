@@ -16,6 +16,5 @@ export type InputAttributes = {
 };
 
 export type CallbackListener = (event: Event) => void;
-// export type Callback = (event: Event) => void;
 
 export type Group = 'main' | 'shipping' | 'billing';

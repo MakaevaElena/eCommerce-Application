@@ -1,7 +1,7 @@
 import styles from './registration-view.module.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
-import { CallbackListener, Group, InputAttributes, InputParams } from '../../../../utils/input/inputParams';
+import { InputParams } from '../../../../utils/input/inputParams';
 import {
   InputLabels,
   InputNames,
@@ -19,10 +19,8 @@ import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
 import PostalPaterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
-import { Client } from '@commercetools/sdk-client-v2';
 import TextContents from './countries/text-contents';
-import inputs from './inputs-params/inputs';
-import disableAutomock = jest.disableAutomock;
+import InputsAttributes from './inputs-params/inputs-attributes';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -274,25 +272,35 @@ export default class RegistrationView extends DefaultView {
     } else {
       this.isDefault = true;
       this.buttondefaultAdrees.textContent = TextContents.BUTTON_UN_DEFAULT;
-      console.log('adress default');
       this.makeUnSelectInputs();
     }
-  }
-
-  private makeUnSelectInputs() {
-    const defaultInputs = this.billingInputsGroup;
-    defaultInputs.forEach((input) => {
-      input.setAttribute('disabled', 'true');
-      input.removeMessage();
-    });
-    console.log('input off');
   }
 
   private makeSelectInputs() {
     const defaultInputs = this.billingInputsGroup;
     defaultInputs.forEach((input) => {
-      input.removeAttribute('disabled');
+      input.removeAttribute(InputsAttributes.DISABLE);
       input.appendMessage();
+    });
+  }
+
+  private makeUnSelectInputs() {
+    const defaultInputs = this.billingInputsGroup;
+    defaultInputs.forEach((input) => {
+      input.setAttribute(InputsAttributes.DISABLE, 'true');
+      input.removeMessage();
+    });
+    const mainAddressInputs = this.shippingInputsGroup;
+    mainAddressInputs.forEach((input) => {
+      input.getInput().addEventListener(Events.CHANGE, this.changeDefaultInputs.bind(this));
+    });
+  }
+
+  private changeDefaultInputs(event: Event) {
+    this.shippingInputsGroup.forEach((input, num) => {
+      if (event.target === input.getInput()) {
+        this.billingInputsGroup[num].setInputValue(input.getInputValue());
+      }
     });
   }
 
