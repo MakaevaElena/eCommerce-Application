@@ -17,7 +17,7 @@ import InputsList from './inputs-params/inputs-list';
 import Events from '../../../../enum/events';
 import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
-import PostalPaterns from './inputs-params/postal-paterns';
+import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './countries/text-contents';
 import InputsAttributes from './inputs-params/inputs-attributes';
@@ -35,7 +35,7 @@ export default class RegistrationView extends DefaultView {
 
   private countryList: HTMLDataListElement;
 
-  private buttondefaultAdrees: HTMLButtonElement;
+  private buttonDefaultAddress: HTMLButtonElement;
 
   private isDefault: boolean;
 
@@ -50,7 +50,7 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
-    this.buttondefaultAdrees = this.createDefaultButton();
+    this.buttonDefaultAddress = this.createDefaultButton();
     this.isDefault = false;
     this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
@@ -180,7 +180,7 @@ export default class RegistrationView extends DefaultView {
     labelWithGroup.append(...elementGroup);
 
     if (name === InputLabels.SHIPPING_ADDRESS) {
-      labelWithGroup.append(this.buttondefaultAdrees);
+      labelWithGroup.append(this.buttonDefaultAddress);
     }
 
     return labelWithGroup;
@@ -190,7 +190,7 @@ export default class RegistrationView extends DefaultView {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
     defaultButton.addEventListener(Events.CLICK, this.defaultToggleHandler.bind(this));
-    defaultButton.textContent = 'Make it default';
+    defaultButton.textContent = TextContents.BUTTON_DEFAULT;
     defaultButton.classList.add(styles.registrationView__defaultSelect);
     return defaultButton;
   }
@@ -237,7 +237,7 @@ export default class RegistrationView extends DefaultView {
   ): void {
     countryList.forEach((countryGroup: Array<string>, numberGroup: number) => {
       if (countryGroup.includes(country)) {
-        const pattern = Array.from(Object.values(PostalPaterns))[numberGroup];
+        const pattern = Array.from(Object.values(PostalPatterns))[numberGroup];
         postal.setPattern(pattern);
         const title = Array.from(Object.values(PostalTitles))[numberGroup];
         const messageError = `${country}\`s postal ${title}`;
@@ -267,11 +267,11 @@ export default class RegistrationView extends DefaultView {
   private defaultToggleHandler() {
     if (this.isDefault) {
       this.isDefault = false;
-      this.buttondefaultAdrees.textContent = TextContents.BUTTON_DEFAULT;
+      this.buttonDefaultAddress.textContent = TextContents.BUTTON_DEFAULT;
       this.makeSelectInputs();
     } else {
       this.isDefault = true;
-      this.buttondefaultAdrees.textContent = TextContents.BUTTON_UN_DEFAULT;
+      this.buttonDefaultAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
       this.makeUnSelectInputs();
     }
   }

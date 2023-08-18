@@ -7,7 +7,6 @@
     margin: 1rem;
     @include flex(space-around, start);
     flex-wrap: wrap;
-    background-color: transparentize($color-brand-secondary, 0.4);
   }
 
   &__mainInputs {
