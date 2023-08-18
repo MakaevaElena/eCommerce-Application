@@ -23,4 +23,14 @@
     width: 100%;
     @include flex(center);
   }
+
+  &__defaultSelect {
+    width: 80%;
+    border-radius: 2px;
+    background-color: transparentize($color-brand-primary, 0.2);
+
+    &_active {
+      background-color: $color-brand-primary;
+    }
+  }
 }

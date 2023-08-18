@@ -30,6 +30,22 @@ export default class InputCreator {
     }
   }
 
+  setAttribute(name: string, value: string) {
+    this.inputElement.setAttribute(name, value);
+  }
+
+  removeAttribute(name: string) {
+    this.inputElement.removeAttribute(name);
+  }
+
+  removeMessage() {
+    this.element.removeChild(this.messageElement);
+  }
+
+  appendMessage() {
+    this.element.append(this.messageElement);
+  }
+
   setMessageError(message: string) {
     this.messageElement.textContent = message;
   }
@@ -64,7 +80,10 @@ export default class InputCreator {
   }
 
   private createElement(params: InputParams): void {
-    this.element.classList.add(styles.input__container, ...params.classNames);
+    this.element.classList.add(styles.input__container);
+    if (params.classNames) {
+      this.element.classList.add(...params.classNames);
+    }
     this.createInput(params);
 
     if (typeof params.callback !== 'undefined') {

@@ -1,7 +1,7 @@
 import styles from './registration-view.module.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
-import { InputParams } from '../../../../utils/input/inputParams';
+import { CallbackListener, Group, InputAttributes, InputParams } from '../../../../utils/input/inputParams';
 import {
   InputLabels,
   InputNames,
@@ -19,19 +19,27 @@ import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
 import PostalPaterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
+import { Client } from '@commercetools/sdk-client-v2';
+import TextContents from './countries/text-contents';
+import inputs from './inputs-params/inputs';
+import disableAutomock = jest.disableAutomock;
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
 
   private inputs: Array<InputCreator>;
 
-  private mainInputsGroup: Array<HTMLDivElement>;
+  private mainInputsGroup: Array<InputCreator>;
 
-  private shippingInputsGroup: Array<HTMLDivElement>;
+  private shippingInputsGroup: Array<InputCreator>;
 
-  private billingInputsGroup: Array<HTMLDivElement>;
+  private billingInputsGroup: Array<InputCreator>;
 
   private countryList: HTMLDataListElement;
+
+  private buttondefaultAdrees: HTMLButtonElement;
+
+  private isDefault: boolean;
 
   constructor() {
     const params: ElementParams = {
@@ -44,6 +52,8 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
+    this.buttondefaultAdrees = this.createDefaultButton();
+    this.isDefault = false;
     this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
 
@@ -129,12 +139,14 @@ export default class RegistrationView extends DefaultView {
     this.inputsParams.forEach((inputParams: InputParams) => {
       const input = new InputCreator(inputParams);
       this.inputs.push(input);
-      if (inputParams.group === InputsGroups.MAIN) {
-        this.mainInputsGroup.push(input.getElement());
-      } else if (inputParams.group === InputsGroups.SHIPPING) {
-        this.shippingInputsGroup.push(input.getElement());
-      } else {
-        this.billingInputsGroup.push(input.getElement());
+      if (inputParams.group) {
+        if (inputParams.group === InputsGroups.MAIN) {
+          this.mainInputsGroup.push(input);
+        } else if (inputParams.group === InputsGroups.SHIPPING) {
+          this.shippingInputsGroup.push(input);
+        } else {
+          this.billingInputsGroup.push(input);
+        }
       }
     });
   }
@@ -144,14 +156,15 @@ export default class RegistrationView extends DefaultView {
     form.classList.add(styles.registrationView__form);
     const mainBlock = document.createElement(TagName.DIV);
     mainBlock.classList.add(styles.registrationView__mainInputs);
-    mainBlock.append(...this.mainInputsGroup);
+    const mainElementsGroup: Array<HTMLDivElement> = this.mainInputsGroup.map((input) => input.getElement());
+    mainBlock.append(...mainElementsGroup);
 
     const shippingLabelGroup = this.creatLabelWithGroup(InputLabels.SHIPPING_ADDRESS, this.shippingInputsGroup);
     const billingLabelGroup = this.creatLabelWithGroup(InputLabels.BILLING_ADDRESS, this.billingInputsGroup);
 
     const button = document.createElement(TagName.BUTTON);
     button.type = ButtonTypes.SUBMIT;
-    button.textContent = 'submit';
+    button.textContent = TextContents.BUTTON_SUBMIT;
 
     const buttonWrap = document.createElement(TagName.DIV);
     buttonWrap.classList.add(styles.registrationView__button);
@@ -161,12 +174,27 @@ export default class RegistrationView extends DefaultView {
     return form;
   }
 
-  private creatLabelWithGroup(name: string, group: Array<HTMLDivElement>): HTMLLabelElement {
+  private creatLabelWithGroup(name: string, group: Array<InputCreator>): HTMLLabelElement {
     const labelWithGroup = document.createElement('label');
     labelWithGroup.textContent = name;
     labelWithGroup.classList.add(styles.registrationView__label);
-    labelWithGroup.append(...group);
+    const elementGroup: Array<HTMLDivElement> = group.map((input) => input.getElement());
+    labelWithGroup.append(...elementGroup);
+
+    if (name === InputLabels.SHIPPING_ADDRESS) {
+      labelWithGroup.append(this.buttondefaultAdrees);
+    }
+
     return labelWithGroup;
+  }
+
+  private createDefaultButton(): HTMLButtonElement {
+    const defaultButton = document.createElement(TagName.BUTTON);
+    defaultButton.type = ButtonTypes.BUTTON;
+    defaultButton.addEventListener(Events.CLICK, this.defaultToggleHandler.bind(this));
+    defaultButton.textContent = 'Make it default';
+    defaultButton.classList.add(styles.registrationView__defaultSelect);
+    return defaultButton;
   }
 
   private passwordCheckHandler() {
@@ -179,7 +207,6 @@ export default class RegistrationView extends DefaultView {
     } else {
       checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
       checkingInput.setTitle(InputTittles.PASSWORD_REPEAT);
-      // checkingInput.setMessageError(InputTittles.PASSWORD_REPEAT);
     }
   }
 
@@ -237,6 +264,36 @@ export default class RegistrationView extends DefaultView {
     const day = today.getDate().toString().padStart(numLength, '0');
     const maxDate = `${year}-${month}-${day}`;
     return maxDate;
+  }
+
+  private defaultToggleHandler() {
+    if (this.isDefault) {
+      this.isDefault = false;
+      this.buttondefaultAdrees.textContent = TextContents.BUTTON_DEFAULT;
+      this.makeSelectInputs();
+    } else {
+      this.isDefault = true;
+      this.buttondefaultAdrees.textContent = TextContents.BUTTON_UN_DEFAULT;
+      console.log('adress default');
+      this.makeUnSelectInputs();
+    }
+  }
+
+  private makeUnSelectInputs() {
+    const defaultInputs = this.billingInputsGroup;
+    defaultInputs.forEach((input) => {
+      input.setAttribute('disabled', 'true');
+      input.removeMessage();
+    });
+    console.log('input off');
+  }
+
+  private makeSelectInputs() {
+    const defaultInputs = this.billingInputsGroup;
+    defaultInputs.forEach((input) => {
+      input.removeAttribute('disabled');
+      input.appendMessage();
+    });
   }
 
   private createParams(): Array<InputParams> {

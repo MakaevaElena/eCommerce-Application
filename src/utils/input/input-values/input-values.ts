@@ -21,6 +21,7 @@ export enum InputNames {
   BILLING_STREET = 'billing-street',
   BILLING_POSTAL = 'billing-postal',
   BILLING_COUNTRY = 'country',
+  SELECT_DEFAULT = 'select_default',
 }
 
 export enum InputPlaceholders {
