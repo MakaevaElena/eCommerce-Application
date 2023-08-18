@@ -59,9 +59,25 @@ export default class RegistrationView extends DefaultView {
   }
 
   private configView() {
+    const title = this.createTitle();
+    const description = this.createDescription();
     this.fillInputsGroups();
     const form = this.createForm();
-    this.getElement().append(form, this.countryList);
+    this.getElement().append(title, description, form, this.countryList);
+  }
+
+  private createTitle(): HTMLHeadElement {
+    const title = document.createElement('h1');
+    title.classList.add(styles.registrationView__tittle);
+    title.textContent = TextContents.TITLE;
+    return title;
+  }
+
+  private createDescription(): HTMLParagraphElement {
+    const description = document.createElement('p');
+    description.classList.add(styles.registrationView__description);
+    description.textContent = TextContents.DESCRIPTION;
+    return description;
   }
 
   private createCountryListElement(): HTMLDataListElement {
@@ -153,7 +169,7 @@ export default class RegistrationView extends DefaultView {
     const form = document.createElement('form');
     form.classList.add(styles.registrationView__form);
     const mainBlock = document.createElement(TagName.DIV);
-    mainBlock.classList.add(styles.registrationView__mainInputs);
+    mainBlock.classList.add(styles.registrationView__inputsGroup);
     const mainElementsGroup: Array<HTMLDivElement> = this.mainInputsGroup.map((input) => input.getElement());
     mainBlock.append(...mainElementsGroup);
 
@@ -161,11 +177,12 @@ export default class RegistrationView extends DefaultView {
     const billingLabelGroup = this.creatLabelWithGroup(InputLabels.BILLING_ADDRESS, this.billingInputsGroup);
 
     const button = document.createElement(TagName.BUTTON);
-    button.type = ButtonTypes.SUBMIT;
+    button.classList.add(styles.registrationView__button);
+    button.type = ButtonTypes.BUTTON;
     button.textContent = TextContents.BUTTON_SUBMIT;
 
     const buttonWrap = document.createElement(TagName.DIV);
-    buttonWrap.classList.add(styles.registrationView__button);
+    buttonWrap.classList.add(styles.registrationView__buttonWrap);
     buttonWrap.append(button);
 
     form.append(mainBlock, shippingLabelGroup, billingLabelGroup, buttonWrap);
@@ -175,7 +192,7 @@ export default class RegistrationView extends DefaultView {
   private creatLabelWithGroup(name: string, group: Array<InputCreator>): HTMLLabelElement {
     const labelWithGroup = document.createElement('label');
     labelWithGroup.textContent = name;
-    labelWithGroup.classList.add(styles.registrationView__label);
+    labelWithGroup.classList.add(styles.registrationView__inputsGroup);
     const elementGroup: Array<HTMLDivElement> = group.map((input) => input.getElement());
     labelWithGroup.append(...elementGroup);
 

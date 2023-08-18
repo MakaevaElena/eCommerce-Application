@@ -3,6 +3,25 @@
 .registrationView {
   text-align: center;
 
+  &__tittle {
+    margin: clamp(5px, 1rem, 20px) auto;
+  }
+
+  &__inputsGroup {
+    margin: 1rem;
+    padding: clamp(2px, 1rem, 15px);
+    text-align: center;
+    @include border();
+    border-radius: 2px;
+    background-color: transparentize($color-page-background-secondary, 0.8);
+  }
+
+  &__description {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+  }
+
   &__form {
     margin: 1rem;
     @include flex(space-around, start);
@@ -11,16 +30,19 @@
 
   &__mainInputs {
     margin: 1rem;
+    padding: clamp(2px, 1rem, 15px);
+    text-align: center;
+    @include border();
+    border-radius: 2px;
   }
 
-  &__label {
-    margin: 1rem;
-    text-align: center;
+  &__buttonWrap {
+    width: 100%;
   }
 
   &__button {
-    width: 100%;
-    @include flex(center);
+    width: 40%;
+    background-color: transparentize($color-brand-primary, 0.2);
   }
 
   &__defaultSelect {

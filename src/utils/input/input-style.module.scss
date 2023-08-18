@@ -9,7 +9,7 @@
   @include border(1px, solid, rgb(232, 240, 254));
   border-right: none;
   border-radius: 2px 0 0 2px;
-  background-color: rgb(232, 240, 254);
+  background-color: transparentize($color-page-background-secondary, 0.5);
   cursor: pointer;
 }
 
