@@ -27,28 +27,30 @@ type AnonymousAuthMiddlewareOptions = {
   tokenCache?: TokenCache;
 };
 
-const options: AnonymousAuthMiddlewareOptions = {
-  host: CTP_AUTH_URL,
-  projectKey: CTP_PROJECT_KEY,
-  credentials: {
-    clientId: CTP_CLIENT_ID,
-    clientSecret: CTP_CLIENT_SECRET,
-    anonymousId: `best-games-${Math.random()}`, // a unique id
-  },
-  scopes: [`manage_project:${CTP_PROJECT_KEY}`],
-};
+export const createAnonim = () => {
+  const options: AnonymousAuthMiddlewareOptions = {
+    host: CTP_AUTH_URL,
+    projectKey: CTP_PROJECT_KEY,
+    credentials: {
+      clientId: CTP_CLIENT_ID,
+      clientSecret: CTP_CLIENT_SECRET,
+      anonymousId: `best-games-${Math.random()}`, // a unique id
+    },
+    scopes: [`manage_project:${CTP_PROJECT_KEY}`],
+  };
 
-// Configure httpMiddlewareOptions
-const httpMiddlewareOptions: HttpMiddlewareOptions = {
-  host: CTP_API_URL || '',
-  fetch,
-};
+  // Configure httpMiddlewareOptions
+  const httpMiddlewareOptions: HttpMiddlewareOptions = {
+    host: CTP_API_URL || '',
+    fetch,
+  };
 
-export const anonimClient = () => {
-  return new ClientBuilder()
+  const anonimClient = new ClientBuilder()
     .withAnonymousSessionFlow(options)
     .withProjectKey(CTP_PROJECT_KEY)
     .withHttpMiddleware(httpMiddlewareOptions)
     .withLoggerMiddleware()
     .build();
+
+  return anonimClient;
 };
