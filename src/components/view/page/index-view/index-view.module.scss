@@ -1,6 +1,6 @@
-// @import '../../../styles/abstracts/variables.scss';
-
 .index-view {
-  display: flex;
-  flex-direction: column;
+  background: url('../../../../assets/images/index.jpg') no-repeat center center;
+  background-size: cover;
+  height: 80vh;
+  width: 100%;
 }
