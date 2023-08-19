@@ -8,7 +8,7 @@ export default class IndexView extends DefaultView {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: Object.values(styleCss),
-      textContent: 'IndexView',
+      textContent: '',
     };
     super(params);
 
