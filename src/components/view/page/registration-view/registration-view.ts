@@ -19,7 +19,7 @@ import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
-import TextContents from './countries/text-contents';
+import TextContents from './enum/text-contents';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -38,6 +38,8 @@ export default class RegistrationView extends DefaultView {
 
   private buttonDefaultBillingAddress: HTMLButtonElement;
 
+  private buttonAddAddress: HTMLButtonElement;
+
   private billingLabel: HTMLLabelElement;
 
   private shippingLabel: HTMLLabelElement;
@@ -45,6 +47,8 @@ export default class RegistrationView extends DefaultView {
   private isDefaultShippingAddress: boolean;
 
   private isDefaultBillingAddress: boolean;
+
+  private isBillingAddress: boolean;
 
   constructor() {
     const params: ElementParams = {
@@ -57,23 +61,24 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
-    this.buttonDefaultShippingAddress = this.createDefaultButton();
-    this.buttonDefaultBillingAddress = this.createDefaultButton();
+    this.buttonDefaultShippingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
+      styles.registrationView__defaultSelect,
+    ]);
+    this.buttonDefaultBillingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
+      styles.registrationView__defaultSelect,
+    ]);
+    this.buttonAddAddress = this.createDefaultButton(TextContents.REMOVE_BILLING_ADDRESS, [
+      styles.registrationView__buttonAddAdsress,
+    ]);
     this.billingLabel = this.createLabel(InputLabels.BILLING_ADDRESS);
     this.shippingLabel = this.createLabel(InputLabels.SHIPPING_ADDRESS);
     this.isDefaultShippingAddress = false;
     this.isDefaultBillingAddress = false;
+    this.isBillingAddress = true;
     this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
 
     this.configView();
-  }
-
-  private createLabel(name: string) {
-    const label = document.createElement('label');
-    label.textContent = name;
-    label.classList.add(styles.registrationView__inputsGroup);
-    return label;
   }
 
   private configView() {
@@ -81,7 +86,15 @@ export default class RegistrationView extends DefaultView {
     const description = this.createDescription();
     this.fillInputsGroups();
     const form = this.createForm();
-    this.getElement().append(title, description, form, this.countryList);
+    this.buttonAddAddress.addEventListener(Events.CLICK, this.toggleBillingAddressHandler.bind(this));
+    this.getElement().append(title, description, form, this.buttonAddAddress, this.countryList);
+  }
+
+  private createLabel(name: string) {
+    const label = document.createElement('label');
+    label.textContent = name;
+    label.classList.add(styles.registrationView__inputsGroup);
+    return label;
   }
 
   private createTitle(): HTMLHeadElement {
@@ -329,11 +342,11 @@ export default class RegistrationView extends DefaultView {
     return result;
   }
 
-  private createDefaultButton(): HTMLButtonElement {
+  private createDefaultButton(text: string, classList: Array<string>): HTMLButtonElement {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
-    defaultButton.textContent = TextContents.BUTTON_DEFAULT;
-    defaultButton.classList.add(styles.registrationView__defaultSelect);
+    defaultButton.textContent = text;
+    defaultButton.classList.add(...classList);
     return defaultButton;
   }
 
@@ -427,6 +440,20 @@ export default class RegistrationView extends DefaultView {
       this.isDefaultShippingAddress = true;
       this.buttonDefaultShippingAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
       this.shippingLabel.firstChild!.textContent = InputLabels.SHIPPING_ADDRESS_DEFAULT;
+    }
+  }
+
+  private toggleBillingAddressHandler() {
+    const form = this.shippingLabel.parentNode!;
+
+    if (this.isBillingAddress) {
+      this.isBillingAddress = false;
+      this.buttonAddAddress.textContent = TextContents.ADD_BILLING_ADDRESS;
+      form.removeChild(this.billingLabel);
+    } else {
+      this.isBillingAddress = true;
+      this.buttonAddAddress.textContent = TextContents.REMOVE_BILLING_ADDRESS;
+      form.insertBefore(this.billingLabel, this.shippingLabel);
     }
   }
 

@@ -45,6 +45,11 @@
     background-color: transparentize($color-brand-primary, 0.2);
   }
 
+  &__buttonAddAdsress {
+    width: min(40% - 1rem, 40% - 1rem);
+    background-color: transparentize($color-brand-primary, 0.2);
+  }
+
   &__defaultSelect {
     width: 80%;
     border-radius: 2px;
