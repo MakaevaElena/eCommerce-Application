@@ -101,7 +101,7 @@ export default class LoginView extends DefaultView {
     const loginSubTitle = new ElementCreator({
       tag: TagName.SPAN,
       classNames: [styleCss['login-subtitle']],
-      textContent: 'Sign Into Next',
+      textContent: 'Sign Into Best Games',
     });
 
     const loginForm = new ElementCreator({

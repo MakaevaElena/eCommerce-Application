@@ -1,4 +1,5 @@
 // @import '../../../styles/abstracts/variables.scss';
+@import './src/style/helper.scss';
 
 .login-view {
   display: flex;
@@ -6,9 +7,12 @@
   justify-content: center;
   align-items: start;
   gap: 30px;
-  // font-family: azo-sans, sans-serif;
-  border: 0.1px solid white;
-  // background-color: white;
+  font-family: 'Karla', sans-serif;
+  @include border();
+  @media (max-width: 700px) {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .registration-field {
@@ -19,9 +23,13 @@
   justify-content: space-around;
   align-items: start;
   margin: 1rem 0;
-  // background-color: #f8f8f8;
-  border: 0.1px solid gray;
+  @include border();
   padding: 1rem;
+  background-color: transparentize($color-page-background-secondary, 0.8);
+
+  @media (max-width: 500px) {
+    width: 90%;
+  }
 }
 
 .login-title,
@@ -44,8 +52,8 @@
   height: 200px;
   width: 400px;
   margin: 1rem 0;
-  // background-color: #f8f8f8;
-  border: 0.1px solid gray;
+  background-color: transparentize($color-page-background-secondary, 0.8);
+  @include border();
   padding: 1rem;
 
   &__show-password {
@@ -69,6 +77,10 @@
     color: white;
     font-size: 2rem;
   }
+
+  @media (max-width: 500px) {
+    width: 90%;
+  }
 }
 
 .password-block {
@@ -78,10 +90,12 @@
 }
 
 .login-view .button {
+  font-family: 'Karla', sans-serif;
   width: 90%;
   font-size: 0.7rem;
   padding: 0.5rem;
   cursor: pointer;
+  background-color: transparentize($color-brand-primary, 0.2);
 }
 
 .login-view .button:hover {
@@ -89,29 +103,23 @@
 }
 
 .login-view .login-form__show-password {
-  width: 15%;
+  width: 18%;
 }
 
 input.field {
+  font-family: 'Karla', sans-serif;
   width: 85%;
   padding: 0.5rem;
   border-radius: 3px;
-  border: 0.1px solid gray;
+  // border: 0.1px solid gray;
+  @include border();
 }
 
-input[type='email']:invalid {
+input.field:invalid {
   border: 0.1px solid rgb(207, 90, 90);
 }
 
-input[type='email']:valid {
-  border-color: 0.1px solid rgb(69, 150, 69);
-}
-
-input[type='password']:invalid {
-  border: 0.1px solid rgb(207, 90, 90);
-}
-
-input[type='password']:valid {
+input.field:valid {
   border-color: 0.1px solid rgb(69, 150, 69);
 }
 
