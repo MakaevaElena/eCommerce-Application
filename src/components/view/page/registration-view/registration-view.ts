@@ -20,7 +20,6 @@ import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './countries/text-contents';
-import InputsAttributes from './inputs-params/inputs-attributes';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -35,9 +34,17 @@ export default class RegistrationView extends DefaultView {
 
   private countryList: HTMLDataListElement;
 
-  private buttonDefaultAddress: HTMLButtonElement;
+  private buttonDefaultShippingAddress: HTMLButtonElement;
 
-  private isDefault: boolean;
+  private buttonDefaultBillingAddress: HTMLButtonElement;
+
+  private billingLabel: HTMLLabelElement;
+
+  private shippingLabel: HTMLLabelElement;
+
+  private isDefaultShippingAddress: boolean;
+
+  private isDefaultBillingAddress: boolean;
 
   constructor() {
     const params: ElementParams = {
@@ -50,12 +57,23 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
-    this.buttonDefaultAddress = this.createDefaultButton();
-    this.isDefault = false;
+    this.buttonDefaultShippingAddress = this.createDefaultButton();
+    this.buttonDefaultBillingAddress = this.createDefaultButton();
+    this.billingLabel = this.createLabel(InputLabels.BILLING_ADDRESS);
+    this.shippingLabel = this.createLabel(InputLabels.SHIPPING_ADDRESS);
+    this.isDefaultShippingAddress = false;
+    this.isDefaultBillingAddress = false;
     this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
 
     this.configView();
+  }
+
+  private createLabel(name: string) {
+    const label = document.createElement('label');
+    label.textContent = name;
+    label.classList.add(styles.registrationView__inputsGroup);
+    return label;
   }
 
   private configView() {
@@ -190,23 +208,30 @@ export default class RegistrationView extends DefaultView {
   }
 
   private creatLabelWithGroup(name: string, group: Array<InputCreator>): HTMLLabelElement {
-    const labelWithGroup = document.createElement('label');
-    labelWithGroup.textContent = name;
-    labelWithGroup.classList.add(styles.registrationView__inputsGroup);
     const elementGroup: Array<HTMLDivElement> = group.map((input) => input.getElement());
-    labelWithGroup.append(...elementGroup);
+
+    let result: HTMLLabelElement = document.createElement('label');
 
     if (name === InputLabels.SHIPPING_ADDRESS) {
-      labelWithGroup.append(this.buttonDefaultAddress);
+      this.shippingLabel.append(...elementGroup);
+      this.shippingLabel.append(this.buttonDefaultShippingAddress);
+      this.buttonDefaultShippingAddress.addEventListener(Events.CLICK, this.defaultShippingToggleHandler.bind(this));
+      result = this.shippingLabel;
     }
 
-    return labelWithGroup;
+    if (name === InputLabels.BILLING_ADDRESS) {
+      this.billingLabel.append(...elementGroup);
+      this.billingLabel.append(this.buttonDefaultBillingAddress);
+      this.buttonDefaultBillingAddress.addEventListener(Events.CLICK, this.defaultBillingToggleHandler.bind(this));
+      result = this.billingLabel;
+    }
+
+    return result;
   }
 
   private createDefaultButton(): HTMLButtonElement {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
-    defaultButton.addEventListener(Events.CLICK, this.defaultToggleHandler.bind(this));
     defaultButton.textContent = TextContents.BUTTON_DEFAULT;
     defaultButton.classList.add(styles.registrationView__defaultSelect);
     return defaultButton;
@@ -281,44 +306,28 @@ export default class RegistrationView extends DefaultView {
     return maxDate;
   }
 
-  private defaultToggleHandler() {
-    if (this.isDefault) {
-      this.isDefault = false;
-      this.buttonDefaultAddress.textContent = TextContents.BUTTON_DEFAULT;
-      this.makeSelectInputs();
+  private defaultBillingToggleHandler() {
+    if (this.isDefaultBillingAddress) {
+      this.isDefaultBillingAddress = false;
+      this.buttonDefaultBillingAddress.textContent = TextContents.BUTTON_DEFAULT;
+      this.billingLabel.firstChild!.textContent = InputLabels.BILLING_ADDRESS;
     } else {
-      this.isDefault = true;
-      this.buttonDefaultAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
-      this.makeUnSelectInputs();
+      this.isDefaultBillingAddress = true;
+      this.buttonDefaultBillingAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
+      this.billingLabel.firstChild!.textContent = InputLabels.BILLING_ADDRESS_DEFAULT;
     }
   }
 
-  private makeSelectInputs() {
-    const defaultInputs = this.billingInputsGroup;
-    defaultInputs.forEach((input) => {
-      input.removeAttribute(InputsAttributes.DISABLE);
-      input.appendMessage();
-    });
-  }
-
-  private makeUnSelectInputs() {
-    const defaultInputs = this.billingInputsGroup;
-    defaultInputs.forEach((input) => {
-      input.setAttribute(InputsAttributes.DISABLE, 'true');
-      input.removeMessage();
-    });
-    const mainAddressInputs = this.shippingInputsGroup;
-    mainAddressInputs.forEach((input) => {
-      input.getInput().addEventListener(Events.CHANGE, this.changeDefaultInputs.bind(this));
-    });
-  }
-
-  private changeDefaultInputs(event: Event) {
-    this.shippingInputsGroup.forEach((input, num) => {
-      if (event.target === input.getInput()) {
-        this.billingInputsGroup[num].setInputValue(input.getInputValue());
-      }
-    });
+  private defaultShippingToggleHandler() {
+    if (this.isDefaultShippingAddress) {
+      this.isDefaultShippingAddress = false;
+      this.buttonDefaultShippingAddress.textContent = TextContents.BUTTON_DEFAULT;
+      this.shippingLabel.firstChild!.textContent = InputLabels.SHIPPING_ADDRESS;
+    } else {
+      this.isDefaultShippingAddress = true;
+      this.buttonDefaultShippingAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
+      this.shippingLabel.firstChild!.textContent = InputLabels.SHIPPING_ADDRESS_DEFAULT;
+    }
   }
 
   private createParams(): Array<InputParams> {

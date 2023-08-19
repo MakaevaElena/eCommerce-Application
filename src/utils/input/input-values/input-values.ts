@@ -56,5 +56,7 @@ export enum InputCountries {}
 
 export enum InputLabels {
   SHIPPING_ADDRESS = 'DELIVERY ADDRESS',
+  SHIPPING_ADDRESS_DEFAULT = 'DELIVERY ADDRESS (default)',
   BILLING_ADDRESS = 'BILLING ADDRESS',
+  BILLING_ADDRESS_DEFAULT = 'BILLING ADDRESS (default)',
 }
