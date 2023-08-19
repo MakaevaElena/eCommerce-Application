@@ -1,10 +1,57 @@
-// @import '../../../styles/abstracts/variables.scss';
 @import './src/style/helper.scss';
 
-.registration-view {
-  //display: flex;
-  //flex-direction: column;
-  background-color: $color-brand-primary;
+.registrationView {
+  text-align: center;
 
-  border: 1px solid blue;
+  &__tittle {
+    margin: clamp(5px, 1rem, 20px) auto;
+  }
+
+  &__inputsGroup {
+    margin: 1rem;
+    padding: clamp(2px, 1rem, 15px);
+    text-align: center;
+    @include border();
+    border-radius: 2px;
+    background-color: transparentize($color-page-background-secondary, 0.8);
+  }
+
+  &__description {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  &__form {
+    margin: 1rem;
+    @include flex(space-around, start);
+    flex-wrap: wrap;
+  }
+
+  &__mainInputs {
+    margin: 1rem;
+    padding: clamp(2px, 1rem, 15px);
+    text-align: center;
+    @include border();
+    border-radius: 2px;
+  }
+
+  &__buttonWrap {
+    width: 100%;
+  }
+
+  &__button {
+    width: 40%;
+    background-color: transparentize($color-brand-primary, 0.2);
+  }
+
+  &__defaultSelect {
+    width: 80%;
+    border-radius: 2px;
+    background-color: transparentize($color-brand-primary, 0.2);
+
+    &_active {
+      background-color: $color-brand-primary;
+    }
+  }
 }
