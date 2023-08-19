@@ -106,7 +106,7 @@
   width: 18%;
 }
 
-input.field {
+.field {
   font-family: 'Karla', sans-serif;
   width: 85%;
   padding: 0.5rem;
@@ -114,12 +114,12 @@ input.field {
   @include border();
 }
 
-input.field:invalid {
+.field:invalid {
   border: 0.1px solid rgb(207, 90, 90);
 }
 
-input.field:valid {
-  border-color: 0.1px solid rgb(69, 150, 69);
+.field:valid {
+  border: 0.1px solid rgb(69, 150, 69);
 }
 
 .disabled {

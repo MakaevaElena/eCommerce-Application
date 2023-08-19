@@ -227,8 +227,6 @@ export default class LoginView extends DefaultView {
         .then((response) => {
           if (response.body.customer) {
             console.log('all response', response);
-
-            // this.createMessagePopup(Message.SUCCESS_LOGIN);
             window.localStorage.setItem(`isLogin`, 'true');
             this.observer.notify(EventName.LOGIN);
 
