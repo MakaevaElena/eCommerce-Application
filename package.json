@@ -7,7 +7,7 @@
     "start": "webpack serve --open --config ./webpack.config.js --env mode=dev",
     "build": "webpack --config ./webpack.config.js --env mode=prod",
     "lint": "eslint . --ext .ts",
-    "test": "jest",
+    "test": "jest --coverage --silent",
     "format": "prettier --write src",
     "check-format": "prettier --check src",
     "pre-commit": "npm test & npm run check-format",
