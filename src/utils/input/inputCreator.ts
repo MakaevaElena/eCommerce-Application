@@ -3,7 +3,7 @@ import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
 import { InputTypes } from './input-values/input-values';
-import TextContents from '../../components/view/page/registration-view/countries/text-contents';
+import TextContents from '../../components/view/page/registration-view/enum/text-contents';
 
 export default class InputCreator {
   private element: HTMLDivElement;
