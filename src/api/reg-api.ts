@@ -12,8 +12,19 @@ type CustomerData = {
   password: string;
   firstName: string;
   lastName: string;
-  countryCode: string;
+  dateOfBirth: string;
+  countryShippingCode: string;
+  countryStreetShipping: string;
+  countryCityShipping: string;
+  countryPostalShipping: string;
+  countryStreetBilling: string;
+  countryCityBilling: string;
+  countryPostalBilling: string;
+  countryBillingCode: string;
+
   key: string;
+  defaultShippingAddressNum: number | undefined;
+  defaultBillingAddressNum: number | undefined;
 };
 
 export default class RegApi {
@@ -29,37 +40,60 @@ export default class RegApi {
   // REGISTRATION
 
   private createCustomerDraft(customerData: CustomerData) {
-    const { email, password, firstName, lastName, countryCode, key } = customerData;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      dateOfBirth,
+      countryShippingCode,
+      countryStreetShipping,
+      countryBillingCode,
+      countryStreetBilling,
+      countryCityShipping,
+      countryPostalShipping,
+      countryCityBilling,
+      countryPostalBilling,
+      defaultBillingAddressNum,
+      defaultShippingAddressNum,
+      key,
+    } = customerData;
 
     return {
       email,
       password,
       key,
+      dateOfBirth,
       firstName,
       lastName,
       addresses: [
         {
-          country: countryCode,
+          country: countryShippingCode,
+          streetName: countryStreetShipping,
+          city: countryCityShipping,
+          postalCode: countryPostalShipping,
+        },
+        {
+          country: countryBillingCode,
+          streetName: countryStreetBilling,
+          city: countryCityBilling,
+          postalCode: countryPostalBilling,
         },
       ],
-      defaultShippingAddress: 0,
+      defaultShippingAddress: defaultShippingAddressNum,
+      defaultBillingAddress: defaultBillingAddressNum,
+      shippingAddresses: [0],
+      billingAddresses: [1],
     };
   }
 
   public createCustomer(customerData: CustomerData) {
-    try {
-      const customer = this.clientRoot
-        // .withProjectKey({ projectKey: this.projectKey })
-        .customers()
-        .post({
-          body: this.createCustomerDraft(customerData),
-        })
-        .execute();
-
-      // check to make sure status is 201
-      return customer;
-    } catch (error) {
-      return error;
-    }
+    const customer = this.clientRoot
+      .customers()
+      .post({
+        body: this.createCustomerDraft(customerData),
+      })
+      .execute();
+    return customer;
   }
 }

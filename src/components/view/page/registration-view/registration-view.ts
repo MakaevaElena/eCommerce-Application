@@ -1,4 +1,5 @@
 import styles from './registration-view.module.scss';
+import linStyle from './link.module.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
 import { InputParams } from '../../../../utils/input/inputParams';
@@ -19,8 +20,10 @@ import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
-import TextContents from './countries/text-contents';
-import InputsAttributes from './inputs-params/inputs-attributes';
+import TextContents from './enum/text-contents';
+import RegApi from '../../../../api/reg-api';
+import Router from '../../../router/router';
+import { PagePath } from '../../../router/pages';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -35,23 +38,53 @@ export default class RegistrationView extends DefaultView {
 
   private countryList: HTMLDataListElement;
 
-  private buttonDefaultAddress: HTMLButtonElement;
+  private checkValidityElement: HTMLDivElement;
 
-  private isDefault: boolean;
+  private buttonDefaultShippingAddress: HTMLButtonElement;
 
-  constructor() {
+  private buttonDefaultBillingAddress: HTMLButtonElement;
+
+  private buttonAddAddress: HTMLButtonElement;
+
+  private billingLabel: HTMLLabelElement;
+
+  private shippingLabel: HTMLLabelElement;
+
+  private isDefaultShippingAddress: boolean;
+
+  private isDefaultBillingAddress: boolean;
+
+  private isBillingAddress: boolean;
+
+  private router: Router;
+
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styles.registrationView],
       textContent: '',
     };
     super(params);
+    this.router = router;
     this.inputs = [];
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
-    this.buttonDefaultAddress = this.createDefaultButton();
-    this.isDefault = false;
+    this.checkValidityElement = this.createValidMessageElement();
+    this.buttonDefaultShippingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
+      styles.registrationView__defaultSelect,
+    ]);
+    this.buttonDefaultBillingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
+      styles.registrationView__defaultSelect,
+    ]);
+    this.buttonAddAddress = this.createDefaultButton(TextContents.REMOVE_BILLING_ADDRESS, [
+      styles.registrationView__buttonAddAdsress,
+    ]);
+    this.billingLabel = this.createLabel(InputLabels.BILLING_ADDRESS);
+    this.shippingLabel = this.createLabel(InputLabels.SHIPPING_ADDRESS);
+    this.isDefaultShippingAddress = false;
+    this.isDefaultBillingAddress = false;
+    this.isBillingAddress = true;
     this.countryList = this.createCountryListElement();
     this.inputsParams = this.createParams();
 
@@ -63,7 +96,36 @@ export default class RegistrationView extends DefaultView {
     const description = this.createDescription();
     this.fillInputsGroups();
     const form = this.createForm();
-    this.getElement().append(title, description, form, this.countryList);
+    const button = document.createElement(TagName.BUTTON);
+    button.textContent = TextContents.TO_LOGIN;
+    button.classList.add(linStyle.button);
+    button.addEventListener(Events.CLICK, this.redirectLoginhandler.bind(this));
+    this.buttonAddAddress.addEventListener(Events.CLICK, this.toggleBillingAddressHandler.bind(this));
+    this.getElement().append(title, description, button, form, this.buttonAddAddress, this.countryList);
+  }
+
+  private redirectLoginhandler() {
+    this.router.navigate(PagePath.LOGIN);
+  }
+
+  private createValidMessageElement(): HTMLDivElement {
+    const element = document.createElement(TagName.DIV);
+    element.textContent = TextContents.CHECK_VALIDITY;
+    element.classList.add(styles.registrationView__checkValidity);
+    element.addEventListener(Events.CLICK, this.removeValidityMessageHandler.bind(this));
+    return element;
+  }
+
+  private removeValidityMessageHandler() {
+    this.checkValidityElement.textContent = TextContents.CHECK_VALIDITY;
+    this.getElement().removeChild(this.checkValidityElement);
+  }
+
+  private createLabel(name: string) {
+    const label = document.createElement('label');
+    label.textContent = name;
+    label.classList.add(styles.registrationView__inputsGroup);
+    return label;
   }
 
   private createTitle(): HTMLHeadElement {
@@ -100,8 +162,91 @@ export default class RegistrationView extends DefaultView {
   }
 
   private createCountryList(): Array<Array<string>> {
-    const sixDigitsPostalCodeCountries = ['zzz'];
-    const fiveDigitsPostalCodeCountries = ['Czech Republic', 'Greece', 'Slovakia', 'Sweden'];
+    const sixDigitsPostalCodeCountries = [
+      'Belarus BY',
+      'China CN',
+      'Colombia CO',
+      'Ecuador EC',
+      'Kazakhstan KZ',
+      'Kyrgyzstan KG',
+      'Malawi MW',
+      'Nigeria NG',
+      'Romania RO',
+      'Russia RU',
+      'Singapore SG',
+      'Tajikistan TJ',
+      'Trinidad and Tobago TT',
+      'Turkmenistan TM',
+      'Uzbekistan UZ',
+      'India IN',
+    ];
+    const fiveDigitsPostalCodeCountries = [
+      'Czech Republic CZ',
+      'Greece CR',
+      'Slovakia SK',
+      'Sweden SE',
+      'Algeria DZ',
+      'Bhutan BT',
+      'Bosnia and Herzegovina BA',
+      'Costa Rica CR',
+      'Croatia HR',
+      'Cuba CU',
+      'Dominican Republic DO',
+      'Egypt EG',
+      'Estonia EE',
+      'Finland FI',
+      'France FR',
+      'Germany DE',
+      'Guatemala GT',
+      'Indonesia ID',
+      'Iraq IQ',
+      'Italy IT',
+      'Jordan JO',
+      'Kenya KE',
+      'Korea, South KR',
+      'Kosovo XK',
+      'Kuwait KW',
+      'Laos LA',
+      'Malaysia MY',
+      'Maldives MV',
+      'Mauritius MU',
+      'Mexico MX',
+      'Mongolia MN',
+      'Montenegro ME',
+      'Morocco MA',
+      'Myanmar MM',
+      'Namibia NA',
+      'Nepal NP',
+      'Nicaragua NI',
+      'Pakistan PK',
+      'Puerto Rico PR',
+      'Senegal SN',
+      'Serbia RS',
+      'Spain ES',
+      'Sri Lanka LK',
+      'Sudan SD',
+      'Tanzania TZ',
+      'Thailand TH',
+      'Turkey TR',
+      'Ukraine UA',
+      'United States US',
+      'Uruguay UY',
+      'Vietnam VN',
+      'Zambia ZM',
+      'Saudi Arabia SA',
+      'Iran IR',
+      'Peru PE',
+      'Åland AX',
+      'Lebanon LB',
+      'Brazil BR',
+      'American Samoa AS',
+      'Guam GU',
+      'Marshall Islands MH',
+      'Micronesia FM',
+      'Northern Mariana Islands MP',
+      'Palau PW',
+      'U.S. Virgin Islands VI',
+    ];
     const fourDigitsPostalCodeCountries = [
       'Guinea',
       'Iceland',
@@ -110,33 +255,50 @@ export default class RegistrationView extends DefaultView {
       'Oman',
       'Palestine',
       'Papua New Guinea',
-      'Afghanistan',
-      'Albania',
-      'Argentina',
-      'Armenia',
-      'Australia',
-      'Austria',
-      'Bangladesh',
-      'Belgium',
-      'Bulgaria',
-      'Cape Verde',
-      'Christmas Island',
-      'Greenland',
-      'Hungary',
-      'Liechtenstein',
+      'Afghanistan AF',
+      'Albania AL',
+      'Argentina AR',
+      'Armenia AM',
+      'Australia AU',
+      'Austria AT',
+      'Bangladesh BD',
+      'Belgium BE',
+      'Bulgaria BG',
+      'Cape Verde CV',
+      'Christmas Island CX',
+      'Greenland GL',
+      'Hungary HU',
+      'Liechtenstein LI',
+      'Luxembourg LU',
+      'New Zealand NZ',
+      'Niger NE',
+      'North Macedonia MK',
+      'Norway NO',
+      'Panama PA',
+      'Paraguay PY',
+      'Philippines PH',
+      'Portugal PT',
+      'Singapore SG',
+      'South Africa ZA',
+      'Switzerland CH',
+      'Svalbard and Jan Mayen SJ',
+      'Tunisia TN',
+      'Portugal PT',
+      'Slovenia SI',
+      'Venezuela VE',
     ];
-    const twoDigitsPostalCodeCountries = ['Jamaica', 'Singapore'];
-    const twoLetterThreeDigitsPostalCodeCountries = ['Faroe Islands', 'Barbados'];
+    const twoDigitsPostalCodeCountries = ['Jamaica JM', 'Singapore SG'];
+    const twoLetterThreeDigitsPostalCodeCountries = ['Faroe Islands', 'Barbados', 'Andorra AD'];
     const twoLetterFourDigitsPostalCodeCountries = [
-      'Azerbaijan',
-      'Latvia',
-      'British Virgin Islands',
-      'Saint Kitts and Nevis',
-      'Saint Vincent and the Grenadines',
-      'Samoa',
-      'Moldova',
+      'Azerbaijan AZ',
+      'Latvia LV',
+      'British Virgin Islands VG',
+      'Saint Kitts and Nevis KN',
+      'Saint Vincent and the Grenadines VC',
+      'Samoa WS',
+      'Moldova MD',
     ];
-    const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania', 'Andorra'];
+    const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania LT', 'Barbados BB'];
     const allCountries = [
       sixDigitsPostalCodeCountries,
       fiveDigitsPostalCodeCountries,
@@ -180,6 +342,7 @@ export default class RegistrationView extends DefaultView {
     button.classList.add(styles.registrationView__button);
     button.type = ButtonTypes.BUTTON;
     button.textContent = TextContents.BUTTON_SUBMIT;
+    button.addEventListener(Events.CLICK, this.formSubmitHandler.bind(this));
 
     const buttonWrap = document.createElement(TagName.DIV);
     buttonWrap.classList.add(styles.registrationView__buttonWrap);
@@ -190,25 +353,32 @@ export default class RegistrationView extends DefaultView {
   }
 
   private creatLabelWithGroup(name: string, group: Array<InputCreator>): HTMLLabelElement {
-    const labelWithGroup = document.createElement('label');
-    labelWithGroup.textContent = name;
-    labelWithGroup.classList.add(styles.registrationView__inputsGroup);
     const elementGroup: Array<HTMLDivElement> = group.map((input) => input.getElement());
-    labelWithGroup.append(...elementGroup);
+
+    let result: HTMLLabelElement = document.createElement('label');
 
     if (name === InputLabels.SHIPPING_ADDRESS) {
-      labelWithGroup.append(this.buttonDefaultAddress);
+      this.shippingLabel.append(...elementGroup);
+      this.shippingLabel.append(this.buttonDefaultShippingAddress);
+      this.buttonDefaultShippingAddress.addEventListener(Events.CLICK, this.defaultShippingToggleHandler.bind(this));
+      result = this.shippingLabel;
     }
 
-    return labelWithGroup;
+    if (name === InputLabels.BILLING_ADDRESS) {
+      this.billingLabel.append(...elementGroup);
+      this.billingLabel.append(this.buttonDefaultBillingAddress);
+      this.buttonDefaultBillingAddress.addEventListener(Events.CLICK, this.defaultBillingToggleHandler.bind(this));
+      result = this.billingLabel;
+    }
+
+    return result;
   }
 
-  private createDefaultButton(): HTMLButtonElement {
+  private createDefaultButton(text: string, classList: Array<string>): HTMLButtonElement {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
-    defaultButton.addEventListener(Events.CLICK, this.defaultToggleHandler.bind(this));
-    defaultButton.textContent = TextContents.BUTTON_DEFAULT;
-    defaultButton.classList.add(styles.registrationView__defaultSelect);
+    defaultButton.textContent = text;
+    defaultButton.classList.add(...classList);
     return defaultButton;
   }
 
@@ -257,7 +427,7 @@ export default class RegistrationView extends DefaultView {
         const pattern = Array.from(Object.values(PostalPatterns))[numberGroup];
         postal.setPattern(pattern);
         const title = Array.from(Object.values(PostalTitles))[numberGroup];
-        const messageError = `${country}\`s postal ${title}`;
+        const messageError = `${country.slice(0, -3)}\`s postal ${title}`;
         postal.setTitle(messageError);
         postal.setMessageError(messageError);
         postal.setCustomValidity('');
@@ -281,44 +451,131 @@ export default class RegistrationView extends DefaultView {
     return maxDate;
   }
 
-  private defaultToggleHandler() {
-    if (this.isDefault) {
-      this.isDefault = false;
-      this.buttonDefaultAddress.textContent = TextContents.BUTTON_DEFAULT;
-      this.makeSelectInputs();
+  private defaultBillingToggleHandler() {
+    if (this.isDefaultBillingAddress) {
+      this.isDefaultBillingAddress = false;
+      this.buttonDefaultBillingAddress.textContent = TextContents.BUTTON_DEFAULT;
+      this.billingLabel.firstChild!.textContent = InputLabels.BILLING_ADDRESS;
     } else {
-      this.isDefault = true;
-      this.buttonDefaultAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
-      this.makeUnSelectInputs();
+      this.isDefaultBillingAddress = true;
+      this.buttonDefaultBillingAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
+      this.billingLabel.firstChild!.textContent = InputLabels.BILLING_ADDRESS_DEFAULT;
     }
   }
 
-  private makeSelectInputs() {
-    const defaultInputs = this.billingInputsGroup;
-    defaultInputs.forEach((input) => {
-      input.removeAttribute(InputsAttributes.DISABLE);
-      input.appendMessage();
-    });
+  private defaultShippingToggleHandler() {
+    if (this.isDefaultShippingAddress) {
+      this.isDefaultShippingAddress = false;
+      this.buttonDefaultShippingAddress.textContent = TextContents.BUTTON_DEFAULT;
+      this.shippingLabel.firstChild!.textContent = InputLabels.SHIPPING_ADDRESS;
+    } else {
+      this.isDefaultShippingAddress = true;
+      this.buttonDefaultShippingAddress.textContent = TextContents.BUTTON_UN_DEFAULT;
+      this.shippingLabel.firstChild!.textContent = InputLabels.SHIPPING_ADDRESS_DEFAULT;
+    }
   }
 
-  private makeUnSelectInputs() {
-    const defaultInputs = this.billingInputsGroup;
-    defaultInputs.forEach((input) => {
-      input.setAttribute(InputsAttributes.DISABLE, 'true');
-      input.removeMessage();
-    });
-    const mainAddressInputs = this.shippingInputsGroup;
-    mainAddressInputs.forEach((input) => {
-      input.getInput().addEventListener(Events.CHANGE, this.changeDefaultInputs.bind(this));
-    });
+  private toggleBillingAddressHandler() {
+    const form = this.shippingLabel.parentNode!;
+
+    if (this.isBillingAddress) {
+      this.isBillingAddress = false;
+      this.buttonAddAddress.textContent = TextContents.ADD_BILLING_ADDRESS;
+      form.removeChild(this.billingLabel);
+    } else {
+      this.isBillingAddress = true;
+      this.buttonAddAddress.textContent = TextContents.REMOVE_BILLING_ADDRESS;
+      form.insertBefore(this.billingLabel, this.shippingLabel);
+    }
   }
 
-  private changeDefaultInputs(event: Event) {
-    this.shippingInputsGroup.forEach((input, num) => {
-      if (event.target === input.getInput()) {
-        this.billingInputsGroup[num].setInputValue(input.getInputValue());
+  private changeInputDateHandler() {
+    if (this.inputs[Inputs.DATE_OF_BIRTH].getInput().checkValidity() === true) {
+      this.inputs[Inputs.DATE_OF_BIRTH].setMessageError('');
+    } else {
+      this.inputs[Inputs.DATE_OF_BIRTH].setMessageError(InputTittles.DATE_OF_BIRTH_HINT);
+    }
+  }
+
+  private formSubmitHandler() {
+    if (this.isCheckValidityFormHandler()) {
+      const api = new RegApi();
+      const params = {
+        email: this.inputs[Inputs.EMAIL].getInputValue(),
+        password: this.inputs[Inputs.PASSWORD].getInputValue(),
+        firstName: this.inputs[Inputs.FIRST_NAME].getInputValue(),
+        lastName: this.inputs[Inputs.LAST_NAME].getInputValue(),
+        dateOfBirth: this.inputs[Inputs.DATE_OF_BIRTH].getInputValue(),
+        countryStreetShipping: this.inputs[Inputs.SHIPPING_STREET].getInputValue(),
+        countryCityShipping: this.inputs[Inputs.SHIPPING_CITY].getInputValue(),
+        countryPostalShipping: this.inputs[Inputs.SHIPPING_POSTAL].getInputValue(),
+        countryShippingCode: this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
+        countryStreetBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_STREET].getInputValue()
+          : this.inputs[Inputs.SHIPPING_STREET].getInputValue(),
+        countryCityBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_CITY].getInputValue()
+          : this.inputs[Inputs.SHIPPING_CITY].getInputValue(),
+        countryPostalBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_POSTAL].getInputValue()
+          : this.inputs[Inputs.SHIPPING_POSTAL].getInputValue(),
+        countryBillingCode: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
+          : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
+        key: Math.floor(Math.random() * 200).toString(),
+        defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
+        defaultBillingAddressNum: this.isBillingAddress
+          ? this.isDefaultBillingAddress
+            ? 1
+            : undefined
+          : this.isDefaultShippingAddress
+          ? 1
+          : undefined,
+      };
+      api
+        .createCustomer(params)
+        .then((response) => {
+          if ((response.statusCode = 201)) {
+            this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
+            this.getElement().append(this.checkValidityElement);
+            setTimeout(
+              () => window.location.replace(`${window.location.protocol}//${window.location.host}/#index`),
+              2000
+            );
+          }
+        })
+        .then(() => {})
+        .catch((error) => {
+          this.checkValidityElement.textContent = error.message;
+          this.getElement().append(this.checkValidityElement);
+        });
+    } else {
+      this.getElement().append(this.checkValidityElement);
+    }
+  }
+
+  private isCheckValidityFormHandler(): boolean {
+    let result = true;
+    this.mainInputsGroup.forEach((input) => {
+      if (!input.getInput().checkValidity()) {
+        result = false;
       }
     });
+
+    this.shippingInputsGroup.forEach((input) => {
+      if (!input.getInput().checkValidity()) {
+        result = false;
+      }
+    });
+
+    if (this.isBillingAddress) {
+      this.billingInputsGroup.forEach((input) => {
+        if (!input.getInput().checkValidity()) {
+          result = false;
+        }
+      });
+    }
+    return result;
   }
 
   private createParams(): Array<InputParams> {
@@ -379,9 +636,11 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
+        callback: [[this.changeInputDateHandler.bind(this), Events.CLICK]],
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.DATE,
+          placeholder: InputTittles.DATE_OF_BIRTH_HINT,
           name: InputNames.DATE_OF_BIRTH,
           title: InputTittles.DATE_OF_BIRTH_HINT,
           max: this.maxPossibleDate(InputPatterns.DATE_OF_BIRTH_MAX),
@@ -475,6 +734,6 @@ export default class RegistrationView extends DefaultView {
   }
 }
 
-export function getView(): RegistrationView {
-  return new RegistrationView();
+export function getView(router: Router): RegistrationView {
+  return new RegistrationView(router);
 }

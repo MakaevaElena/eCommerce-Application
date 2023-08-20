@@ -16,6 +16,19 @@
     background-color: transparentize($color-page-background-secondary, 0.8);
   }
 
+  &__checkValidity {
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: 100vw;
+    height: 100vh;
+    @include flex(center, center);
+    font-size: 3rem;
+    background-color: transparentize($color-brand-primary, 0.5);
+  }
+
   &__description {
     width: 80%;
     margin: 0 auto;
@@ -42,6 +55,11 @@
 
   &__button {
     width: 40%;
+    background-color: transparentize($color-brand-primary, 0.2);
+  }
+
+  &__buttonAddAdsress {
+    width: min(40% - 1rem, 40% - 1rem);
     background-color: transparentize($color-brand-primary, 0.2);
   }
 

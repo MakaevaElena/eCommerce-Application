@@ -7,6 +7,7 @@ import DefaultView from '../view/default-view';
 import FooterView from '../view/page/footer-view/footer-view';
 import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
+import '../../style/global.scss';
 
 export default class App {
   private favicon: Favicon;
@@ -97,10 +98,7 @@ export default class App {
           const { getView } = await import('../view/page/registration-view/registration-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : getView();
-          if (localStorage.getItem('isLogin') === 'true') {
-            this.router.navigate(PagePath.INDEX);
-          }
+            : getView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);
