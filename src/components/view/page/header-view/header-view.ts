@@ -1,5 +1,5 @@
 import TagName from '../../../../enum/tag-name';
-import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
+import { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
 import Router, { Route } from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
@@ -58,11 +58,7 @@ export default class HeaderView extends DefaultView {
   }
 
   private createLogoutButton() {
-    const logoutButton = new ElementCreator({
-      tag: TagName.BUTTON,
-      classNames: [styleCss['header__logout-button'], styleCss['link-button']],
-      textContent: 'Logout',
-    });
+    const logoutButton = new LinkButton('Logout', () => this.router.navigate(''), this.headerLinks);
 
     logoutButton.getElement().addEventListener('click', () => {
       localStorage.setItem(`isLogin`, 'false');
@@ -74,7 +70,7 @@ export default class HeaderView extends DefaultView {
     if (localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false') {
       logoutButton.getElement().classList.add(styleCss.hide);
     }
-    this.getCreator().addInnerElement(logoutButton);
+    this.getCreator().addInnerElement(logoutButton.getElement());
   }
 
   private updateHeader() {

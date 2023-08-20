@@ -1,5 +1,5 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { anonimClient } from './sdk/with-anonimous-flow';
+import { createAnonim } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
 
 type LoginData = {
@@ -17,7 +17,7 @@ type CustomerData = {
 };
 
 export default class ClientApi {
-  private clientRoot = createApiBuilderFromCtpClient(anonimClient()).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: 'best-games' });
 
   constructor(loginData?: LoginData) {
     if (loginData) {
@@ -52,7 +52,12 @@ export default class ClientApi {
       .execute();
   }
 
+  // user3@mail.ru
+  // 123!@#tyuTYU
+
   // helen@mail.ru
+  // '123!@#qweQWE'
+
   // 'johndoe@example.com'
   // '123!@#qweQWE'
   public getCustomer({ email, password }: { email: string; password: string }) {
