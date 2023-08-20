@@ -1,5 +1,5 @@
 import RegApi from './reg-api';
-import ApiMock from '../../__mocks__/api-mock';
+import ApiMock from '../utils/api-mock';
 
 describe('Test Registration API', () => {
   test('work with RegApi', async () => {

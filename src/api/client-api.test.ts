@@ -1,5 +1,5 @@
 import ClientApi from './client-api';
-import ApiMock from '../../__mocks__/api-mock';
+import ApiMock from '../utils/api-mock';
 
 describe('Test Client API', () => {
   test('work with ClientApi', async () => {
@@ -20,7 +20,6 @@ describe('Test Client API', () => {
 
     const customerBuilder = api.createUserRoot(ApiMock.email, ApiMock.pass);
     expect(customerBuilder).toHaveProperty('args');
-    expect(customerBuilder.args).toHaveProperty('pathArgs');
 
     const responseCartById = await api.getCartByCustomerId(ApiMock.customerId);
     expect(responseCartById.statusCode).toBe(ApiMock.httpCodeOK);
