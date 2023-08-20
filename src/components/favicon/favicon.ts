@@ -11,7 +11,7 @@ export default class Favicon {
     this.element = this.createElement();
   }
 
-  getElement(): DocumentFragment {
+  public getElement(): DocumentFragment {
     return this.element;
   }
 
