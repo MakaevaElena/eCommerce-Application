@@ -46,14 +46,18 @@ export default class LinkButton extends DefaultView {
     this.getElement().classList.add(styleCss.hide);
   }
 
+  private disableButton() {
+    this.getElement().classList.add(styleCss['link-button_disabled']);
+  }
+
   private showButton() {
     this.getElement().classList.add(styleCss.show);
   }
 
   private viewForLoggedUser() {
     if (localStorage.getItem(`isLogin`) === 'true') {
-      this.headerLinks.get(LinkName.LOGIN)?.hideButton();
-      this.headerLinks.get(LinkName.REGISTRATION)?.hideButton();
+      this.headerLinks.get(LinkName.LOGIN)?.disableButton();
+      this.headerLinks.get(LinkName.REGISTRATION)?.disableButton();
     }
   }
 }

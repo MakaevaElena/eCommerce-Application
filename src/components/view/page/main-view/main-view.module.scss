@@ -3,6 +3,5 @@
 .main-view {
   display: flex;
   flex-direction: column;
-
-  border: 1px solid blue;
+  flex-grow: 2;
 }

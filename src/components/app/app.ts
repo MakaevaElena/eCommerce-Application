@@ -83,6 +83,9 @@ export default class App {
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
             : getView(this.router);
+          if (localStorage.getItem('isLogin') === 'true') {
+            this.router.navigate(PagePath.INDEX);
+          }
           if (view) {
             this.viewStorage.set(PagePath.LOGIN, view);
             this.setContent(PagePath.LOGIN, view);
@@ -95,7 +98,7 @@ export default class App {
           const { getView } = await import('../view/page/registration-view/registration-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : getView(this.router);
+            : getView();
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);

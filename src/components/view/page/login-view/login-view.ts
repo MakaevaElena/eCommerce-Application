@@ -14,7 +14,7 @@ const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
 const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
 const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
 const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
-const checkWightSpace = /(^\S*$)/;
+const checkWhiteSpace = /[^\s]/gim;
 const checkEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}/;
 
 enum Message {
@@ -74,7 +74,7 @@ export default class LoginView extends DefaultView {
     this.anonimApi = new ClientApi();
 
     if (localStorage.getItem('isLogin') === 'true') {
-      console.log('localStorage', localStorage.getItem('isLogin'));
+      console.log(localStorage.getItem('isLogin'));
       this.router.navigate(PagePath.INDEX);
     } else {
       this.configView();
@@ -230,7 +230,8 @@ export default class LoginView extends DefaultView {
             window.localStorage.setItem(`isLogin`, 'true');
             this.observer.notify(EventName.LOGIN);
 
-            this.router.navigate(PagePath.INDEX);
+            // this.router.navigate(PagePath.INDEX);
+            window.location.replace(`${window.location.protocol}//${window.location.host}/#index`);
 
             this.userApi = new ClientApi({ email, password });
             // this.userApi.getCustomer({ email, password });
@@ -258,11 +259,15 @@ export default class LoginView extends DefaultView {
   }
 
   private validateEmail() {
-    const { value } = this.loginEmail.getElement() as HTMLInputElement;
+    const { value } = this.emailElement;
     this.emailElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWightSpace.test(value):
+      case !checkWhiteSpace.test(value):
+        this.emailElement.setCustomValidity(Message.EMAIL_CONTAIN_WHITESPACE);
+        break;
+
+      case value.indexOf(' ') > -1:
         this.emailElement.setCustomValidity(Message.EMAIL_CONTAIN_WHITESPACE);
         break;
 
@@ -276,6 +281,7 @@ export default class LoginView extends DefaultView {
     }
 
     this.emailElement.reportValidity();
+
     return false;
   }
 
@@ -284,7 +290,7 @@ export default class LoginView extends DefaultView {
     this.passwordElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWightSpace.test(value):
+      case !checkWhiteSpace.test(value):
         this.passwordElement.setCustomValidity(Message.PASSWORD_CONTAIN_WHITESPACE);
         break;
 

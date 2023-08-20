@@ -8,7 +8,7 @@ export default class FooterView extends DefaultView {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: Object.values(styleCss),
-      textContent: 'FooterView',
+      textContent: '',
     };
     super(params);
 
