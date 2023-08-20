@@ -2,7 +2,7 @@ import styleCss from './link-button.module.scss';
 import { ElementParams } from '../../../utils/element-creator';
 import DefaultView from '../../view/default-view';
 import TagName from '../../../enum/tag-name';
-import { LinkName } from '../../router/pages';
+// import { LinkName } from '../../router/pages';
 
 export default class LinkButton extends DefaultView {
   private headerLinks: Map<string, LinkButton>;
@@ -27,7 +27,7 @@ export default class LinkButton extends DefaultView {
     this.getElement().addEventListener('click', () => {
       this.markSelected();
     });
-    this.viewForLoggedUser();
+    // this.viewForLoggedUser();
   }
 
   private markSelected() {
@@ -54,10 +54,10 @@ export default class LinkButton extends DefaultView {
     this.getElement().classList.add(styleCss.show);
   }
 
-  private viewForLoggedUser() {
-    if (localStorage.getItem(`isLogin`) === 'true') {
-      this.headerLinks.get(LinkName.LOGIN)?.disableButton();
-      this.headerLinks.get(LinkName.REGISTRATION)?.disableButton();
-    }
-  }
+  // private viewForLoggedUser() {
+  //   if (localStorage.getItem(`isLogin`) === 'true') {
+  //     this.headerLinks.get(LinkName.LOGIN)?.disableButton();
+  //     this.headerLinks.get(LinkName.REGISTRATION)?.disableButton();
+  //   }
+  // }
 }
