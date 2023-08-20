@@ -20,6 +20,7 @@ import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './enum/text-contents';
+import RegApi from '../../../../api/reg-api';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -33,6 +34,8 @@ export default class RegistrationView extends DefaultView {
   private billingInputsGroup: Array<InputCreator>;
 
   private countryList: HTMLDataListElement;
+
+  private checkValidityElement: HTMLDivElement;
 
   private buttonDefaultShippingAddress: HTMLButtonElement;
 
@@ -61,6 +64,7 @@ export default class RegistrationView extends DefaultView {
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
     this.shippingInputsGroup = [];
+    this.checkValidityElement = this.createValidMessageElement();
     this.buttonDefaultShippingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
       styles.registrationView__defaultSelect,
     ]);
@@ -88,6 +92,19 @@ export default class RegistrationView extends DefaultView {
     const form = this.createForm();
     this.buttonAddAddress.addEventListener(Events.CLICK, this.toggleBillingAddressHandler.bind(this));
     this.getElement().append(title, description, form, this.buttonAddAddress, this.countryList);
+  }
+
+  private createValidMessageElement(): HTMLDivElement {
+    const element = document.createElement(TagName.DIV);
+    element.textContent = TextContents.CHECK_VALIDITY;
+    element.classList.add(styles.registrationView__checkValidity);
+    element.addEventListener(Events.CLICK, this.removeValidityMessageHandler.bind(this));
+    return element;
+  }
+
+  private removeValidityMessageHandler() {
+    this.checkValidityElement.textContent = TextContents.CHECK_VALIDITY;
+    this.getElement().removeChild(this.checkValidityElement);
   }
 
   private createLabel(name: string) {
@@ -311,6 +328,7 @@ export default class RegistrationView extends DefaultView {
     button.classList.add(styles.registrationView__button);
     button.type = ButtonTypes.BUTTON;
     button.textContent = TextContents.BUTTON_SUBMIT;
+    button.addEventListener(Events.CLICK, this.formSubmitHandler.bind(this));
 
     const buttonWrap = document.createElement(TagName.DIV);
     buttonWrap.classList.add(styles.registrationView__buttonWrap);
@@ -395,7 +413,7 @@ export default class RegistrationView extends DefaultView {
         const pattern = Array.from(Object.values(PostalPatterns))[numberGroup];
         postal.setPattern(pattern);
         const title = Array.from(Object.values(PostalTitles))[numberGroup];
-        const messageError = `${country}\`s postal ${title}`;
+        const messageError = `${country.slice(0, -3)}\`s postal ${title}`;
         postal.setTitle(messageError);
         postal.setMessageError(messageError);
         postal.setCustomValidity('');
@@ -457,6 +475,95 @@ export default class RegistrationView extends DefaultView {
     }
   }
 
+  private changeInputDateHandler() {
+    if (this.inputs[Inputs.DATE_OF_BIRTH].getInput().checkValidity() === true) {
+      this.inputs[Inputs.DATE_OF_BIRTH].setMessageError('');
+    } else {
+      this.inputs[Inputs.DATE_OF_BIRTH].setMessageError(InputTittles.DATE_OF_BIRTH_HINT);
+    }
+  }
+
+  private formSubmitHandler() {
+    if (this.isCheckValidityFormHandler()) {
+      const api = new RegApi();
+      const params = {
+        email: this.inputs[Inputs.EMAIL].getInputValue(),
+        password: this.inputs[Inputs.PASSWORD].getInputValue(),
+        firstName: this.inputs[Inputs.FIRST_NAME].getInputValue(),
+        lastName: this.inputs[Inputs.LAST_NAME].getInputValue(),
+        dateOfBirth: this.inputs[Inputs.DATE_OF_BIRTH].getInputValue(),
+        countryStreetShipping: this.inputs[Inputs.SHIPPING_STREET].getInputValue(),
+        countryCityShipping: this.inputs[Inputs.SHIPPING_CITY].getInputValue(),
+        countryPostalShipping: this.inputs[Inputs.SHIPPING_POSTAL].getInputValue(),
+        countryShippingCode: this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
+        countryStreetBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_STREET].getInputValue()
+          : this.inputs[Inputs.SHIPPING_STREET].getInputValue(),
+        countryCityBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_CITY].getInputValue()
+          : this.inputs[Inputs.SHIPPING_CITY].getInputValue(),
+        countryPostalBilling: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_POSTAL].getInputValue()
+          : this.inputs[Inputs.SHIPPING_POSTAL].getInputValue(),
+        countryBillingCode: this.isBillingAddress
+          ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
+          : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
+        key: Math.floor(Math.random() * 200).toString(),
+        defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
+        defaultBillingAddressNum: this.isBillingAddress
+          ? this.isDefaultBillingAddress
+            ? 1
+            : undefined
+          : this.isDefaultShippingAddress
+          ? 1
+          : undefined,
+      };
+      api
+        .createCustomer(params)
+        .then((response) => {
+          if ((response.statusCode = 201)) {
+            this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
+            this.getElement().append(this.checkValidityElement);
+            setTimeout(
+              () => window.location.replace(`${window.location.protocol}//${window.location.host}/#index`),
+              2000
+            );
+          }
+        })
+        .then(() => {})
+        .catch((error) => {
+          this.checkValidityElement.textContent = error.message;
+          this.getElement().append(this.checkValidityElement);
+        });
+    } else {
+      this.getElement().append(this.checkValidityElement);
+    }
+  }
+
+  private isCheckValidityFormHandler(): boolean {
+    let result = true;
+    this.mainInputsGroup.forEach((input) => {
+      if (!input.getInput().checkValidity()) {
+        result = false;
+      }
+    });
+
+    this.shippingInputsGroup.forEach((input) => {
+      if (!input.getInput().checkValidity()) {
+        result = false;
+      }
+    });
+
+    if (this.isBillingAddress) {
+      this.billingInputsGroup.forEach((input) => {
+        if (!input.getInput().checkValidity()) {
+          result = false;
+        }
+      });
+    }
+    return result;
+  }
+
   private createParams(): Array<InputParams> {
     return [
       {
@@ -515,9 +622,11 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
+        callback: [[this.changeInputDateHandler.bind(this), Events.CLICK]],
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.DATE,
+          placeholder: InputTittles.DATE_OF_BIRTH_HINT,
           name: InputNames.DATE_OF_BIRTH,
           title: InputTittles.DATE_OF_BIRTH_HINT,
           max: this.maxPossibleDate(InputPatterns.DATE_OF_BIRTH_MAX),
