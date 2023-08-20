@@ -9,6 +9,7 @@ enum TextContents {
   REMOVE_BILLING_ADDRESS = 'Remove billing address',
   CHECK_VALIDITY = 'check that all fields are filled in correctly',
   REGISTRATION_OK = 'You have successfully registered',
+  TO_LOGIN = 'Go to login',
 }
 
 export default TextContents;

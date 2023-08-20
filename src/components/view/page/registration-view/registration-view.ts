@@ -1,4 +1,5 @@
 import styles from './registration-view.module.scss';
+import linStyle from './link.module.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
 import { InputParams } from '../../../../utils/input/inputParams';
@@ -21,6 +22,8 @@ import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './enum/text-contents';
 import RegApi from '../../../../api/reg-api';
+import Router from '../../../router/router';
+import { PagePath } from '../../../router/pages';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -53,13 +56,16 @@ export default class RegistrationView extends DefaultView {
 
   private isBillingAddress: boolean;
 
-  constructor() {
+  private router: Router;
+
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styles.registrationView],
       textContent: '',
     };
     super(params);
+    this.router = router;
     this.inputs = [];
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
@@ -90,8 +96,16 @@ export default class RegistrationView extends DefaultView {
     const description = this.createDescription();
     this.fillInputsGroups();
     const form = this.createForm();
+    const button = document.createElement(TagName.BUTTON);
+    button.textContent = TextContents.TO_LOGIN;
+    button.classList.add(linStyle.button);
+    button.addEventListener(Events.CLICK, this.redirectLoginhandler.bind(this));
     this.buttonAddAddress.addEventListener(Events.CLICK, this.toggleBillingAddressHandler.bind(this));
-    this.getElement().append(title, description, form, this.buttonAddAddress, this.countryList);
+    this.getElement().append(title, description, button, form, this.buttonAddAddress, this.countryList);
+  }
+
+  private redirectLoginhandler() {
+    this.router.navigate(PagePath.LOGIN);
   }
 
   private createValidMessageElement(): HTMLDivElement {
@@ -720,6 +734,6 @@ export default class RegistrationView extends DefaultView {
   }
 }
 
-export function getView(): RegistrationView {
-  return new RegistrationView();
+export function getView(router: Router): RegistrationView {
+  return new RegistrationView(router);
 }
