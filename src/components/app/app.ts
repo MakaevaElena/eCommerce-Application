@@ -98,7 +98,7 @@ export default class App {
           const { getView } = await import('../view/page/registration-view/registration-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : getView();
+            : getView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);
