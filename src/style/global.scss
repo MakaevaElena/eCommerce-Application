@@ -12,6 +12,9 @@ html {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   margin: 0;
   font-family: 'Open Sans', sans-serif;
   color: $color-text-primary;
