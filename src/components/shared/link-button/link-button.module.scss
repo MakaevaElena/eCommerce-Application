@@ -35,6 +35,8 @@
 .link-button_disabled {
   // color: $button-disabled-color-text;
   // border-color: $button-disabled-color-border;
+  color: $color-text-secondary;
+  border-color: $color-text-dark;
   background: transparent;
   pointer-events: none;
 }

@@ -56,10 +56,10 @@ export default class ClientApi {
   // 123!@#tyuTYU
 
   // helen@mail.ru
-  // '123!@#qweQWE'
+  // 123!@#qweQWE
 
-  // 'johndoe@example.com'
-  // '123!@#qweQWE'
+  // johndoe@example.com
+  // 123!@#qweQWE
   public getCustomer({ email, password }: { email: string; password: string }) {
     return this.clientRoot
       .me()
