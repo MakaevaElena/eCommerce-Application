@@ -74,7 +74,6 @@ export default class LoginView extends DefaultView {
     this.anonimApi = new ClientApi();
 
     if (localStorage.getItem('isLogin') === 'true') {
-      console.log(localStorage.getItem('isLogin'));
       this.router.navigate(PagePath.INDEX);
     } else {
       this.configView();
@@ -226,29 +225,11 @@ export default class LoginView extends DefaultView {
         .getCustomer({ email, password })
         .then((response) => {
           if (response.body.customer) {
-            console.log('all response', response);
             window.localStorage.setItem(`isLogin`, 'true');
             this.observer.notify(EventName.LOGIN);
-
-            // this.router.navigate(PagePath.INDEX);
             window.location.replace(`${window.location.protocol}//${window.location.host}/#index`);
-
             this.userApi = new ClientApi({ email, password });
-            // this.userApi.getCustomer({ email, password });
             this.userApi.returnCustomerById(response.body.customer.id);
-
-            // this.userApi
-            //   .getCartByCustomerId(response.body.customer.id)
-            //   .then((CartByCustomerId) => console.log('cart exist', CartByCustomerId))
-            //   .catch(() => {
-            //     if (this.userApi)
-            //       this.userApi
-            //         .createCart(response.body.customer.id)
-            //         .then((cart) => {
-            //           console.log('new cart created', cart);
-            //         })
-            //         .catch((error) => console.log(error));
-            // });
           }
         })
         .catch(() => {
