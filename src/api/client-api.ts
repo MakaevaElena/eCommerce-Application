@@ -93,7 +93,6 @@ export default class ClientApi {
   };
 
   public getCartByCustomerId(id: string) {
-    console.log(this.clientRoot);
     return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
 

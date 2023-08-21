@@ -30,6 +30,7 @@ import Observer from '../../../../observer/observer';
 
 export default class RegistrationView extends DefaultView {
   private readonly DEFAULT_ADDRESS_NUMBER = 1;
+
   private inputsParams: Array<InputParams>;
 
   private inputs: Array<InputCreator>;
