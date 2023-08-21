@@ -55,7 +55,7 @@ export default class App {
           const { getView } = await import('../view/page/index-view/index-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView();
+            : getView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
@@ -68,7 +68,7 @@ export default class App {
           const { getView } = await import('../view/page/index-view/index-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView();
+            : getView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
