@@ -64,7 +64,7 @@ export default class HeaderView extends DefaultView {
       localStorage.setItem(`isLogin`, 'false');
       this.observer.notify(EventName.LOGOUT);
       this.updateHeader();
-      this.router.navigate(PagePath.LOGIN);
+      this.router.navigate(PagePath.INDEX);
     });
 
     if (localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false') {

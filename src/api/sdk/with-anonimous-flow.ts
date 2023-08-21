@@ -34,7 +34,7 @@ export const createAnonim = () => {
     credentials: {
       clientId: CTP_CLIENT_ID,
       clientSecret: CTP_CLIENT_SECRET,
-      anonymousId: `best-games-${Math.random()}`, // a unique id
+      anonymousId: `best-games-${Math.floor(Math.random() * 100000)}`, // a unique id
     },
     scopes: [`manage_project:${CTP_PROJECT_KEY}`],
   };
