@@ -35,9 +35,8 @@ export default class LinkButton extends DefaultView {
       this.linksGroup.forEach((link) => {
         link.markUnSelected();
       });
+      this.getElement().classList.add(styleCss.selected);
     }
-
-    this.getElement().classList.add(styleCss.selected);
   }
 
   private markUnSelected() {

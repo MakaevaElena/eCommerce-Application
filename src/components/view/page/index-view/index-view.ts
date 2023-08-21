@@ -1,4 +1,5 @@
 import TagName from '../../../../enum/tag-name';
+import TagElement from '../../../../utils/create-tag-element';
 import { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
@@ -32,11 +33,12 @@ export default class IndexView extends DefaultView {
   }
 
   private createLinks() {
+    const wrapper = new TagElement().createTagElement('div', [styleCss['links-wrapper']]);
     const logInButton = this.createLogInButton();
     const signInButton = this.createSignInButton();
 
-    this.getCreator().addInnerElement(logInButton.getElement());
-    this.getCreator().addInnerElement(signInButton.getElement());
+    wrapper.append(logInButton.getElement(), signInButton.getElement());
+    this.getCreator().addInnerElement(wrapper);
   }
 
   private createLogInButton() {

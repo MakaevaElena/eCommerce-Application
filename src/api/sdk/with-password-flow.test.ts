@@ -1,5 +1,5 @@
 import { createUser } from './with-password-flow';
-import ApiMock from '../../utils/api-mock';
+import { ApiMock } from '../../utils/api-mock';
 
 describe('Test SDK', () => {
   test('create user', () => {
