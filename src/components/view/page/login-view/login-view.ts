@@ -227,7 +227,7 @@ export default class LoginView extends DefaultView {
           if (response.body.customer) {
             window.localStorage.setItem(`isLogin`, 'true');
             this.observer.notify(EventName.LOGIN);
-            window.location.replace(`${window.location.protocol}//${window.location.host}/#index`);
+            this.router.navigate(PagePath.INDEX);
             this.userApi = new ClientApi({ email, password });
             this.userApi.returnCustomerById(response.body.customer.id);
           }
