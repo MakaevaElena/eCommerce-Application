@@ -7,7 +7,6 @@ import DefaultView from '../view/default-view';
 import FooterView from '../view/page/footer-view/footer-view';
 import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
-import '../../style/global.scss';
 
 export default class App {
   private favicon: Favicon;
@@ -111,7 +110,7 @@ export default class App {
           const { getView } = await import('../view/page/not-found-view/not-found-view');
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.NOT_FOUND)
             ? this.viewStorage.get(PagePath.NOT_FOUND)
-            : getView();
+            : getView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.NOT_FOUND, view);
             this.setContent(PagePath.NOT_FOUND, view);
