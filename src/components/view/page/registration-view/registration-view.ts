@@ -24,6 +24,9 @@ import TextContents from './enum/text-contents';
 import RegApi from '../../../../api/reg-api';
 import Router from '../../../router/router';
 import { PagePath } from '../../../router/pages';
+import ClientApi from '../../../../api/client-api';
+import EventName from '../../../../enum/event-name';
+import Observer from '../../../../observer/observer';
 
 export default class RegistrationView extends DefaultView {
   private inputsParams: Array<InputParams>;
@@ -56,6 +59,8 @@ export default class RegistrationView extends DefaultView {
 
   private isBillingAddress: boolean;
 
+  private observer: Observer;
+
   private router: Router;
 
   constructor(router: Router) {
@@ -66,6 +71,7 @@ export default class RegistrationView extends DefaultView {
     };
     super(params);
     this.router = router;
+    this.observer = Observer.getInstance();
     this.inputs = [];
     this.mainInputsGroup = [];
     this.billingInputsGroup = [];
@@ -532,19 +538,23 @@ export default class RegistrationView extends DefaultView {
           ? 1
           : undefined,
       };
+
+      const loginParams = {
+        email: this.inputs[Inputs.EMAIL].getInputValue(),
+        password: this.inputs[Inputs.PASSWORD].getInputValue(),
+      };
       api
         .createCustomer(params)
         .then((response) => {
           if ((response.statusCode = 201)) {
             this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
             this.getElement().append(this.checkValidityElement);
-            setTimeout(
-              () => window.location.replace(`${window.location.protocol}//${window.location.host}/#index`),
-              2000
-            );
+            setTimeout(() => this.router.navigate(PagePath.LOGIN), 2000);
           }
         })
-        .then(() => {})
+        .then(() => {
+          this.makeLogin(loginParams);
+        })
         .catch((error) => {
           this.checkValidityElement.textContent = error.message;
           this.getElement().append(this.checkValidityElement);
@@ -552,6 +562,16 @@ export default class RegistrationView extends DefaultView {
     } else {
       this.getElement().append(this.checkValidityElement);
     }
+  }
+
+  private makeLogin(params: { email: string; password: string }) {
+    const loginApi = new ClientApi();
+    loginApi.getCustomer(params).then((response) => {
+      if (response.body.customer) {
+        window.localStorage.setItem(`isLogin`, 'true');
+        this.observer.notify(EventName.LOGIN);
+      }
+    });
   }
 
   private isCheckValidityFormHandler(): boolean {
