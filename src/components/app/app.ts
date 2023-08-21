@@ -34,7 +34,7 @@ export default class App {
     this.footer = new FooterView();
   }
 
-  init() {
+  public init() {
     document.head.append(this.favicon.getElement());
 
     document.body.append(this.header.getElement());
