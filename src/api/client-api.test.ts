@@ -1,5 +1,5 @@
 import ClientApi from './client-api';
-import ApiMock from '../utils/api-mock';
+import { ApiMock } from '../utils/api-mock';
 
 describe('Test Client API', () => {
   test('work with ClientApi', async () => {
@@ -24,6 +24,7 @@ describe('Test Client API', () => {
     const responseCartById = await api.getCartByCustomerId(ApiMock.customerId);
     expect(responseCartById.statusCode).toBe(ApiMock.httpCodeOK);
 
+    // const newCustomerData = { ...MockCustomerData };
     const newCustomerData = {
       email: ApiMock.email,
       password: ApiMock.pass,
@@ -34,7 +35,7 @@ describe('Test Client API', () => {
     };
     await expect(api.createCustomer(newCustomerData)).rejects.toThrow(ApiMock.messageUserExists);
 
-    // const cartResponse = await api.createCart(ApiMock.customerId);
-    // expect(cartResponse.statusCode).toBe(ApiMock.httpCodeResourceCreated);
+    const cartResponse = await api.createCart(ApiMock.customerId);
+    expect(cartResponse.statusCode).toBe(ApiMock.httpCodeResourceCreated);
   });
 });

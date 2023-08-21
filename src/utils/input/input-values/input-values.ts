@@ -36,7 +36,7 @@ export enum InputPlaceholders {
 }
 
 export enum InputTittles {
-  PASSWORD = 'Minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
+  PASSWORD = 'Minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character (!@#$%^&*)',
   PASSWORD_REPEAT = 'The passwords must match',
   EASY_TEXT = 'Must contain at least one character',
   DATE_OF_BIRTH_HINT = 'Only 13 years old or older',

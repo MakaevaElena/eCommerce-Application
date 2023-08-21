@@ -83,7 +83,7 @@ export default class ClientApi {
       .carts()
       .post({
         body: {
-          key: `test-cart-key-${Math.random()}`,
+          key: `cart-key-${Math.floor(Math.random() * 100000)}`,
           currency: 'RUB',
           country: 'RU',
           customerId,
