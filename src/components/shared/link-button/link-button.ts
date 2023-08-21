@@ -5,9 +5,9 @@ import TagName from '../../../enum/tag-name';
 import { LinkName } from '../../router/pages';
 
 export default class LinkButton extends DefaultView {
-  private headerLinks: Map<string, LinkButton>;
+  private linksGroup: Map<string, LinkButton> | undefined;
 
-  constructor(caption: string, callback: () => void, headerLinks: Map<string, LinkButton>) {
+  constructor(caption: string, callback: () => void, linksGroup?: Map<string, LinkButton>) {
     const elementParams: ElementParams = {
       tag: TagName.A,
       textContent: caption,
@@ -16,7 +16,7 @@ export default class LinkButton extends DefaultView {
 
     super(elementParams);
 
-    this.headerLinks = headerLinks;
+    this.linksGroup = linksGroup;
 
     this.getElement().addEventListener('click', callback);
 
@@ -31,9 +31,11 @@ export default class LinkButton extends DefaultView {
   }
 
   private markSelected() {
-    this.headerLinks.forEach((link) => {
-      link.markUnSelected();
-    });
+    if (this.linksGroup) {
+      this.linksGroup.forEach((link) => {
+        link.markUnSelected();
+      });
+    }
 
     this.getElement().classList.add(styleCss.selected);
   }
@@ -56,8 +58,10 @@ export default class LinkButton extends DefaultView {
 
   private viewForLoggedUser() {
     if (localStorage.getItem(`isLogin`) === 'true') {
-      this.headerLinks.get(LinkName.LOGIN)?.disableButton();
-      this.headerLinks.get(LinkName.REGISTRATION)?.disableButton();
+      if (this.linksGroup) {
+        this.linksGroup.get(LinkName.REGISTRATION)?.disableButton();
+        this.linksGroup.get(LinkName.LOGIN)?.disableButton();
+      }
     }
   }
 }
