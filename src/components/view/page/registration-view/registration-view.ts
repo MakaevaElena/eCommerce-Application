@@ -27,6 +27,9 @@ import { PagePath } from '../../../router/pages';
 import ClientApi from '../../../../api/client-api';
 import EventName from '../../../../enum/event-name';
 import Observer from '../../../../observer/observer';
+import delays from '../../../../enum/delays';
+import Delays from '../../../../enum/delays';
+import StatusCodes from '../../../../enum/status-codes';
 
 export default class RegistrationView extends DefaultView {
   private readonly DEFAULT_ADDRESS_NUMBER = 1;
@@ -528,7 +531,8 @@ export default class RegistrationView extends DefaultView {
       countryBillingCode: this.isBillingAddress
         ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
         : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
-      key: Math.floor(Math.random() * 200).toString(),
+      key: Math.floor(Math.random() * 200 + 10).toString(),
+      // 10 здесь просто чтобы не было ошибки так как ключ долже минмимум из двух чисел
       defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
       defaultBillingAddressNum: this.getDefaultBillinAddressNum(),
     };
@@ -558,10 +562,10 @@ export default class RegistrationView extends DefaultView {
       api
         .createCustomer(params)
         .then((response) => {
-          if (response.statusCode === 201) {
+          if (response.statusCode === StatusCodes.USER_CREATED) {
             this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
             this.getElement().append(this.checkValidityElement);
-            setTimeout(() => this.router.navigate(PagePath.LOGIN), 2000);
+            setTimeout(() => this.router.navigate(PagePath.LOGIN), Delays.SWITCH_TO_PAGE);
           }
         })
         .then(() => {
