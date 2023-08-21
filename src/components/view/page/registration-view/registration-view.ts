@@ -531,7 +531,8 @@ export default class RegistrationView extends DefaultView {
       countryBillingCode: this.isBillingAddress
         ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
         : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
-      key: Math.floor(Math.random() * 200).toString(),
+      key: Math.floor(Math.random() * 200 + 10).toString(),
+      // 10 здесь просто чтобы не было ошибки так как ключ долже минмимум из двух чисел
       defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
       defaultBillingAddressNum: this.getDefaultBillinAddressNum(),
     };
