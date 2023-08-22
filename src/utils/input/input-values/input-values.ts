@@ -50,7 +50,7 @@ export enum InputPatterns {
   PASSWORD = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$',
   TEXT = '^(?!.*\\d)(?!.*[!@#$%^&*])[А-Яа-яA-Za-z\\d!@#$%^&*]{1,}$',
   DATE_OF_BIRTH_MAX = '13',
-  EMAIL = '[a-z0-9]+@[a-z]+.[a-z]{2,3}',
+  EMAIL = '[a-z0-9]+@[a-z]+\\.[a-z]{2,3}',
 }
 
 export enum InputCountries {}
