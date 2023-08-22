@@ -38,13 +38,13 @@ export default class LoginView extends DefaultView {
 
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.login_form__email, styleCss.field],
+    classNames: [styleCss.field],
     textContent: 'email',
   });
 
   private loginPassword = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss['login-form__password'], styleCss.field],
+    classNames: [styleCss.field],
     textContent: 'password',
   });
 
@@ -61,7 +61,6 @@ export default class LoginView extends DefaultView {
   constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
-      // classNames: Object.values(styleCss),
       classNames: [styleCss['login-view']],
       textContent: '',
     };
@@ -117,13 +116,13 @@ export default class LoginView extends DefaultView {
 
     const showPasswordButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss['login-form__show-password'], styleCss.button],
+      classNames: [styleCss.button],
       textContent: 'SHOW',
     });
 
     const loginSubmitButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss['login-form__submit-button'], styleCss.button],
+      classNames: [styleCss.button],
       textContent: 'SIGN IN',
     });
 
@@ -192,7 +191,7 @@ export default class LoginView extends DefaultView {
     }
   }
 
-  private submitLogin(event: Event) {
+  private async submitLogin(event: Event) {
     event.preventDefault();
     const email = this.emailElement.value;
     const password = this.passwordElement.value;
@@ -208,17 +207,18 @@ export default class LoginView extends DefaultView {
 
     if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
       if (email !== undefined) {
-        this.anonimApi
-          .checkCustomerExist(email)
-          .then((response) => {
-            if (response.body.results.length === 0) {
-              this.emailElement.setCustomValidity(Message.MAIL_NOT_REGISTERED);
-              this.emailElement.reportValidity();
-            } else {
-              console.log();
-            }
-          })
-          .catch(console.error);
+        try {
+          const response = await this.anonimApi.checkCustomerExist(email);
+          if (response.body.results.length === 0) {
+            this.emailElement.setCustomValidity(Message.MAIL_NOT_REGISTERED);
+            this.emailElement.reportValidity();
+            return;
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            console.log(error.message); // TODO realize output message
+          }
+        }
       }
 
       this.anonimApi
