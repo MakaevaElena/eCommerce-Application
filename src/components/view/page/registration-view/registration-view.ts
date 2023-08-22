@@ -623,6 +623,7 @@ export default class RegistrationView extends DefaultView {
           type: InputTypes.EMAIL,
           name: InputNames.EMAIL,
           placeholder: InputPlaceholders.EMAIL,
+          pattern: InputPatterns.EMAIL,
         },
       },
       {
