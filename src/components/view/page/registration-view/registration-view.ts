@@ -27,7 +27,6 @@ import { PagePath } from '../../../router/pages';
 import ClientApi from '../../../../api/client-api';
 import EventName from '../../../../enum/event-name';
 import Observer from '../../../../observer/observer';
-import delays from '../../../../enum/delays';
 import Delays from '../../../../enum/delays';
 import StatusCodes from '../../../../enum/status-codes';
 
