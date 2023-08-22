@@ -55,16 +55,19 @@
 
   &__button {
     width: 40%;
+    padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
     background-color: transparentize($color-brand-primary, 0.2);
   }
 
   &__buttonAddAdsress {
     width: min(40% - 1rem, 40% - 1rem);
+    padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
     background-color: transparentize($color-brand-primary, 0.2);
   }
 
   &__defaultSelect {
     width: 80%;
+    padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
     border-radius: 2px;
     background-color: transparentize($color-brand-primary, 0.2);
 

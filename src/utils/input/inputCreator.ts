@@ -132,6 +132,7 @@ export default class InputCreator {
   private showPassword() {
     const showPasswordButton = document.createElement('input');
     showPasswordButton.type = InputTypes.CHECKBOX;
+    showPasswordButton.classList.add(styles.checkbox);
     const label = document.createElement('label');
     label.textContent = TextContents.SHOW_BUTTON;
     label.append(showPasswordButton);

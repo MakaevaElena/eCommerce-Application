@@ -24,18 +24,19 @@ export enum InputNames {
 }
 
 export enum InputPlaceholders {
-  PASSWORD = 'PASSWORD',
-  EMAIL = 'EMAIL',
-  REPEAT_PASSWORD = 'RETRY THE PASSWORD',
-  FIRST_NAME = 'FIRST NAME',
-  LAST_NAME = 'LAST NAME',
-  CITY = 'CITY',
-  STREET = 'STREET',
-  POSTAL = 'POSTAL',
-  COUNTRY = 'COUNTRY',
+  PASSWORD = 'Password',
+  EMAIL = 'Email',
+  REPEAT_PASSWORD = 'Repeat password',
+  FIRST_NAME = 'First name',
+  LAST_NAME = 'Last name',
+  CITY = 'City',
+  STREET = 'Street',
+  POSTAL = 'Postal',
+  COUNTRY = 'Country',
 }
 
 export enum InputTittles {
+  EMAIL_HINT = 'Must contain valid email address',
   PASSWORD = 'Minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character (!@#$%^&*)',
   PASSWORD_REPEAT = 'The passwords must match',
   EASY_TEXT = 'Must contain at least one character',

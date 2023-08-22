@@ -621,6 +621,7 @@ export default class RegistrationView extends DefaultView {
         attributes: {
           type: InputTypes.EMAIL,
           name: InputNames.EMAIL,
+          title: InputTittles.EMAIL_HINT,
           placeholder: InputPlaceholders.EMAIL,
           pattern: InputPatterns.EMAIL,
         },
