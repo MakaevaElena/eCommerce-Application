@@ -42,9 +42,10 @@ export default class HeaderView extends DefaultView {
   }
 
   private configView() {
+    this.buttonsWrapper.clearInnerContent();
     this.createLinkButtons(this.buttonsWrapper.getElement());
     this.createLogoutButton(this.buttonsWrapper.getElement());
-    this.getCreator().addInnerElement(this.buttonsWrapper.getElement());
+    this.getCreator().addInnerElement(this.buttonsWrapper);
   }
 
   private createButtonWrapper(): ElementCreator {
