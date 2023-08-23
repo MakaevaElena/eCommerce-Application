@@ -741,7 +741,7 @@ export default class RegistrationView extends DefaultView {
         attributes: {
           type: InputTypes.TEXT,
           name: InputNames.BILLING_CITY,
-          title: InputTittles.EASY_TEXT,
+          title: InputTittles.TEXT,
           placeholder: InputPlaceholders.CITY,
         },
       },
