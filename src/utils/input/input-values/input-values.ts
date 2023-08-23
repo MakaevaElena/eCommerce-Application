@@ -36,7 +36,7 @@ export enum InputPlaceholders {
 }
 
 export enum InputTittles {
-  EMAIL_HINT = 'Must contain valid email address',
+  EMAIL_HINT = 'Must contain valid email address (example@gmail.com)',
   PASSWORD = 'Minimum 8 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character (!@#$%^&*)',
   PASSWORD_REPEAT = 'The passwords must match',
   EASY_TEXT = 'Must contain at least one character',
