@@ -1,5 +1,5 @@
 import TagName from '../../../../enum/tag-name';
-import { ElementParams, InsertableElement } from '../../../../utils/element-creator';
+import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
 import Router, { Route } from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
@@ -15,6 +15,8 @@ export default class HeaderView extends DefaultView {
 
   private headerLinks: Map<string, LinkButton>;
 
+  private buttonsWrapper: ElementCreator;
+
   constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
@@ -28,6 +30,8 @@ export default class HeaderView extends DefaultView {
 
     this.headerLinks = new Map();
 
+    this.buttonsWrapper = this.createButtonWrapper();
+
     this.router = router;
     this.configView();
   }
@@ -38,11 +42,23 @@ export default class HeaderView extends DefaultView {
   }
 
   private configView() {
-    this.createLinkButtons();
-    this.createLogoutButton();
+    this.createLinkButtons(this.buttonsWrapper.getElement());
+    this.createLogoutButton(this.buttonsWrapper.getElement());
+    this.getCreator().addInnerElement(this.buttonsWrapper.getElement());
   }
 
-  private createLinkButtons() {
+  private createButtonWrapper(): ElementCreator {
+    const params: ElementParams = {
+      tag: TagName.DIV,
+      classNames: [styleCss['header-view__button-wrapper']],
+      textContent: '',
+    };
+    this.buttonsWrapper = new ElementCreator(params);
+
+    return this.buttonsWrapper;
+  }
+
+  private createLinkButtons(parentElement: HTMLElement) {
     Object.keys(LinkName).forEach((key) => {
       const path = PagePath[key as keyof typeof PagePath];
       const title = LinkName[key as keyof typeof LinkName];
@@ -52,12 +68,12 @@ export default class HeaderView extends DefaultView {
 
         this.headerLinks.set(LinkName[key as keyof typeof LinkName], link);
 
-        this.getCreator().addInnerElement(link.getElement());
+        parentElement.append(link.getElement());
       }
     });
   }
 
-  private createLogoutButton() {
+  private createLogoutButton(parentElement: HTMLElement) {
     const logoutButton = new LinkButton('Logout', () => this.router.navigate(''), this.headerLinks);
 
     logoutButton.getElement().addEventListener('click', () => {
@@ -70,7 +86,7 @@ export default class HeaderView extends DefaultView {
     if (localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false') {
       logoutButton.getElement().classList.add(styleCss.hide);
     }
-    this.getCreator().addInnerElement(logoutButton.getElement());
+    parentElement.append(logoutButton.getElement());
   }
 
   private updateHeader() {
