@@ -15,7 +15,7 @@ const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
 const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
 const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
 const checkWhiteSpace = /[^\s]/gim;
-const checkEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/;
+const checkEmail = /[a-z0-9]+[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/;
 
 enum Message {
   FILL_EMAIL = `Please fill the field email.`,
