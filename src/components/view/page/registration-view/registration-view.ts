@@ -391,18 +391,19 @@ export default class RegistrationView extends DefaultView {
     defaultButton.classList.add(...classList);
     return defaultButton;
   }
-  // private passwordCheckHandler() {
-  //   const checkingInput = this.inputs[Inputs.REPEAT_PASSWORD];
-  //   const mainPassword = this.inputs[Inputs.PASSWORD].getInputValue();
-  //   const checkPassword = checkingInput.getInputValue();
-  //
-  //   if (mainPassword === checkPassword) {
-  //     checkingInput.setCustomValidity('');
-  //   } else {
-  //     checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
-  //     checkingInput.setTitle(InputTittles.PASSWORD_REPEAT);
-  //   }
-  // }
+
+  private passwordCheckHandler() {
+    const checkingInput = this.inputs[Inputs.REPEAT_PASSWORD];
+    const mainPassword = this.inputs[Inputs.PASSWORD].getInputValue();
+    const checkPassword = checkingInput.getInputValue();
+
+    if (mainPassword === checkPassword) {
+      checkingInput.setCustomValidity('');
+    } else {
+      checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
+      checkingInput.setTitle(InputTittles.PASSWORD_REPEAT);
+    }
+  }
 
   private validateCountryShippingHandler() {
     this.validateCountryList(this.inputs[Inputs.SHIPPING_COUNTRY], this.inputs[Inputs.SHIPPING_POSTAL]);
@@ -627,6 +628,7 @@ export default class RegistrationView extends DefaultView {
       },
       {
         classNames: [styles.registrationView__form],
+        callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
         group: InputsGroups.MAIN,
         attributes: {
           type: InputTypes.PASSWORD,
@@ -636,18 +638,17 @@ export default class RegistrationView extends DefaultView {
           pattern: InputPatterns.PASSWORD,
         },
       },
-      // {
-      //   classNames: [styles.registrationView__form],
-      //   group: InputsGroups.MAIN,
-      //   callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
-      //   attributes: {
-      //     type: InputTypes.PASSWORD,
-      //     name: InputNames.REPEAT_PASSWORD,
-      //     placeholder: InputPlaceholders.REPEAT_PASSWORD,
-      //     title: InputTittles.PASSWORD,
-      //     pattern: InputPatterns.PASSWORD,
-      //   },
-      // },
+      {
+        classNames: [styles.registrationView__form],
+        group: InputsGroups.MAIN,
+        callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
+        attributes: {
+          type: InputTypes.PASSWORD,
+          name: InputNames.REPEAT_PASSWORD,
+          placeholder: InputPlaceholders.REPEAT_PASSWORD,
+          title: InputTittles.PASSWORD,
+        },
+      },
       {
         classNames: [styles.registrationView__form],
         group: InputsGroups.MAIN,
