@@ -1,7 +1,7 @@
 enum Events {
   CLICK = 'click',
   BLUR = 'blur',
-  CHANGE = 'change',
+  CHANGE = 'input',
 }
 
 export default Events;
