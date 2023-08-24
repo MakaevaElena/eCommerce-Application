@@ -399,9 +399,10 @@ export default class RegistrationView extends DefaultView {
 
     if (mainPassword === checkPassword) {
       checkingInput.setCustomValidity('');
+      checkingInput.removeMessage();
     } else {
+      checkingInput.setMessageError(InputTittles.PASSWORD_REPEAT);
       checkingInput.setCustomValidity(InputTittles.PASSWORD_REPEAT);
-      checkingInput.setTitle(InputTittles.PASSWORD_REPEAT);
     }
   }
 
@@ -646,7 +647,7 @@ export default class RegistrationView extends DefaultView {
           type: InputTypes.PASSWORD,
           name: InputNames.REPEAT_PASSWORD,
           placeholder: InputPlaceholders.REPEAT_PASSWORD,
-          title: InputTittles.PASSWORD,
+          title: InputTittles.PASSWORD_REPEAT,
         },
       },
       {
