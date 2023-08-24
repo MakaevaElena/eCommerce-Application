@@ -40,7 +40,7 @@ export default class InputCreator {
   }
 
   removeMessage() {
-    this.element.removeChild(this.messageElement);
+    this.messageElement.textContent = '';
   }
 
   appendMessage() {
