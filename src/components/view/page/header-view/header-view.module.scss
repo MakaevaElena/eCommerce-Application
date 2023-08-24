@@ -1,0 +1,23 @@
+// @import '../../../styles/abstracts/variables.scss';
+
+.header-view {
+  display: flex;
+  justify-content: end;
+  z-index: 1;
+}
+
+.header-view__button-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: end;
+  padding: 1rem;
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}

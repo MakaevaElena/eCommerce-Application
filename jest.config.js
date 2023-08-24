@@ -3,6 +3,7 @@ module.exports = {
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|html)$':
       '<rootDir>/__mocks__/fileMock.js',
     '\\.(scss|css|less)$': '<rootDir>/__mocks__/styleMock.js',
+    '\\.(ts)$': '<rootDir>/__mocks__/api-mock.ts',
   },
-  //roots: ['<rootDir>/src/'],
+  // roots: ['<rootDir>/src/'],
 };

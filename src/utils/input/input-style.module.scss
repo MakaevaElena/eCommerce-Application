@@ -1,0 +1,96 @@
+@import './src/style/helper';
+
+.inputShowPassword {
+  width: clamp(42px, 5rem, 72px);
+  height: clamp(22px, 2.5rem, 36px);
+  @include flex();
+  font-family: 'Karla', sans-serif;
+  color: black;
+  @include border(1px, solid, rgb(232, 240, 254));
+  border-right: none;
+  border-radius: 2px 0 0 2px;
+  background-color: transparentize($color-page-background-secondary, 0.5);
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.input {
+  width: clamp(134px, 16rem, 270px);
+  height: clamp(22px, 2.5rem, 36px);
+  padding: 0;
+  font-family: 'Karla', sans-serif;
+  font-size: inherit;
+  text-align: center;
+  @include border(1px, solid, rgb(232, 240, 254));
+  border-radius: 2px;
+  outline: none;
+
+  &_password {
+    width: clamp(134px - 42px, 16rem - 5rem, 270px - 72px);
+    border-left: none;
+    border-radius: 0 2px 2px 0;
+  }
+
+  &:disabled {
+    color: $color-text-primary;
+  }
+
+  &::placeholder {
+    color: darken($color-text-primary, 10%);
+  }
+
+  &:valid {
+    background-color: rgb(232, 240, 254);
+  }
+
+  &:invalid {
+    color: darken($color-text-primary, 10%);
+    background-color: transparentize($color-brand-primary, 0.3);
+    & + .input__symbol {
+      color: $color-brand-primary;
+    }
+  }
+
+  &__container {
+    position: relative;
+    margin: 0.5rem auto;
+    width: clamp(144px, 17rem, 280px);
+    // height: clamp(22px + 6rem, 2.5rem + 6rem, 36px + 6rem);
+    @include flex(center, start);
+    background-color: unset;
+  }
+
+  &__symbol {
+    display: block;
+    // height: clamp(6rem, 6rem, 6rem);
+    width: inherit;
+    font-size: 0.9rem;
+    &:before {
+      display: inline-block;
+      content: '✖';
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+      text-align: center;
+      color: transparentize($color-brand-primary, 0.3);
+      font-size: 1rem;
+    }
+  }
+
+  &:valid {
+    & + .input__symbol:before {
+      content: '✓';
+      color: $color-text-primary;
+    }
+  }
+}
+
+.hint {
+  display: none;
+  position: absolute;
+}

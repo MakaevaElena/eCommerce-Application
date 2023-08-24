@@ -1,5 +1,9 @@
 {
-    "plugins": ["prettier", "import", "@typescript-eslint"],
+    "plugins": [
+        "prettier",
+        "import",
+        "@typescript-eslint"
+    ],
     "extends": [
         "airbnb-base",
         "airbnb-typescript/base",
@@ -9,7 +13,6 @@
     ],
     "parser": "@typescript-eslint/parser",
     "root": true,
-
     "parserOptions": {
         "ecmaVersion": 2020,
         "sourceType": "module",
@@ -23,7 +26,23 @@
     "rules": {
         "no-debugger": "warn",
         "no-console": 1,
-        "class-methods-use-this": "warn"
+        "class-methods-use-this": "warn",
+        "lines-between-class-members": "off",
+        "@typescript-eslint/lines-between-class-members": [
+            "error",
+            "always",
+            {
+                "exceptAfterOverload": true
+            }
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            }
+        ]
     },
-    "ignorePatterns": ["webpack*.config.js"]
+    "ignorePatterns": [
+        "webpack*.config.js"
+    ]
 }

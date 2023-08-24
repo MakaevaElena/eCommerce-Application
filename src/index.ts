@@ -1,5 +1,4 @@
-import SampleStiles from './samples/styles/sample-styles';
+import App from './components/app/app';
 
-const sample = new SampleStiles();
-
-document.body.append(sample.getElement());
+const app = new App();
+app.init();
