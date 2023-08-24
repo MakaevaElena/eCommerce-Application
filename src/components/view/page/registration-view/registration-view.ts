@@ -773,7 +773,3 @@ export default class RegistrationView extends DefaultView {
     ];
   }
 }
-
-export function getView(router: Router): RegistrationView {
-  return new RegistrationView(router);
-}

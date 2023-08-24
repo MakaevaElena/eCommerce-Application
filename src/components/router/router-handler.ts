@@ -28,10 +28,10 @@ export default class RouterHandler {
       locationField: LocationField.HASH,
     };
 
-    window.addEventListener(this.params.nameEvent, this.windowEventHandler.bind(this));
+    window.addEventListener(this.params.nameEvent, this.hashchangeEventHandler.bind(this));
   }
 
-  private windowEventHandler(e: Event) {
+  private hashchangeEventHandler(e: Event) {
     let path = '';
     if (e instanceof HashChangeEvent && e.currentTarget instanceof Window) {
       path = e.currentTarget.location.hash.slice(1);
@@ -40,7 +40,7 @@ export default class RouterHandler {
   }
 
   public navigate(url: string) {
-    window.history.pushState(null, '', `#${url}`);
+    window.location.href = `${window.location.href.replace(/#(.*)$/, '')}#${url}`;
 
     const location = window.location[this.params.locationField].slice(1);
     const urlString = url || location;

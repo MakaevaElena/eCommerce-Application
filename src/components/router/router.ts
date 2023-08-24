@@ -3,7 +3,7 @@ import { PagePath, ITEM_ID } from './pages';
 
 export type Route = {
   path: string;
-  callback: () => void;
+  callback: (param?: string) => void;
 };
 
 export default class Router {
@@ -38,7 +38,11 @@ export default class Router {
       return;
     }
 
-    route.callback();
+    if (requestParams.resource) {
+      route.callback(requestParams.resource);
+    } else {
+      route.callback();
+    }
   }
 
   private redirectToNotFoundPage() {
