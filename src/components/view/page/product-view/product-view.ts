@@ -27,15 +27,14 @@ export default class ProductView extends DefaultView {
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.wrapper);
-
-    this.configView();
   }
 
   public initContent(productId?: string) {
-    console.log('productId: ', productId);
     if (productId) {
       this.productId = productId;
     }
+
+    this.configView();
   }
 
   public setContent(element: InsertableElement) {
@@ -52,6 +51,8 @@ export default class ProductView extends DefaultView {
   }
 
   private createContent() {
+    // TODO: create content for current this.productId
+
     const button = this.createMainButton();
 
     this.wrapper.append(button.getElement());
