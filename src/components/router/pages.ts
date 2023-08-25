@@ -4,15 +4,17 @@ const PagePath = {
   REGISTRATION: 'registration',
   CATALOG: 'catalog',
   PRODUCT: 'product',
+  PROFILE: 'profile',
   NOT_FOUND: '404',
   EMPTY: '',
 };
 
 const LinkName = {
   INDEX: 'Main',
+  CATALOG: 'Catalog',
   LOGIN: 'Log In',
   REGISTRATION: 'Sign In',
-  CATALOG: 'Catalog',
+  PROFILE: 'User',
 };
 
 const ITEM_ID = '{id}';
