@@ -132,4 +132,43 @@ export default class ClientApi {
       return error;
     }
   }
+
+  // PRODUCTS
+
+  public getProducts() {
+    return this.clientRoot.products().get().execute();
+  }
+
+  public getProductbyID(productID: string) {
+    return this.clientRoot.products().withId({ ID: productID }).get().execute();
+  }
+
+  public getProductbyKey(productKey: string) {
+    return this.clientRoot.products().withKey({ key: productKey }).get().execute();
+  }
+
+  public productProjectionResponseID(productID: string) {
+    return this.clientRoot
+      .productProjections()
+      .withId({ ID: productID })
+      .get({
+        queryArgs: {
+          staged: true,
+        },
+      })
+      .execute();
+  }
+
+  public productProjectionResponseKEY(productKey: string) {
+    return this.clientRoot
+      .productProjections()
+      .withKey({ key: productKey })
+      .get({
+        queryArgs: {
+          staged: true,
+          // priceCurrency: 'priceCurrency',
+        },
+      })
+      .execute();
+  }
 }

@@ -117,20 +117,33 @@ export default class App {
           }
         },
       },
-      //     {
-      //       path: `${PagePath.PRODUCT}`,
-      //       callback: async () => {
-      //         const { default: ProductView } = await import('../view/page/login-view/login-view');
-      //         this.setContent(PagePath.PRODUCT, new ProductView(this.router));
-      //       },
-      //     },
-      //     {
-      //       path: `${PagePath.PRODUCT}/${ITEM_ID}`,
-      //       callback: async (id) => {
-      //         const { default: ProductView } = await import('../view/page/registration-view/registration-view');
-      //         this.setContent(PagePath.PRODUCT, new ProductView(this.router, id));
-      //       },
-      //     },
+      // {
+      //   path: `${PagePath.PRODUCT}`,
+      //   callback: async () => {
+      //     const { default: ProductView } = await import('../view/page/login-view/login-view');
+      //     this.setContent(PagePath.PRODUCT, new ProductView(this.router));
+      //   },
+      // },
+      // {
+      //   path: `${PagePath.PRODUCT}/${ITEM_ID}`,
+      //   callback: async (id) => {
+      //     const { default: ProductView } = await import('../view/page/registration-view/registration-view');
+      //     this.setContent(PagePath.PRODUCT, new ProductView(this.router, id));
+      //   },
+      // },
+      {
+        path: `${PagePath.PRODUCT}`,
+        callback: async () => {
+          const { getView } = await import('../view/page/product-view/product-view');
+          const view: DefaultView | undefined = this.viewStorage.has(PagePath.PRODUCT)
+            ? this.viewStorage.get(PagePath.PRODUCT)
+            : getView();
+          if (view) {
+            this.viewStorage.set(PagePath.PRODUCT, view);
+            this.setContent(PagePath.PRODUCT, view);
+          }
+        },
+      },
     ];
   }
 }
