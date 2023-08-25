@@ -75,6 +75,9 @@ const baseConfig = {
           from: './src/assets/favicons',
           to: 'assets/favicons',
         },
+        {
+          from: './src/public',
+        },
       ],
     }),
     new CleanWebpackPlugin(),
