@@ -318,8 +318,3 @@ export default class LoginView extends DefaultView {
     });
   }
 }
-
-//
-export function getView(router: Router): LoginView {
-  return new LoginView(router);
-}

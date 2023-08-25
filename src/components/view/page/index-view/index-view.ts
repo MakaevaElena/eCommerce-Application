@@ -33,7 +33,7 @@ export default class IndexView extends DefaultView {
   }
 
   private createLinks() {
-    const wrapper = new TagElement().createTagElement('div', [styleCss['links-wrapper']]);
+    const wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
     const logInButton = this.createLogInButton();
     const signInButton = this.createSignInButton();
 
@@ -62,8 +62,4 @@ export default class IndexView extends DefaultView {
     });
     return linkButton;
   }
-}
-
-export function getView(router: Router): IndexView {
-  return new IndexView(router);
 }
