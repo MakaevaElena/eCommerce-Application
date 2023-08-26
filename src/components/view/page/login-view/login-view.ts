@@ -303,18 +303,4 @@ export default class LoginView extends DefaultView {
     this.passwordElement.reportValidity();
     return false;
   }
-
-  private createMessagePopup(message: string) {
-    const messagePopup = new ElementCreator({
-      tag: TagName.DIV,
-      classNames: [styleCss['login-form__popup']],
-      textContent: message,
-    });
-
-    this.getCreator().addInnerElement(messagePopup);
-
-    messagePopup.getElement().addEventListener('click', () => {
-      messagePopup.getElement().remove();
-    });
-  }
 }
