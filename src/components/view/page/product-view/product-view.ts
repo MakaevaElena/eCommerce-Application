@@ -117,13 +117,14 @@ export default class ProductView extends DefaultView {
       const productCategory = new ElementCreator({
         tag: TagName.SPAN,
         classNames: [styleCss['product-category']],
-        textContent: `CATEGORY: ${response.body.categories?.[0]}`,
+        // textContent: `CATEGORY: ${response.body.categories?.[0]}`,
+        textContent: `GENRE: ${response.body.masterVariant.attributes?.[3].value[0].key}`,
       });
 
       const productPrice = new ElementCreator({
         tag: TagName.SPAN,
         classNames: [styleCss['product-price']],
-        textContent: `PRICE: ${response.body.masterVariant.prices?.[0]}`,
+        textContent: `PRICE: ${response.body.masterVariant.prices?.[0].value.centAmount} ${response.body.masterVariant.prices?.[0].value.currencyCode}`,
       });
 
       const productAttributes = new ElementCreator({
@@ -199,12 +200,32 @@ export default class ProductView extends DefaultView {
   }
 
   private getProducts() {
-    this.anonimApi.getProducts().then((response) => console.log(response));
+    this.anonimApi
+      .getProducts()
+      .then((response) => console.log(response))
+      .catch((error) => {
+        this.createMessagePopup('error.message');
+        throw new Error(error.message);
+      });
   }
 
   private getProductByKey(key: string) {
     this.anonimApi.productProjectionResponseKEY(key).then((response) => {
       console.log('product', response);
+    });
+  }
+
+  private createMessagePopup(message: string) {
+    const messagePopup = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['login-form__popup']],
+      textContent: message,
+    });
+
+    this.getCreator().addInnerElement(messagePopup);
+
+    messagePopup.getElement().addEventListener('click', () => {
+      messagePopup.getElement().remove();
     });
   }
 }

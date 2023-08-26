@@ -15,6 +15,24 @@
     flex-direction: column;
     align-items: center;
   }
+
+  &__popup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    height: 20%;
+    width: 20%;
+    border-radius: 3%;
+    border: 0.1px solid gray;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: rgb(114, 114, 114);
+    color: white;
+    font-size: 2rem;
+  }
 }
 
 .product-section {
