@@ -64,9 +64,6 @@ export default class ProductView extends DefaultView {
   private createContent() {
     // TODO: create content for current this.productId
     this.renderProductCart(this.productId);
-    const button = this.createMainButton();
-
-    this.wrapper.append(button.getElement());
   }
 
   private createMainButton() {
@@ -194,8 +191,8 @@ export default class ProductView extends DefaultView {
       productAttributes.addInnerElement(productPlatform);
       productAttributes.addInnerElement(productGenre);
       productAttributes.addInnerElement(productRelease);
-      this.getCreator().addInnerElement(section);
-      this.getCreator().addInnerElement(productVideo);
+      this.wrapper.append(section.getElement());
+      this.wrapper.append(productVideo);
     });
   }
 

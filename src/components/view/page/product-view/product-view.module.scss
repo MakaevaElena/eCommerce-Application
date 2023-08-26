@@ -2,6 +2,11 @@
 @import '../../../../style/abstract/variables/colors.scss';
 @import './src/style/helper.scss';
 
+.content-wrapper {
+  justify-content: center;
+  align-items: center;
+}
+
 .product-view {
   display: flex;
   flex-direction: column;
@@ -38,8 +43,8 @@
 .product-section {
   display: flex;
   flex-direction: row;
-  justify-content: start;
-  align-items: start;
+  justify-content: center;
+  align-items: center;
   width: 60%;
   // gap: 30px;
   font-family: 'Karla', sans-serif;
@@ -56,7 +61,7 @@
   width: 100%;
   height: 100%;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   background-position: center;
 }
 

@@ -17,7 +17,7 @@ const LinkName = {
   PROFILE: 'User',
 };
 
-// const ITEM_ID = '{id}';
-const ITEM_ID = '{Prey}';
+const ITEM_ID = '{id}';
+// const ITEM_ID = '{Prey}';
 
 export { PagePath, LinkName, ITEM_ID };
