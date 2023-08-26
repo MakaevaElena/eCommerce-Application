@@ -115,6 +115,7 @@ export default class ProductView extends DefaultView {
         tag: TagName.SPAN,
         classNames: [styleCss['product-category']],
         // textContent: `CATEGORY: ${response.body.categories?.[0]}`,
+
         textContent: `GENRE: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`,
       });
 
@@ -139,31 +140,32 @@ export default class ProductView extends DefaultView {
       const productDeveloper = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['product-developer'], styleCss.attributes],
-        textContent: `DEVELOPER: ${response.body.masterVariant.attributes?.[0].value?.[0]}`,
+
+        textContent: `DEVELOPER: ${response.body.masterVariant.attributes?.[0].value[0]}`,
       });
 
       const productPlayersQuantity = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['product-developer'], styleCss.attributes],
-        textContent: `PLAYERS QUANTITY: ${response.body.masterVariant.attributes?.[1].value?.[0]}`,
+        textContent: `PLAYERS QUANTITY: ${response.body.masterVariant.attributes?.[1].value[0]}`,
       });
 
       const productPlatform = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['product-developer'], styleCss.attributes],
-        textContent: `PLATFORM: ${response.body.masterVariant.attributes?.[2].value?.[0].key}`,
+        textContent: `PLATFORM: ${response.body.masterVariant.attributes?.[2].value[0].key}`,
       });
 
       const productGenre = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['product-developer'], styleCss.attributes],
-        textContent: `GENRE: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`,
+        textContent: `GENRE: ${response.body.masterVariant.attributes?.[3].value[0].key}`,
       });
 
       const productRelease = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['product-developer'], styleCss.attributes],
-        textContent: `RELEASE: ${response.body.masterVariant.attributes?.[4].value?.[0]}`,
+        textContent: `RELEASE: ${response.body.masterVariant.attributes?.[4].value[0]}`,
       });
 
       const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
