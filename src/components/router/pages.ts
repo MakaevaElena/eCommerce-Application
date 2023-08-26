@@ -18,6 +18,5 @@ const LinkName = {
 };
 
 const ITEM_ID = '{id}';
-// const ITEM_ID = '{Prey}';
 
 export { PagePath, LinkName, ITEM_ID };
