@@ -30,7 +30,6 @@ export default class ProductView extends DefaultView {
 
     // this.productKey = window.location.hash;
     this.getProducts();
-    this.configView();
 
     this.router = router;
 
@@ -39,10 +38,27 @@ export default class ProductView extends DefaultView {
     this.getCreator().addInnerElement(this.wrapper);
   }
 
+  public initContent(productId?: string) {
+    if (productId) {
+      this.productId = productId;
+    }
+
+    this.configView();
+  }
+
   private configView() {
     // this.getProductByKey('FOR_HONOR');
 
     this.createContent();
+  }
+
+  public setContent(element: InsertableElement) {
+    this.wrapper.replaceChildren('');
+    if (element instanceof ElementCreator) {
+      this.wrapper.append(element.getElement());
+    } else {
+      this.wrapper.append(element);
+    }
   }
 
   private createContent() {
@@ -190,23 +206,6 @@ export default class ProductView extends DefaultView {
     this.anonimApi.productProjectionResponseKEY(key).then((response) => {
       console.log('product', response);
     });
-  }
-
-  public initContent(productId?: string) {
-    if (productId) {
-      this.productId = productId;
-    }
-
-    this.configView();
-  }
-
-  public setContent(element: InsertableElement) {
-    this.wrapper.replaceChildren('');
-    if (element instanceof ElementCreator) {
-      this.wrapper.append(element.getElement());
-    } else {
-      this.wrapper.append(element);
-    }
   }
 }
 
