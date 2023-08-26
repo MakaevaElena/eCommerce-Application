@@ -1,5 +1,7 @@
-.index-view {
-  background: url('../../../../assets/images/index.jpg') no-repeat top center;
+@import '../../../../style/abstract/variables/colors.scss';
+
+.profile-view {
+  background: url('../../../../assets/images/profile.jpg') no-repeat top center;
   background-size: cover;
   height: 80vh;
   width: 100%;

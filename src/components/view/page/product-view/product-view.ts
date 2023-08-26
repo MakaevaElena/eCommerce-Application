@@ -1,22 +1,23 @@
 import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
-import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
-import CreateTagElement from '../../../../utils/create-tag-element';
+import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
+import { LinkName, PagePath } from '../../../router/pages';
+import Router from '../../../router/router';
+import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
 import styleCss from './product-view.module.scss';
-// import Observer from '../../../../observer/observer';
-// import EventName from '../../../../enum/event-name';
-// import { PagePath } from '../../../router/pages';
-// import Router from '../../../router/router';
+import CreateTagElement from '../../../../utils/create-tag-element';
 
 export default class ProductView extends DefaultView {
-  private userApi?: ClientApi;
+  private router: Router;
 
-  private anonimApi: ClientApi;
+  private productId: string = '';
 
-  // private productKey: string;
+  private wrapper: HTMLDivElement;
 
-  constructor() {
+  anonimApi: ClientApi;
+
+  constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
@@ -30,11 +31,33 @@ export default class ProductView extends DefaultView {
     // this.productKey = window.location.hash;
     this.getProducts();
     this.configView();
+
+    this.router = router;
+
+    this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
+
+    this.getCreator().addInnerElement(this.wrapper);
   }
 
   private configView() {
     // this.getProductByKey('FOR_HONOR');
+
+    this.createContent();
+  }
+
+  private createContent() {
+    // TODO: create content for current this.productId
     this.renderProductCart('Prey');
+    const button = this.createMainButton();
+
+    this.wrapper.append(button.getElement());
+  }
+
+  private createMainButton() {
+    const button = new LinkButton(LinkName.INDEX, () => {
+      this.router.navigate(PagePath.INDEX);
+    });
+    return button;
   }
 
   private renderProductCart(key: string) {
@@ -168,8 +191,25 @@ export default class ProductView extends DefaultView {
       console.log('product', response);
     });
   }
+
+  public initContent(productId?: string) {
+    if (productId) {
+      this.productId = productId;
+    }
+
+    this.configView();
+  }
+
+  public setContent(element: InsertableElement) {
+    this.wrapper.replaceChildren('');
+    if (element instanceof ElementCreator) {
+      this.wrapper.append(element.getElement());
+    } else {
+      this.wrapper.append(element);
+    }
+  }
 }
 
-export function getView(): ProductView {
-  return new ProductView();
+export function getView(router: Router): ProductView {
+  return new ProductView(router);
 }

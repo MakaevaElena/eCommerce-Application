@@ -1,6 +1,6 @@
 import Favicon from '../favicon/favicon';
 import '../../style/global.scss';
-import { PagePath } from '../router/pages';
+import { PagePath, ITEM_ID } from '../router/pages';
 import Router, { Route } from '../router/router';
 import ViewStorage from '../view-storage/view-storage';
 import DefaultView from '../view/default-view';
@@ -47,15 +47,15 @@ export default class App {
     creator.addInnerElement(view.getElement());
   }
 
-  private getRoutes() {
+  private getRoutes(): Route[] {
     return [
       {
         path: ``,
         callback: async () => {
-          const { getView } = await import('../view/page/index-view/index-view');
+          const IndexView = (await import('../view/page/index-view/index-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView(this.router);
+            : new IndexView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
@@ -65,10 +65,10 @@ export default class App {
       {
         path: `${PagePath.INDEX}`,
         callback: async () => {
-          const { getView } = await import('../view/page/index-view/index-view');
+          const IndexView = (await import('../view/page/index-view/index-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : getView(this.router);
+            : new IndexView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
@@ -78,10 +78,10 @@ export default class App {
       {
         path: `${PagePath.LOGIN}`,
         callback: async () => {
-          const { getView } = await import('../view/page/login-view/login-view');
+          const LoginView = (await import('../view/page/login-view/login-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
-            : getView(this.router);
+            : new LoginView(this.router);
           if (localStorage.getItem('isLogin') === 'true') {
             this.router.navigate(PagePath.INDEX);
           }
@@ -94,10 +94,10 @@ export default class App {
       {
         path: `${PagePath.REGISTRATION}`,
         callback: async () => {
-          const { getView } = await import('../view/page/registration-view/registration-view');
+          const RegistrationView = (await import('../view/page/registration-view/registration-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : getView(this.router);
+            : new RegistrationView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);
@@ -107,40 +107,53 @@ export default class App {
       {
         path: `${PagePath.NOT_FOUND}`,
         callback: async () => {
-          const { getView } = await import('../view/page/not-found-view/not-found-view');
+          const NotFoundView = (await import('../view/page/not-found-view/not-found-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.NOT_FOUND)
             ? this.viewStorage.get(PagePath.NOT_FOUND)
-            : getView(this.router);
+            : new NotFoundView(this.router);
           if (view) {
             this.viewStorage.set(PagePath.NOT_FOUND, view);
             this.setContent(PagePath.NOT_FOUND, view);
           }
         },
       },
-      // {
-      //   path: `${PagePath.PRODUCT}`,
-      //   callback: async () => {
-      //     const { default: ProductView } = await import('../view/page/login-view/login-view');
-      //     this.setContent(PagePath.PRODUCT, new ProductView(this.router));
-      //   },
-      // },
-      // {
-      //   path: `${PagePath.PRODUCT}/${ITEM_ID}`,
-      //   callback: async (id) => {
-      //     const { default: ProductView } = await import('../view/page/registration-view/registration-view');
-      //     this.setContent(PagePath.PRODUCT, new ProductView(this.router, id));
-      //   },
-      // },
       {
-        path: `${PagePath.PRODUCT}`,
+        path: `${PagePath.CATALOG}`,
         callback: async () => {
-          const { getView } = await import('../view/page/product-view/product-view');
+          const CatalogView = (await import('../view/page/catalog-view/catalog-view')).default;
+          const view: DefaultView | undefined = this.viewStorage.has(PagePath.CATALOG)
+            ? this.viewStorage.get(PagePath.CATALOG)
+            : new CatalogView(this.router);
+          if (view) {
+            this.viewStorage.set(PagePath.CATALOG, view);
+            this.setContent(PagePath.CATALOG, view);
+          }
+        },
+      },
+      {
+        path: `${PagePath.CATALOG}/${ITEM_ID}`,
+        callback: async (id: string | undefined) => {
+          const ProductView = (await import('../view/page/product-view/product-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PRODUCT)
             ? this.viewStorage.get(PagePath.PRODUCT)
-            : getView();
-          if (view) {
+            : new ProductView(this.router);
+          if (view instanceof ProductView) {
             this.viewStorage.set(PagePath.PRODUCT, view);
+            view.initContent(id);
             this.setContent(PagePath.PRODUCT, view);
+          }
+        },
+      },
+      {
+        path: `${PagePath.PROFILE}`,
+        callback: async () => {
+          const ProductView = (await import('../view/page/profile-view/profile-view')).default;
+          const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
+            ? this.viewStorage.get(PagePath.PROFILE)
+            : new ProductView(this.router);
+          if (view instanceof ProductView) {
+            this.viewStorage.set(PagePath.PROFILE, view);
+            this.setContent(PagePath.PROFILE, view);
           }
         },
       },
