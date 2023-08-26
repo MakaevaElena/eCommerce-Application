@@ -63,7 +63,7 @@ export default class ProductView extends DefaultView {
 
   private createContent() {
     // TODO: create content for current this.productId
-    this.renderProductCart('Prey');
+    this.renderProductCart(this.productId);
     const button = this.createMainButton();
 
     this.wrapper.append(button.getElement());
