@@ -29,6 +29,7 @@ import EventName from '../../../../enum/event-name';
 import Observer from '../../../../observer/observer';
 import Delays from '../../../../enum/delays';
 import StatusCodes from '../../../../enum/status-codes';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class RegistrationView extends DefaultView {
   private readonly DEFAULT_ADDRESS_NUMBER = 1;
@@ -585,6 +586,7 @@ export default class RegistrationView extends DefaultView {
     loginApi.getCustomer(params).then((response) => {
       if (response.body.customer) {
         window.localStorage.setItem(`isLogin`, 'true');
+        window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
         this.observer.notify(EventName.LOGIN);
       }
     });
