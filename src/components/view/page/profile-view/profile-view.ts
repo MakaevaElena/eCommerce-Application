@@ -9,6 +9,11 @@ import styleCss from './profile-view.module.scss';
 import RegApi from '../../../../api/reg-api';
 import Address from './types/addresses/address';
 import UserData from './types/user-data';
+import localStorageKeys from '../../../../enum/local-storage-keys';
+import UserField from './user-field/user-field';
+import Groups from './user-field/enum/groups';
+import { Group } from '../../../../utils/input/inputParams';
+import { InputTypes } from '../../../../utils/input/input-values/input-values';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -54,6 +59,12 @@ export default class ProfileView extends DefaultView {
     const button = this.createMainButton();
 
     this.wrapper.append(button.getElement());
+    const props = {
+      group: Groups.MAIN,
+      inputType: InputTypes.TEXT,
+    };
+    const emailField = new UserField(props);
+    this.wrapper.append(emailField.getElementField());
   }
 
   private createMainButton() {
@@ -66,35 +77,39 @@ export default class ProfileView extends DefaultView {
   private request() {
     const api = new RegApi();
     const userData: UserData = this.createUserData();
-    api.getCustomer('vladimir@sobbolev.ru').then((result) => {
-      const results = result.body.results[0];
+    const localStorageEmail = window.localStorage.getItem(localStorageKeys.MAIL_ADDRESS);
+    if (localStorageEmail) {
+      api.getCustomer(localStorageEmail).then((result) => {
+        const results = result.body.results[0];
 
-      if (results.firstName != null) {
-        userData.firstName = results.firstName;
-      }
+        if (results.firstName != null) {
+          userData.firstName = results.firstName;
+        }
 
-      if (results.lastName != null) {
-        userData.lastName = results.lastName;
-      }
+        if (results.lastName != null) {
+          userData.lastName = results.lastName;
+        }
 
-      if (results.dateOfBirth != null) {
-        userData.dateOfBirth = results.dateOfBirth;
-      }
+        if (results.dateOfBirth != null) {
+          userData.dateOfBirth = results.dateOfBirth;
+        }
 
-      userData.shippingAddresses = this.getShippingBillingAddresses(
-        results.addresses,
-        results.shippingAddressIds,
-        results.defaultShippingAddressId
-      );
-      userData.billingAddresses = this.getShippingBillingAddresses(
-        results.addresses,
-        results.billingAddressIds,
-        results.defaultBillingAddressId
-      );
+        userData.shippingAddresses = this.getShippingBillingAddresses(
+          results.addresses,
+          results.shippingAddressIds,
+          results.defaultShippingAddressId
+        );
+        userData.billingAddresses = this.getShippingBillingAddresses(
+          results.addresses,
+          results.billingAddressIds,
+          results.defaultBillingAddressId
+        );
 
-      this.configView();
-      return userData;
-    });
+        this.configView();
+        return userData;
+      });
+    }
+
     return userData;
   }
 
@@ -104,8 +119,6 @@ export default class ProfileView extends DefaultView {
     defaultId: string | undefined
   ) {
     const addresses: Array<Address> = [];
-    console.log(allAddresses, 'all');
-    console.log(addressesGroup, 'group');
     if (addressesGroup !== undefined) {
       allAddresses.forEach((address) => {
         if (addressesGroup.includes(address.id!)) {
@@ -116,7 +129,6 @@ export default class ProfileView extends DefaultView {
         }
       });
     }
-    console.log(addresses, 'aaaaa');
     return addresses;
   }
 
