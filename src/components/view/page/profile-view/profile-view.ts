@@ -111,7 +111,6 @@ export default class ProfileView extends DefaultView {
     const api = new RegApi();
     const userData: UserData = this.createUserData();
     const localStorageEmail = this.emailAddress;
-    console.log(localStorageEmail, 'in api!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
     if (localStorageEmail) {
       api
         .getCustomer(localStorageEmail)
