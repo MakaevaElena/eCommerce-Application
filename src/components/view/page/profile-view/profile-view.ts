@@ -1,6 +1,7 @@
 import styleGroupFields from './user-field/styles/field-group.module.scss';
 import styleAddress from './user-field/styles/adress-style.module.scss';
 import styleButton from './user-field/styles/button-style.module.scss';
+import styleFieldContainer from './user-field/styles/field-container-style.module.scss';
 import styleWrap from './user-field/styles/wrap-style.module.scss';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
@@ -206,6 +207,12 @@ export default class ProfileView extends DefaultView {
     return addressesProps;
   }
 
+  private createContainer() {
+    const container = document.createElement(TagName.DIV);
+    container.classList.add(...Object.values(styleFieldContainer));
+    return container;
+  }
+
   private createFieldGroup(textContent?: string): HTMLDivElement {
     const fieldGroup = document.createElement(TagName.DIV);
     fieldGroup.classList.add(...Object.values(styleGroupFields));
@@ -213,6 +220,7 @@ export default class ProfileView extends DefaultView {
       const title = this.сreateTitleAddress(textContent);
       fieldGroup.append(title);
     }
+
     return fieldGroup;
   }
 
@@ -265,6 +273,7 @@ export default class ProfileView extends DefaultView {
       }
       this.fillMainFieldGroups(fieldProps, address);
     });
+
     group.append(address);
   }
 

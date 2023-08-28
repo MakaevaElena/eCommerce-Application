@@ -6,8 +6,7 @@
   margin: 1rem auto;
   box-sizing: border-box;
   padding: 0.5rem;
-  width: max(250px, 30vw);
-  @include border();
+  width: max(290px, 30vw);
+  @include border(0.2rem);
   border-radius: 2px;
-  background-color: transparentize($color-brand-secondary, 0.9);
 }
