@@ -1,10 +1,12 @@
-// @import '../../../styles/abstracts/variables.scss';
 @import '../../../../../node_modules/swiper/swiper.scss';
 @import 'swiper/css';
 @import 'swiper/css/bundle';
+@import '../../../../../node_modules/swiper/swiper.css';
+
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
-@import '../../../../../node_modules/swiper/swiper-bundle.min.css';
+@import 'swiper/scss/zoom';
+
 @import '../../../../style/abstract/variables/colors.scss';
 @import './src/style/helper.scss';
 

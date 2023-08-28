@@ -1,10 +1,14 @@
-import Swiper from 'swiper';
-import { register } from 'swiper/element/bundle';
-import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
-import 'swiper/css/bundle';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+// import 'swiper/scss';
+import 'swiper/css/bundle';
+// import 'swiper/scss/navigation';
+import 'swiper/scss/pagination';
+import 'swiper/scss/zoom';
+import Swiper from 'swiper';
+// import { register } from 'swiper/element/bundle';
+import { Navigation, Pagination } from 'swiper/modules';
 
 import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
@@ -27,11 +31,7 @@ export default class ProductView extends DefaultView {
 
   anonimApi: ClientApi;
 
-  private swiper: Swiper;
-
   constructor(router: Router) {
-    Swiper.use([Navigation, Pagination]);
-    register();
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
@@ -50,22 +50,7 @@ export default class ProductView extends DefaultView {
     this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.wrapper);
-
-    this.swiper = new Swiper('.swiper', {
-      modules: [Navigation, Pagination],
-      speed: 500,
-      direction: 'horizontal',
-      loop: true,
-      pagination: {
-        el: '.swiper-pagination',
-      },
-      navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-      },
-      keyboard: true,
-      // ...
-    });
+    this.initSwiper();
   }
 
   public initContent(productId?: string) {
@@ -89,6 +74,31 @@ export default class ProductView extends DefaultView {
     } else {
       this.wrapper.append(element);
     }
+  }
+
+  private initSwiper() {
+    window.addEventListener('DOMContentLoaded', () => {
+      const swiper = new Swiper('.swiper', {
+        modules: [Navigation, Pagination],
+        speed: 500,
+        direction: 'horizontal',
+        loop: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        keyboard: true,
+        // ...
+      });
+
+      // Swiper.use([Navigation, Pagination]);
+      // register();
+      console.log(swiper);
+    });
   }
 
   private createContent() {
@@ -234,10 +244,10 @@ export default class ProductView extends DefaultView {
         });
 
         // productImages.addInnerElement(productImage);
-        productImagesSwiper.addInnerElement(swiperPagination);
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
         productImagesSwiper.addInnerElement(swiperNext);
+        productImagesSwiper.addInnerElement(swiperPagination);
 
         section.addInnerElement(productImagesSwiper);
         section.addInnerElement(productInfo);
