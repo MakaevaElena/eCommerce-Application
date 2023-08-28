@@ -21,6 +21,9 @@ import { InputPlaceholders, InputTypes } from '../../../../utils/input/input-val
 import userFieldProps from './user-field/user-field-props';
 import TextContent from './enum/text-content';
 import UserFieldProps from './user-field/user-field-props';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -28,6 +31,10 @@ export default class ProfileView extends DefaultView {
   private wrapper: HTMLDivElement;
 
   private userData: UserData;
+
+  private emailAddress: string | null;
+
+  private observer: Observer;
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -39,6 +46,10 @@ export default class ProfileView extends DefaultView {
 
     this.router = router;
 
+    this.emailAddress = window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS);
+
+    this.observer = Observer.getInstance();
+
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.wrapper);
@@ -46,6 +57,9 @@ export default class ProfileView extends DefaultView {
     this.userData = this.request();
 
     this.configView();
+
+    this.observer.subscribe(EventName.LOGIN, this.login.bind(this));
+    this.observer.subscribe(EventName.LOGOUT, this.logoutListener.bind(this));
   }
 
   public setContent(element: InsertableElement) {
@@ -59,6 +73,17 @@ export default class ProfileView extends DefaultView {
 
   private configView() {
     this.createContent();
+  }
+
+  private login() {
+    this.emailAddress = window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS);
+    this.userData = this.request();
+  }
+
+  private logoutListener() {
+    this.wrapper.textContent = '';
+    const button = this.createMainButton();
+    this.wrapper.append(button.getElement());
   }
 
   private createContent() {
@@ -85,7 +110,8 @@ export default class ProfileView extends DefaultView {
   private request() {
     const api = new RegApi();
     const userData: UserData = this.createUserData();
-    const localStorageEmail = window.localStorage.getItem(localStorageKeys.MAIL_ADDRESS);
+    const localStorageEmail = this.emailAddress;
+    console.log(localStorageEmail, 'in api!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
     if (localStorageEmail) {
       api
         .getCustomer(localStorageEmail)
