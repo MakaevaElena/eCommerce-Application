@@ -44,6 +44,8 @@ export default class ProfileView extends DefaultView {
     this.getCreator().addInnerElement(this.wrapper);
 
     this.userData = this.request();
+
+    this.configView();
   }
 
   public setContent(element: InsertableElement) {
@@ -57,11 +59,12 @@ export default class ProfileView extends DefaultView {
 
   private configView() {
     this.createContent();
-    console.log(this.userData);
   }
 
   private createContent() {
     // TODO: create content for current this.productId
+
+    this.wrapper.textContent = '';
 
     const button = this.createMainButton();
 
@@ -84,35 +87,40 @@ export default class ProfileView extends DefaultView {
     const userData: UserData = this.createUserData();
     const localStorageEmail = window.localStorage.getItem(localStorageKeys.MAIL_ADDRESS);
     if (localStorageEmail) {
-      api.getCustomer(localStorageEmail).then((result) => {
-        const results = result.body.results[0];
+      api
+        .getCustomer(localStorageEmail)
+        .then((result) => {
+          const results = result.body.results[0];
 
-        if (results.firstName != null) {
-          userData.firstName = results.firstName;
-        }
+          if (results.firstName != null) {
+            userData.firstName = results.firstName;
+          }
 
-        if (results.lastName != null) {
-          userData.lastName = results.lastName;
-        }
+          if (results.lastName != null) {
+            userData.lastName = results.lastName;
+          }
 
-        if (results.dateOfBirth != null) {
-          userData.dateOfBirth = results.dateOfBirth;
-        }
+          if (results.dateOfBirth != null) {
+            userData.dateOfBirth = results.dateOfBirth;
+          }
 
-        userData.shippingAddresses = this.getShippingBillingAddresses(
-          results.addresses,
-          results.shippingAddressIds,
-          results.defaultShippingAddressId
-        );
-        userData.billingAddresses = this.getShippingBillingAddresses(
-          results.addresses,
-          results.billingAddressIds,
-          results.defaultBillingAddressId
-        );
+          userData.shippingAddresses = this.getShippingBillingAddresses(
+            results.addresses,
+            results.shippingAddressIds,
+            results.defaultShippingAddressId
+          );
+          userData.billingAddresses = this.getShippingBillingAddresses(
+            results.addresses,
+            results.billingAddressIds,
+            results.defaultBillingAddressId
+          );
 
-        this.configView();
-        return userData;
-      });
+          this.configView();
+          return userData;
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
     }
 
     return userData;
