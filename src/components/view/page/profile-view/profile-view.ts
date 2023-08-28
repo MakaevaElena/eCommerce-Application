@@ -1,5 +1,7 @@
 import styleGroupFields from './user-field/styles/field-group.module.scss';
+import styleAddress from './user-field/styles/adress-style.module.scss';
 import styleButton from './user-field/styles/button-style.module.scss';
+import styleWrap from './user-field/styles/wrap-style.module.scss';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -17,6 +19,7 @@ import Groups from './user-field/enum/groups';
 import { InputPlaceholders, InputTypes } from '../../../../utils/input/input-values/input-values';
 import userFieldProps from './user-field/user-field-props';
 import TextContent from './enum/text-content';
+import UserFieldProps from './user-field/user-field-props';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -63,7 +66,9 @@ export default class ProfileView extends DefaultView {
 
     this.wrapper.append(button.getElement());
     const fields = this.createFields();
-    this.wrapper.append(...fields);
+    const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
+    wrap.append(...fields);
+    this.wrapper.append(wrap);
   }
 
   private createMainButton() {
@@ -154,23 +159,28 @@ export default class ProfileView extends DefaultView {
     ];
   }
 
-  private createAdressesProps(adressGroup: Array<Address>, group: Groups): Array<userFieldProps> {
-    const addressesProps: Array<userFieldProps> = [];
+  private createAdressesProps(adressGroup: Array<Address>, group: Groups): Array<Array<userFieldProps>> {
+    const addressesProps: Array<Array<userFieldProps>> = [];
 
     adressGroup.forEach((addressProps) => {
       const countrys = this.createCountries();
       let countryName = '';
+      let isAddressDefault = false;
       countrys.flat().forEach((country) => {
         if (country.slice(-2) === addressProps.country) {
           countryName = country.slice(0, -2);
         }
       });
+      if (addressProps.isDefault) {
+        isAddressDefault = true;
+      }
       const props = [
         {
           group: group,
           inputType: InputTypes.TEXT,
           labelValue: InputPlaceholders.CITY,
           inputValue: addressProps.city,
+          isDefaultAddress: isAddressDefault,
         },
         {
           group: group,
@@ -191,7 +201,7 @@ export default class ProfileView extends DefaultView {
           inputValue: countryName,
         },
       ];
-      addressesProps.push(...props);
+      addressesProps.push(props);
     });
     return addressesProps;
   }
@@ -200,7 +210,7 @@ export default class ProfileView extends DefaultView {
     const fieldGroup = document.createElement(TagName.DIV);
     fieldGroup.classList.add(...Object.values(styleGroupFields));
     if (textContent) {
-      const title = this.сreateTitleAdress(textContent);
+      const title = this.сreateTitleAddress(textContent);
       fieldGroup.append(title);
     }
     return fieldGroup;
@@ -214,38 +224,56 @@ export default class ProfileView extends DefaultView {
     const shippingFields: HTMLDivElement = this.createFieldGroup(TextContent.TITLE_ADDRESS_SHIPPING);
     const billingFields: HTMLDivElement = this.createFieldGroup(TextContent.TITLE_ADDRESS_BILLING);
     const fields: Array<HTMLElement> = [mainFields];
+
     mainProps.forEach((fieldProps) => {
-      const fieldElement = new UserField(fieldProps);
-      mainFields.append(fieldElement.getElementField());
+      this.fillMainFieldGroups(fieldProps, mainFields);
     });
 
     shippingProps.forEach((fieldProps) => {
-      const fieldElement = new UserField(fieldProps);
-      shippingFields.append(fieldElement.getElementField());
+      this.fillAddressGroup(fieldProps, shippingFields);
     });
 
     billingProps.forEach((fieldProps) => {
-      const fieldElement = new UserField(fieldProps);
-      billingFields.append(fieldElement.getElementField());
+      this.fillAddressGroup(fieldProps, billingFields);
     });
 
-    if (shippingFields.textContent !== '') {
+    const minChildrenLength = 1;
+
+    if (shippingFields.children.length > minChildrenLength) {
       fields.push(shippingFields);
     }
 
-    if (billingFields.textContent !== '') {
+    if (shippingFields.children.length > minChildrenLength) {
       fields.push(billingFields);
     }
-
-    const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
-    fields.push(buttonAddShippingAddress);
-    const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
-    fields.push(buttonAddBillingAddress);
 
     return fields;
   }
 
-  private сreateTitleAdress(textContent: string): HTMLElement {
+  private fillMainFieldGroups(fieldProps: UserFieldProps, group: HTMLDivElement) {
+    const fieldElement = new UserField(fieldProps);
+    group.append(fieldElement.getElementField());
+  }
+
+  private fillAddressGroup(fieldsProps: Array<UserFieldProps>, group: HTMLDivElement) {
+    const address = this.createFieldGroup();
+    address.classList.add(...Object.values(styleAddress));
+    fieldsProps.forEach((fieldProps) => {
+      if (fieldProps.isDefaultAddress) {
+        const title = this.сreateTitleAddress(TextContent.DEFAULT_ADDRESS);
+        address.append(title);
+      }
+      this.fillMainFieldGroups(fieldProps, address);
+    });
+    group.append(address);
+  }
+
+  private createButtonsAddressesAdd() {
+    const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
+    const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
+  }
+
+  private сreateTitleAddress(textContent: string): HTMLElement {
     const title = document.createElement('h3');
     title.textContent = textContent;
     return title;

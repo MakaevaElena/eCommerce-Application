@@ -6,6 +6,8 @@ enum TextContent {
   REMOVE_BILLING_ADDRESS_BUTTON = 'remove billing address',
   TITLE_ADDRESS_SHIPPING = 'shipping addresses',
   TITLE_ADDRESS_BILLING = 'billing addresses',
+
+  DEFAULT_ADDRESS = 'default address',
 }
 
 export default TextContent;

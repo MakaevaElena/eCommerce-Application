@@ -6,8 +6,8 @@ type UserFieldProps = {
   group: Group;
   inputType: string;
   labelValue: string;
-
   inputValue?: string;
+  isDefaultAddress?: boolean;
 };
 
 export default UserFieldProps;
