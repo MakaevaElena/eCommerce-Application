@@ -7,8 +7,12 @@ import DefaultView from '../view/default-view';
 import FooterView from '../view/page/footer-view/footer-view';
 import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
+import EventName from '../../enum/event-name';
+import Observer from '../../observer/observer';
 
 export default class App {
+  private observer = Observer.getInstance();
+
   private favicon: Favicon;
 
   private header: HeaderView;
@@ -39,6 +43,16 @@ export default class App {
     document.body.append(this.header.getElement());
     document.body.append(this.main.getElement());
     document.body.append(this.footer.getElement());
+
+    if (this.isLogged()) {
+      this.observer.notify(EventName.LOGIN);
+    } else {
+      this.observer.notify(EventName.LOGOUT);
+    }
+  }
+
+  private isLogged() {
+    return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
   }
 
   private setContent(pageName: string, view: DefaultView) {

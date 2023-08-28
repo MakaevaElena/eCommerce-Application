@@ -43,7 +43,7 @@ export default class LinkButton extends DefaultView {
     this.getElement().classList.remove(styleCss.selected);
   }
 
-  private hideButton() {
+  public hideButton() {
     this.getElement().classList.add(styleCss.hide);
   }
 
@@ -51,7 +51,7 @@ export default class LinkButton extends DefaultView {
     this.getElement().classList.add(styleCss['link-button_disabled']);
   }
 
-  private showButton() {
+  public showButton() {
     this.getElement().classList.add(styleCss.show);
   }
 
