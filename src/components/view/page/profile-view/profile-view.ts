@@ -13,7 +13,7 @@ import localStorageKeys from '../../../../enum/local-storage-keys';
 import UserField from './user-field/user-field';
 import Groups from './user-field/enum/groups';
 import { Group } from '../../../../utils/input/inputParams';
-import { InputTypes } from '../../../../utils/input/input-values/input-values';
+import { InputPlaceholders, InputTypes } from '../../../../utils/input/input-values/input-values';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -62,6 +62,8 @@ export default class ProfileView extends DefaultView {
     const props = {
       group: Groups.MAIN,
       inputType: InputTypes.TEXT,
+      labelValue: InputPlaceholders.FIRST_NAME,
+      inputValue: this.userData.firstName,
     };
     const emailField = new UserField(props);
     this.wrapper.append(emailField.getElementField());
