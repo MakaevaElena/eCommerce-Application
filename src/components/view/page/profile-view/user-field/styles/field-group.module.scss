@@ -1,5 +1,13 @@
 @import '../../../../../../style/helper';
+
 .field-group {
-  background-color: transparentize($color-brand-secondary, 0.9);
+  //display: flex;
+  flex-grow: 0;
+  margin: 1rem auto;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  width: max(250px, 30vw);
   @include border();
+  border-radius: 2px;
+  background-color: transparentize($color-brand-secondary, 0.9);
 }
