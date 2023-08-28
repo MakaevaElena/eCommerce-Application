@@ -1,0 +1,5 @@
+@import '../../../../../../style/helper';
+.field-group {
+  background-color: #000066;
+  @include border();
+}
