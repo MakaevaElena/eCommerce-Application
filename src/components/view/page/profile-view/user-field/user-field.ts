@@ -10,33 +10,59 @@ import {
 } from '../../../../../utils/input/input-values/input-values';
 import UserFieldProps from './user-field-props';
 import TagName from '../../../../../enum/tag-name';
+import { InputParams } from '../../../../../utils/input/inputParams';
 
 export default class UserField {
-  private elementField: HTMLDivElement;
+  private elementField!: HTMLDivElement;
 
   private inputElement: InputCreator;
 
-  constructor({ group, inputType }: UserFieldProps) {
-    const inputParams = this.createInputParams(group, inputType);
-    this.inputElement = new InputCreator(inputParams);
-    this.elementField = document.createElement(TagName.DIV);
-    this.elementField.append(this.inputElement.getElement());
+  constructor({ group, inputType, inputValue, labelValue }: UserFieldProps) {
+    const inputParams = this.createInputParams(group, inputType, labelValue);
+    this.inputElement = this.createInputElement(inputParams);
+    if (typeof inputValue !== 'undefined') {
+      this.elementField = this.createFieldElement(inputValue, labelValue);
+    }
   }
 
   getElementField() {
     return this.elementField;
   }
 
-  private createInputParams(group: string, inputType: string) {
+  private createInputParams(group: string, inputType: string, labelValue: string) {
     return {
       group: group,
       attributes: {
         type: inputType,
         name: InputNames.EMAIL,
         title: InputTittles.EMAIL_HINT,
-        placeholder: InputPlaceholders.EMAIL,
-        pattern: InputPatterns.EMAIL,
+        placeholder: labelValue,
+        pattern: InputPatterns.TEXT,
       },
     };
+  }
+
+  private createFieldElement(inputValue: string, labelValue: string) {
+    const fieldElement = document.createElement(TagName.DIV);
+    fieldElement.classList.add();
+
+    if (typeof inputValue !== 'undefined') {
+      this.inputElement.setInputValue(inputValue);
+    }
+
+    if (typeof labelValue !== 'undefined') {
+      this.inputElement.setLabel(labelValue);
+    }
+
+    this.inputElement.removeMessageElement();
+
+    fieldElement.append(this.inputElement.getElement());
+    return fieldElement;
+  }
+
+  private createInputElement(inputParams: InputParams) {
+    const inputElement = new InputCreator(inputParams);
+
+    return inputElement;
   }
 }
