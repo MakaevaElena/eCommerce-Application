@@ -35,9 +35,7 @@ export default class UserField {
       attributes: {
         type: inputType,
         name: InputNames.EMAIL,
-        title: InputTittles.EMAIL_HINT,
         placeholder: labelValue,
-        pattern: InputPatterns.TEXT,
       },
     };
   }
@@ -62,7 +60,6 @@ export default class UserField {
 
   private createInputElement(inputParams: InputParams) {
     const inputElement = new InputCreator(inputParams);
-
     return inputElement;
   }
 }

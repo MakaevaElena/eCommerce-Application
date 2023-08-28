@@ -1,5 +1,5 @@
 @import '../../../../../../style/helper';
 .field-group {
-  background-color: #000066;
+  background-color: transparentize($color-brand-secondary, 0.9);
   @include border();
 }
