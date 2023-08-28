@@ -104,7 +104,6 @@ export default class ProductView extends DefaultView {
 
         if (response.body.masterVariant.images)
           productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
-        console.log(response.body.masterVariant.images?.[0].url);
 
         const productInfo = new ElementCreator({
           tag: TagName.DIV,
@@ -127,7 +126,8 @@ export default class ProductView extends DefaultView {
 
         const price =
           response.body.masterVariant.prices?.length !== 0
-            ? `PRICE: ${response.body.masterVariant.prices?.[0].value?.centAmount} ${response.body.masterVariant.prices?.[0].value?.currencyCode}`
+            ? `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(2)} ${response
+                .body.masterVariant.prices?.[1].value?.currencyCode}`
             : '';
 
         const productPrice = new ElementCreator({
@@ -173,7 +173,7 @@ export default class ProductView extends DefaultView {
           textContent: `RELEASE: ${response.body.masterVariant.attributes?.[4].value[0]}`,
         });
 
-        const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
+        // const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
 
         // productVideo.setAttribute('data-href', `${response.body.masterVariant.attributes?.[5].value[0]}`);
         // console.log(response.body.masterVariant.attributes?.[5].value[0]);
@@ -205,7 +205,7 @@ export default class ProductView extends DefaultView {
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
         this.wrapper.append(section.getElement());
-        this.wrapper.append(productVideo);
+        // this.wrapper.append(productVideo);
       })
       .catch(() => {
         this.createMessagePopup(ERROR_NOT_FOUND_GAME);
