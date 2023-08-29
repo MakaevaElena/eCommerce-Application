@@ -52,7 +52,7 @@ export default class LinkButton extends DefaultView {
   }
 
   public showButton() {
-    this.getElement().classList.add(styleCss.show);
+    this.getElement().classList.remove(styleCss.hide);
   }
 
   private viewForLoggedUser() {

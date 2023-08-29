@@ -44,11 +44,11 @@ export default class HeaderView extends DefaultView {
   private configView() {
     this.buttonsWrapper.clearInnerContent();
     this.createMainButton(this.buttonsWrapper);
+    this.createCatalogButton(this.buttonsWrapper);
     this.createLogInButton(this.buttonsWrapper);
     this.createSignInButton(this.buttonsWrapper);
-
-    // this.createLinkButtons(this.buttonsWrapper.getElement());
     this.createLogoutButton(this.buttonsWrapper);
+
     this.getCreator().addInnerElement(this.buttonsWrapper);
   }
 
@@ -69,8 +69,21 @@ export default class HeaderView extends DefaultView {
     const title = LinkName.INDEX;
     const route = this.getRoute(path);
     if (route) {
-      const link = new LinkButton(title, () => this.router.navigate(path), this.headerLinks);
+      const link = new LinkButton(title, () => this.router.navigate(path));
       this.headerLinks.set(LinkName.INDEX, link);
+      parentElement.append(link.getElement());
+    }
+  }
+
+  private createCatalogButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.CATALOG;
+    const title = LinkName.CATALOG;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new LinkButton(title, () => this.router.navigate(path));
+      this.headerLinks.set(LinkName.CATALOG, link);
+
       parentElement.append(link.getElement());
     }
   }
@@ -115,8 +128,8 @@ export default class HeaderView extends DefaultView {
       this.router.navigate('');
     });
 
-    this.observer.subscribe(EventName.LOGIN, () => link.showButton.bind(link));
-    this.observer.subscribe(EventName.LOGOUT, () => link.hideButton.bind(link));
+    this.observer.subscribe(EventName.LOGIN, () => link.showButton());
+    this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
 
     parentElement.append(link.getElement());
   }
