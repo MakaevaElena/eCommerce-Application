@@ -111,7 +111,7 @@ export default class ProductView extends DefaultView {
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
-        // console.log('product', response);
+        console.log('product', response);
 
         const section = new ElementCreator({
           tag: TagName.SECTION,
@@ -182,6 +182,14 @@ export default class ProductView extends DefaultView {
           textContent: price(),
         });
 
+        const productDiscountPrice = new ElementCreator({
+          tag: TagName.SPAN,
+          classNames: [styleCss['product-discount-price']],
+          textContent: `DISCOUNT PRICE: ${(
+            Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
+          ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`,
+        });
+
         const productAttributes = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-attributes']],
@@ -245,6 +253,7 @@ export default class ProductView extends DefaultView {
         productInfo.addInnerElement(productName);
         productInfo.addInnerElement(productCategory);
         productInfo.addInnerElement(productPrice);
+        productInfo.addInnerElement(productDiscountPrice);
         productInfo.addInnerElement(productDescription);
         productInfo.addInnerElement(addToCart);
         productInfo.addInnerElement(productAttributes);

@@ -100,3 +100,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.product-discount-price {
+  background-color: yellow;
+  color: black;
+  font-size: 1.2rem;
+}
+
+.product-price {
+  position: relative;
+  text-decoration: none;
+}
+
+.product-price:before {
+  content: '';
+  border-bottom: 2px solid transparentize($color-brand-primary, 0.2);
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  // transform: rotate(-12deg);
+}
