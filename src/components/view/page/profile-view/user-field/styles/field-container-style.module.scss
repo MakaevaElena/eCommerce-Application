@@ -1,0 +1,7 @@
+@import '../../../../../../style/helper';
+
+.container {
+  @include border();
+  border-radius: 2px;
+  background-color: transparentize($color-brand-secondary, 0.9);
+}

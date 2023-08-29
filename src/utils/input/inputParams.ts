@@ -1,7 +1,7 @@
 export type InputParams = {
   attributes: InputAttributes;
   classNames?: Array<string>;
-  group?: Group;
+  group?: string;
   callback?: Array<[CallbackListener, string]>;
 };
 

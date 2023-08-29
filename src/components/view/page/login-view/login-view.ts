@@ -8,6 +8,7 @@ import EventName from '../../../../enum/event-name';
 
 import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../message/error-message';
 
 const checkOneNumber = /(?=.*[0-9])/g;
@@ -227,6 +228,7 @@ export default class LoginView extends DefaultView {
         .then((response) => {
           if (response.body.customer) {
             window.localStorage.setItem(`isLogin`, 'true');
+            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
             this.observer.notify(EventName.LOGIN);
             this.router.navigate(PagePath.INDEX);
             this.userApi = new ClientApi({ email, password });
