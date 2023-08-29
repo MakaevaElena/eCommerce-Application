@@ -1,12 +1,19 @@
-import Swiper from 'swiper';
 import 'swiper/css';
-import 'swiper/swiper-bundle.css';
-import 'swiper/css/bundle';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-// import 'swiper/scss/zoom';
 
+// TODO !!!!!!!!!!!!!!!!!
+import './swiper.css';
+
+// import 'swiper/scss';
+// import 'swiper/css/bundle';
+// import 'swiper/scss/navigation';
+// import 'swiper/scss/pagination';
+import 'swiper/css/zoom';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Swiper from 'swiper';
 // import { register } from 'swiper/element/bundle';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Navigation, Pagination } from 'swiper/modules';
 
 import ClientApi from '../../../../api/client-api';
@@ -49,7 +56,8 @@ export default class ProductView extends DefaultView {
     this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.wrapper);
-    this.initSwiper();
+    // TODO !!!!!!!!!!!!!!!!!
+    // this.initSwiper();
   }
 
   public initContent(productId?: string) {
@@ -75,31 +83,30 @@ export default class ProductView extends DefaultView {
     }
   }
 
+  // TODO !!!!!!!!!!!!!!!!!
   private initSwiper() {
-    setTimeout(() => {
-      const swiper = new Swiper('.swiper', {
-        modules: [Navigation, Pagination],
-        speed: 500,
-        direction: 'horizontal',
-        loop: true,
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
-        keyboard: true,
-        // ...
-      });
-
-      // Swiper.use([Navigation, Pagination]);
-      // register();
-      console.log(swiper);
-    }, 2000);
-
-    // window.addEventListener('load', () => {
+    // setTimeout(()=> {
+    //     const swiper = new Swiper('.swiper', {
+    //         modules: [Navigation, Pagination],
+    //         speed: 500,
+    //         direction: 'horizontal',
+    //         loop: true,
+    //         pagination: {
+    //           el: '.swiper-pagination',
+    //           clickable: true,
+    //         },
+    //         navigation: {
+    //           nextEl: '.swiper-button-next',
+    //           prevEl: '.swiper-button-prev',
+    //         },
+    //         keyboard: true,
+    //         // ...
+    //       });
+    //       // Swiper.use([Navigation, Pagination]);
+    //       // register();
+    //       console.log(swiper);
+    // }, 2000);
+    // window.addEventListener('DOMContentLoaded', () => {
     //   const swiper = new Swiper('.swiper', {
     //     modules: [Navigation, Pagination],
     //     speed: 500,
@@ -113,10 +120,9 @@ export default class ProductView extends DefaultView {
     //       nextEl: '.swiper-button-next',
     //       prevEl: '.swiper-button-prev',
     //     },
-    //     keyboard: true,
+    //     // keyboard: true,
     //     // ...
     //   });
-
     //   // Swiper.use([Navigation, Pagination]);
     //   // register();
     //   console.log(swiper);
@@ -125,12 +131,36 @@ export default class ProductView extends DefaultView {
 
   private createContent() {
     // TODO: create content for current this.productId
-    this.renderProductCart(this.productId);
+    this.renderProductCart(this.productId)
+      // TODO !!!!!!!!!!!!!!!!!
+      .then(() => {
+        const swiper = new Swiper('.swiper', {
+          modules: [Navigation, Pagination],
+          speed: 500,
+          direction: 'horizontal',
+          loop: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+          keyboard: true,
+          // ...
+        });
+
+        // Swiper.use([Navigation, Pagination]);
+        // register();
+        console.log(swiper);
+      });
   }
 
   private renderProductCart(key: string) {
     const imagesUrls: Array<string> = [];
-    this.anonimApi
+    // TODO !!!!!!!!!!!!!!!!!
+    return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
         if (response.statusCode !== 200) {
@@ -146,25 +176,29 @@ export default class ProductView extends DefaultView {
 
         const productImagesSwiper = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss.swiper],
+          // TODO !!!!!!!!!!!!!!!!!
+          classNames: ['swiper'],
           textContent: '',
         });
 
         const swiperNext = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['swiper-button-next']],
+          // TODO !!!!!!!!!!!!!!!!!
+          classNames: ['swiper-button-next'],
           textContent: '',
         });
 
         const swiperPrev = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['swiper-button-prev']],
+          // TODO !!!!!!!!!!!!!!!!!
+          classNames: ['swiper-button-prev'],
           textContent: '',
         });
 
         const swiperPagination = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['swiper-pagination']],
+          // TODO !!!!!!!!!!!!!!!!!
+          classNames: ['swiper-pagination'],
           textContent: '',
         });
 
@@ -333,7 +367,8 @@ export default class ProductView extends DefaultView {
   public createSwiperWrapper(images: Array<string>) {
     const swiperWrapper = new ElementCreator({
       tag: TagName.DIV,
-      classNames: [styleCss['swiper-wrapper']],
+      // TODO !!!!!!!!!!!!!!!!!
+      classNames: ['swiper-wrapper'],
       textContent: '',
     });
 
@@ -344,7 +379,8 @@ export default class ProductView extends DefaultView {
   private createSlide(imgUrl: string) {
     const slide = new ElementCreator({
       tag: TagName.DIV,
-      classNames: [styleCss['swiper-slide']],
+      // TODO !!!!!!!!!!!!!!!!!
+      classNames: ['swiper-slide'],
       textContent: '',
     });
 
