@@ -25,11 +25,9 @@ const baseConfig = {
           {
             loader: 'css-loader',
             options: {
-            options: {
               modules: {
                 localIdentName: '[local]',
               },
-            },
             },
           },
         ],
@@ -42,11 +40,9 @@ const baseConfig = {
           {
             loader: 'css-loader',
             options: {
-            options: {
               modules: {
                 localIdentName: '[local]',
               },
-            },
             },
           },
         ],
