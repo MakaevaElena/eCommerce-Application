@@ -41,7 +41,7 @@ const baseConfig = {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: '[local]',
+                localIdentName: '[local]--[hash:base64:5]',
               },
             },
           },
@@ -71,7 +71,7 @@ const baseConfig = {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: '[local]',
+                localIdentName: '[local]--[hash:base64:5]',
               },
             },
           },
