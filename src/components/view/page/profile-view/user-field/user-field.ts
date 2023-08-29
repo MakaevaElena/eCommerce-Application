@@ -14,13 +14,29 @@ import UserFieldProps from './user-field-props';
 import TagName from '../../../../../enum/tag-name';
 import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
 import TextContent from '../enum/text-content';
+import Events from '../../../../../enum/events';
 
 export default class UserField {
   private elementField!: HTMLDivElement;
 
   private inputElement: InputCreator;
 
+  private confirmButton: HTMLButtonElement;
+
+  private cancelButton: HTMLButtonElement;
+
+  private redactionModeButton: HTMLButtonElement;
+
   constructor({ group, inputType, inputValue, labelValue }: UserFieldProps) {
+    this.cancelButton = this.createButton(TextContent.CANCEL_BUTTON, Object.values(stylesRedactionButton));
+    this.confirmButton = this.createButton(TextContent.CONFIRM_BUTTON, Object.values(stylesRedactionButton));
+    this.redactionModeButton = this.createButton(
+      TextContent.REDACTION_MODE_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.redactionModeHandler.bind(this),
+      Events.CLICK
+    );
+
     const inputParams = this.createInputParams(group, inputType, labelValue);
     this.inputElement = this.createInputElement(inputParams);
     if (typeof inputValue !== 'undefined') {
@@ -56,13 +72,9 @@ export default class UserField {
     }
 
     this.inputElement.removeMessageElement();
+    this.inputElement.setDisabled();
 
-    const redactionModeButton = this.createButton(
-      TextContent.REDACTION_MODE_BUTTON,
-      Object.values(stylesRedactionButton)
-    );
-
-    fieldElement.append(this.inputElement.getElement(), redactionModeButton);
+    fieldElement.append(this.inputElement.getElement(), this.redactionModeButton);
     return fieldElement;
   }
 
@@ -89,5 +101,11 @@ export default class UserField {
     }
 
     return button;
+  }
+
+  private redactionModeHandler() {
+    this.elementField.removeChild(this.redactionModeButton);
+    this.inputElement.removeDisabled();
+    this.elementField.append(this.confirmButton, this.cancelButton);
   }
 }
