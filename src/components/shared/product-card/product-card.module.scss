@@ -8,10 +8,24 @@
   font-family: 'Karla', sans-serif;
   @include border();
   background-color: black;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.product-card__link {
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .product-card__image {
+  width: 100%;
   object-fit: contain;
+  // align-self: flex-start;
+}
+
+.product-card__title {
+  font-size: 3rem;
+  color: transparentize($color-brand-primary, 0.2);
 }
 
 .product-section {
