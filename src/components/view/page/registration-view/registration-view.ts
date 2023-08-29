@@ -31,6 +31,7 @@ import Delays from '../../../../enum/delays';
 import StatusCodes from '../../../../enum/status-codes';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import CountryOptions from '../../../../utils/input/options/country-options';
+import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
 
 export default class RegistrationView extends DefaultView {
   private readonly DEFAULT_ADDRESS_NUMBER = 1;
@@ -288,16 +289,6 @@ export default class RegistrationView extends DefaultView {
     postal.setCustomValidity(InputTittles.WRONG_COUNTRY);
   }
 
-  private maxPossibleDate(minYears: string): string {
-    const numLength = 2;
-    const today = new Date();
-    const year = today.getFullYear() - Number(minYears);
-    const month = today.getMonth().toString().padStart(numLength, '0');
-    const day = today.getDate().toString().padStart(numLength, '0');
-    const maxDate = `${year}-${month}-${day}`;
-    return maxDate;
-  }
-
   private defaultBillingToggleHandler() {
     if (this.isDefaultBillingAddress) {
       this.isDefaultBillingAddress = false;
@@ -452,161 +443,27 @@ export default class RegistrationView extends DefaultView {
   }
 
   private createParams(): Array<InputParams> {
+    const paramsCreator = new InputParamsCreator();
+    const stylesList = [styles.registrationView__form];
     return [
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.MAIN,
-        attributes: {
-          type: InputTypes.EMAIL,
-          name: InputNames.EMAIL,
-          title: InputTittles.EMAIL_HINT,
-          placeholder: InputPlaceholders.EMAIL,
-          pattern: InputPatterns.EMAIL,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
-        group: InputsGroups.MAIN,
-        attributes: {
-          type: InputTypes.PASSWORD,
-          name: InputNames.PASSWORD,
-          placeholder: InputPlaceholders.PASSWORD,
-          title: InputTittles.PASSWORD,
-          pattern: InputPatterns.PASSWORD,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.MAIN,
-        callback: [[this.passwordCheckHandler.bind(this), Events.CHANGE]],
-        attributes: {
-          type: InputTypes.PASSWORD,
-          name: InputNames.REPEAT_PASSWORD,
-          placeholder: InputPlaceholders.REPEAT_PASSWORD,
-          title: InputTittles.PASSWORD_REPEAT,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.MAIN,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.FIRST_NAME,
-          placeholder: InputPlaceholders.FIRST_NAME,
-          title: InputTittles.TEXT,
-          pattern: InputPatterns.TEXT,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.MAIN,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.LAST_NAME,
-          placeholder: InputPlaceholders.LAST_NAME,
-          title: InputTittles.TEXT,
-          pattern: InputPatterns.TEXT,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        callback: [[this.changeInputDateHandler.bind(this), Events.CLICK]],
-        group: InputsGroups.MAIN,
-        attributes: {
-          type: InputTypes.DATE,
-          placeholder: InputTittles.DATE_OF_BIRTH_HINT,
-          name: InputNames.DATE_OF_BIRTH,
-          title: InputTittles.DATE_OF_BIRTH_HINT,
-          max: this.maxPossibleDate(InputPatterns.DATE_OF_BIRTH_MAX),
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.SHIPPING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_STREET,
-          title: InputTittles.EASY_TEXT,
-          placeholder: InputPlaceholders.STREET,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.SHIPPING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_CITY,
-          title: InputTittles.TEXT,
-          placeholder: InputPlaceholders.CITY,
-          pattern: InputPatterns.TEXT,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.SHIPPING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_POSTAL,
-          title: InputTittles.POSTAL_HINT,
-          placeholder: InputPlaceholders.POSTAL,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        callback: [[this.validateCountryShippingHandler.bind(this), Events.CHANGE]],
-        group: InputsGroups.SHIPPING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.SHIPPING_COUNTRY,
-          title: InputTittles.COUNTRY_HINT,
-          placeholder: InputPlaceholders.COUNTRY,
-          list: InputsList.COUNTRY,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.BILLING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.BILLING_STREET,
-          title: InputTittles.EASY_TEXT,
-          placeholder: InputPlaceholders.STREET,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.BILLING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.BILLING_CITY,
-          title: InputTittles.TEXT,
-          placeholder: InputPlaceholders.CITY,
-          pattern: InputPatterns.TEXT,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        group: InputsGroups.BILLING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.BILLING_POSTAL,
-          title: InputTittles.POSTAL_HINT,
-          placeholder: InputPlaceholders.POSTAL,
-        },
-      },
-      {
-        classNames: [styles.registrationView__form],
-        callback: [[this.validateCountryBillingHandler.bind(this), Events.CHANGE]],
-        group: InputsGroups.BILLING,
-        attributes: {
-          type: InputTypes.TEXT,
-          name: InputNames.BILLING_COUNTRY,
-          title: InputTittles.COUNTRY_HINT,
-          placeholder: InputPlaceholders.COUNTRY,
-          list: InputsList.COUNTRY,
-        },
-      },
+      paramsCreator.getMailParams([styles.registrationView__form]),
+      paramsCreator.getPasswordParams(stylesList, [[this.passwordCheckHandler.bind(this), Events.CHANGE]]),
+      paramsCreator.getPasswordRepeatParams(stylesList, [[this.passwordCheckHandler.bind(this), Events.CHANGE]]),
+      paramsCreator.getFirstNameParams(stylesList),
+      paramsCreator.getLastNameParams(stylesList),
+      paramsCreator.getDateParams(stylesList, [[this.changeInputDateHandler.bind(this), Events.CLICK]]),
+      paramsCreator.getStreetParams(stylesList, InputsGroups.SHIPPING),
+      paramsCreator.getCityParams(stylesList, InputsGroups.SHIPPING),
+      paramsCreator.getSPostalParams(stylesList, InputsGroups.SHIPPING),
+      paramsCreator.getCountryParams(stylesList, InputsGroups.SHIPPING, [
+        [this.validateCountryShippingHandler.bind(this), Events.CHANGE],
+      ]),
+      paramsCreator.getStreetParams(stylesList, InputsGroups.BILLING),
+      paramsCreator.getCityParams(stylesList, InputsGroups.BILLING),
+      paramsCreator.getSPostalParams(stylesList, InputsGroups.BILLING),
+      paramsCreator.getCountryParams(stylesList, InputsGroups.BILLING, [
+        [this.validateCountryShippingHandler.bind(this), Events.CHANGE],
+      ]),
     ];
   }
 }
