@@ -462,7 +462,7 @@ export default class RegistrationView extends DefaultView {
       paramsCreator.getCityParams(stylesList, InputsGroups.BILLING),
       paramsCreator.getSPostalParams(stylesList, InputsGroups.BILLING),
       paramsCreator.getCountryParams(stylesList, InputsGroups.BILLING, [
-        [this.validateCountryShippingHandler.bind(this), Events.CHANGE],
+        [this.validateCountryBillingHandler.bind(this), Events.CHANGE],
       ]),
     ];
   }
