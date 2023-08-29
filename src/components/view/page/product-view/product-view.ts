@@ -1,12 +1,11 @@
+import Swiper from 'swiper';
 import 'swiper/css';
+import 'swiper/swiper-bundle.css';
+import 'swiper/css/bundle';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-// import 'swiper/scss';
-import 'swiper/css/bundle';
-// import 'swiper/scss/navigation';
-import 'swiper/scss/pagination';
-import 'swiper/scss/zoom';
-import Swiper from 'swiper';
+// import 'swiper/scss/zoom';
+
 // import { register } from 'swiper/element/bundle';
 import { Navigation, Pagination } from 'swiper/modules';
 
@@ -77,7 +76,7 @@ export default class ProductView extends DefaultView {
   }
 
   private initSwiper() {
-    window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
       const swiper = new Swiper('.swiper', {
         modules: [Navigation, Pagination],
         speed: 500,
@@ -98,7 +97,30 @@ export default class ProductView extends DefaultView {
       // Swiper.use([Navigation, Pagination]);
       // register();
       console.log(swiper);
-    });
+    }, 2000);
+
+    // window.addEventListener('load', () => {
+    //   const swiper = new Swiper('.swiper', {
+    //     modules: [Navigation, Pagination],
+    //     speed: 500,
+    //     direction: 'horizontal',
+    //     loop: true,
+    //     pagination: {
+    //       el: '.swiper-pagination',
+    //       clickable: true,
+    //     },
+    //     navigation: {
+    //       nextEl: '.swiper-button-next',
+    //       prevEl: '.swiper-button-prev',
+    //     },
+    //     keyboard: true,
+    //     // ...
+    //   });
+
+    //   // Swiper.use([Navigation, Pagination]);
+    //   // register();
+    //   console.log(swiper);
+    // });
   }
 
   private createContent() {

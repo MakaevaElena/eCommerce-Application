@@ -1,11 +1,9 @@
-@import '../../../../../node_modules/swiper/swiper.scss';
 @import 'swiper/css';
 @import 'swiper/css/bundle';
-@import '../../../../../node_modules/swiper/swiper.css';
-
-@import 'swiper/scss/navigation';
-@import 'swiper/scss/pagination';
-@import 'swiper/scss/zoom';
+@import 'swiper/swiper-bundle.css';
+// @import 'swiper/scss/navigation';
+// @import 'swiper/scss/pagination';
+// @import 'swiper/scss/zoom';
 
 @import '../../../../style/abstract/variables/colors.scss';
 @import './src/style/helper.scss';
@@ -13,6 +11,7 @@
 .content-wrapper {
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .product-view {
@@ -113,7 +112,6 @@
 //   background-position: center;
 // }
 
-// swiper
 .swiper {
   width: 50%;
   height: 100%;
