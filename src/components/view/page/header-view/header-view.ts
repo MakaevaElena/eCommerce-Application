@@ -48,6 +48,7 @@ export default class HeaderView extends DefaultView {
     this.createLogInButton(this.buttonsWrapper);
     this.createSignInButton(this.buttonsWrapper);
     this.createLogoutButton(this.buttonsWrapper);
+    this.createProfileButton(this.buttonsWrapper);
 
     this.getCreator().addInnerElement(this.buttonsWrapper);
   }
@@ -126,6 +127,18 @@ export default class HeaderView extends DefaultView {
       this.observer.notify(EventName.LOGOUT);
       localStorage.setItem(`isLogin`, 'false');
       this.router.navigate('');
+    });
+
+    this.observer.subscribe(EventName.LOGIN, () => link.showButton());
+    this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
+
+    parentElement.append(link.getElement());
+  }
+
+  private createProfileButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const link = new LinkButton(LinkName.PROFILE, () => {
+      this.router.navigate(PagePath.PROFILE);
     });
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
