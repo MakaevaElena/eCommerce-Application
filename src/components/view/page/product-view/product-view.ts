@@ -1,3 +1,21 @@
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+//
+import './swiper.css';
+
+// import 'swiper/scss';
+import 'swiper/css/bundle';
+// import 'swiper/scss/navigation';
+// import 'swiper/scss/pagination';
+import 'swiper/css/zoom';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Swiper from 'swiper';
+// import { register } from 'swiper/element/bundle';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Navigation, Pagination } from 'swiper/modules';
+
 import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -49,8 +67,6 @@ export default class ProductView extends DefaultView {
   }
 
   private configView() {
-    // this.getProductByKey('FOR_HONOR');
-
     this.createContent();
   }
 
@@ -64,24 +80,37 @@ export default class ProductView extends DefaultView {
   }
 
   private createContent() {
-    // TODO: create content for current this.productId
-    this.renderProductCart(this.productId);
-  }
+    this.wrapper.replaceChildren('');
+    this.renderProductCard(this.productId).then(() => {
+      const swiper = new Swiper('.swiper', {
+        modules: [Navigation, Pagination],
+        speed: 500,
+        effect: 'fade',
+        direction: 'horizontal',
+        loop: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        keyboard: true,
+        // ...
+      });
 
-  private createMainButton() {
-    const button = new LinkButton(LinkName.INDEX, () => {
-      this.router.navigate(PagePath.INDEX);
+      // Swiper.use([Navigation, Pagination]);
+      // register();
+      console.log(swiper.params);
     });
-    return button;
   }
 
-  private renderProductCart(key: string) {
-    this.anonimApi
+  private renderProductCard(key: string) {
+    const imagesUrls: Array<string> = [];
+    return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
-        if (response.statusCode !== 200) {
-          this.createMessagePopup(ERROR_NOT_FOUND_GAME);
-        }
         console.log('product', response);
 
         const section = new ElementCreator({
@@ -90,26 +119,39 @@ export default class ProductView extends DefaultView {
           textContent: '',
         });
 
-        const productImages = new ElementCreator({
+        const productImagesSwiper = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-images']],
+          classNames: ['swiper'],
           textContent: '',
         });
 
-        const productImage = new ElementCreator({
+        const swiperNext = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-image']],
+          classNames: ['swiper-button-next'],
           textContent: '',
         });
 
-        if (response.body.masterVariant.images)
-          productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
-        // console.log(response.body.masterVariant.images?.[0].url);
+        const swiperPrev = new ElementCreator({
+          tag: TagName.DIV,
+          classNames: ['swiper-button-prev'],
+          textContent: '',
+        });
+
+        const swiperPagination = new ElementCreator({
+          tag: TagName.DIV,
+          classNames: ['swiper-pagination'],
+          textContent: '',
+        });
+
+        if (response.body.masterVariant.images) {
+          response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
+          // productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
+        }
 
         const productInfo = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-info']],
-          textContent: 'PRODUCT INFO',
+          textContent: '',
         });
 
         const productName = new ElementCreator({
@@ -125,15 +167,27 @@ export default class ProductView extends DefaultView {
           textContent: `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`,
         });
 
-        const price =
-          response.body.masterVariant.prices?.length !== 0
-            ? `PRICE: ${response.body.masterVariant.prices?.[0].value?.centAmount} ${response.body.masterVariant.prices?.[0].value?.currencyCode}`
-            : '';
+        const price = () => {
+          if (response.body.masterVariant.prices?.[1].value) {
+            return `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
+              2
+            )} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
+          }
+          return '';
+        };
 
         const productPrice = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-price']],
-          textContent: price,
+          textContent: price(),
+        });
+
+        const productDiscountPrice = new ElementCreator({
+          tag: TagName.SPAN,
+          classNames: [styleCss['product-discount-price']],
+          textContent: `DISCOUNT PRICE: ${(
+            Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
+          ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`,
         });
 
         const productAttributes = new ElementCreator({
@@ -173,8 +227,7 @@ export default class ProductView extends DefaultView {
           textContent: `RELEASE: ${response.body.masterVariant.attributes?.[4].value[0]}`,
         });
 
-        const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
-
+        // const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
         // productVideo.setAttribute('data-href', `${response.body.masterVariant.attributes?.[5].value[0]}`);
         // console.log(response.body.masterVariant.attributes?.[5].value[0]);
 
@@ -184,20 +237,26 @@ export default class ProductView extends DefaultView {
           textContent: `DESCRIPTION: ${response.body.description?.en}`,
         });
 
-        const addToCart = new ElementCreator({
-          tag: TagName.BUTTON,
-          classNames: [styleCss['product-description'], styleCss.button],
-          textContent: 'ADD TO CART',
-        });
+        // const addToCard = new ElementCreator({
+        //   tag: TagName.BUTTON,
+        //   classNames: [styleCss['product-button'], styleCss.button],
+        //   textContent: 'ADD TO CART',
+        // });
 
-        productImages.addInnerElement(productImage);
-        section.addInnerElement(productImages);
+        productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
+        productImagesSwiper.addInnerElement(swiperPrev);
+        productImagesSwiper.addInnerElement(swiperNext);
+        productImagesSwiper.addInnerElement(swiperPagination);
+
+        section.addInnerElement(productImagesSwiper);
         section.addInnerElement(productInfo);
         productInfo.addInnerElement(productName);
         productInfo.addInnerElement(productCategory);
         productInfo.addInnerElement(productPrice);
+        productInfo.addInnerElement(productDiscountPrice);
         productInfo.addInnerElement(productDescription);
-        productInfo.addInnerElement(addToCart);
+        // productInfo.addInnerElement(addToCard);
+        productInfo.addInnerElement(this.createToCartButton().getElement());
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -205,9 +264,10 @@ export default class ProductView extends DefaultView {
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
         this.wrapper.append(section.getElement());
-        this.wrapper.append(productVideo);
+        // this.wrapper.append(productVideo);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log('error', error);
         this.createMessagePopup(ERROR_NOT_FOUND_GAME);
       });
   }
@@ -235,11 +295,48 @@ export default class ProductView extends DefaultView {
       textContent: message,
     });
 
-    this.getCreator().addInnerElement(messagePopup);
+    this.getCreator().addInnerElement(this.createMainButton().getElement());
+    messagePopup.addInnerElement(messagePopup);
 
     messagePopup.getElement().addEventListener('click', () => {
       messagePopup.getElement().remove();
     });
+  }
+
+  private createMainButton() {
+    const button = new LinkButton(LinkName.INDEX, () => {
+      this.router.navigate(PagePath.INDEX);
+    });
+    return button;
+  }
+
+  private createToCartButton() {
+    const button = new LinkButton('Add to cart', () => {
+      this.router.navigate(PagePath.EMPTY);
+    });
+    return button;
+  }
+
+  public createSwiperWrapper(images: Array<string>) {
+    const swiperWrapper = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: ['swiper-wrapper'],
+      textContent: '',
+    });
+
+    images.forEach((image) => swiperWrapper.getElement().append(this.createSlide(image)));
+    return swiperWrapper;
+  }
+
+  private createSlide(imgUrl: string) {
+    const slide = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: ['swiper-slide'],
+      textContent: '',
+    });
+
+    slide.getElement().style.backgroundImage = `url(${imgUrl})`;
+    return slide.getElement();
   }
 }
 

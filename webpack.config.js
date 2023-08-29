@@ -19,21 +19,6 @@ const baseConfig = {
         include: [path.resolve(__dirname, 'src')],
       },
       {
-        test: /\.css$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              modules: {
-                localIdentName: '[local]',
-              },
-            },
-          },
-        ],
-        exclude: /\.module.css$/i,
-      },
-      {
         test: /\.module.css$/i,
         use: [
           MiniCssExtractPlugin.loader,
@@ -46,22 +31,6 @@ const baseConfig = {
             },
           },
         ],
-      },
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              modules: {
-                localIdentName: '[local]',
-              },
-            },
-          },
-          'sass-loader',
-        ],
-        exclude: /\.module.s[ac]ss$/i,
       },
       {
         test: /\.module.s[ac]ss$/i,
@@ -77,6 +46,16 @@ const baseConfig = {
           },
           'sass-loader',
         ],
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+        exclude: /\.module.css$/i,
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+        exclude: /\.module.s[ac]ss$/i,
       },
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
