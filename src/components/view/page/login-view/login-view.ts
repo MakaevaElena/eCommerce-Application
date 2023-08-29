@@ -9,6 +9,7 @@ import EventName from '../../../../enum/event-name';
 import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import ErrorMessage from '../../../message/error-message';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
@@ -217,7 +218,7 @@ export default class LoginView extends DefaultView {
           }
         } catch (error) {
           if (error instanceof Error) {
-            console.log(error.message); // TODO realize output message
+            new ErrorMessage().showMessage(error.message);
           }
         }
       }
