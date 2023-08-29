@@ -33,6 +33,7 @@ export enum InputPlaceholders {
   STREET = 'Street',
   POSTAL = 'Postal',
   COUNTRY = 'Country',
+  DATE_OF_BIRTH = 'Date of birth',
 }
 
 export enum InputTittles {
