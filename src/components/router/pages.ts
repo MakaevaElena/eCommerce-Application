@@ -13,6 +13,7 @@ const LinkName = {
   INDEX: 'Main',
   CATALOG: 'Catalog',
   LOGIN: 'Log In',
+  LOGOUT: 'Log Out',
   REGISTRATION: 'Sign In',
   PROFILE: 'User',
 };

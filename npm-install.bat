@@ -1,5 +1,5 @@
 npm i -D webpack webpack-cli webpack-dev-server webpack-merge
-npm install --save @types/webpack
+npm i -D @types/webpack
 
 
 npm i -g commitizen
