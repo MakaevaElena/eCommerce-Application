@@ -1,0 +1,48 @@
+@import '../../../style/abstract/variables/colors.scss';
+@import '../../../style/abstract/mixins/border-mixin.scss';
+
+.product-card {
+  display: flex;
+  width: 20vw;
+  min-height: 10vh;
+  font-family: 'Karla', sans-serif;
+  @include border();
+  background-color: black;
+}
+
+.product-card__image {
+  object-fit: contain;
+}
+
+.product-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  // gap: 30px;
+  font-family: 'Karla', sans-serif;
+  @include border();
+  background-color: black;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  width: 50%;
+  gap: 30px;
+  font-family: 'Karla', sans-serif;
+  @include border();
+  padding: 1rem;
+}
+
+.product-name {
+  font-size: 3rem;
+  color: transparentize($color-brand-primary, 0.2);
+}
+
+.product-view .button:hover {
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+}
