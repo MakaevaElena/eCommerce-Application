@@ -2,11 +2,11 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-// TODO !!!!!!!!!!!!!!!!!
+//
 import './swiper.css';
 
 // import 'swiper/scss';
-// import 'swiper/css/bundle';
+import 'swiper/css/bundle';
 // import 'swiper/scss/navigation';
 // import 'swiper/scss/pagination';
 import 'swiper/css/zoom';
@@ -56,8 +56,6 @@ export default class ProductView extends DefaultView {
     this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.wrapper);
-    // TODO !!!!!!!!!!!!!!!!!
-    // this.initSwiper();
   }
 
   public initContent(productId?: string) {
@@ -69,8 +67,6 @@ export default class ProductView extends DefaultView {
   }
 
   private configView() {
-    // this.getProductByKey('FOR_HONOR');
-
     this.createContent();
   }
 
@@ -83,90 +79,39 @@ export default class ProductView extends DefaultView {
     }
   }
 
-  // TODO !!!!!!!!!!!!!!!!!
-  private initSwiper() {
-    // setTimeout(()=> {
-    //     const swiper = new Swiper('.swiper', {
-    //         modules: [Navigation, Pagination],
-    //         speed: 500,
-    //         direction: 'horizontal',
-    //         loop: true,
-    //         pagination: {
-    //           el: '.swiper-pagination',
-    //           clickable: true,
-    //         },
-    //         navigation: {
-    //           nextEl: '.swiper-button-next',
-    //           prevEl: '.swiper-button-prev',
-    //         },
-    //         keyboard: true,
-    //         // ...
-    //       });
-    //       // Swiper.use([Navigation, Pagination]);
-    //       // register();
-    //       console.log(swiper);
-    // }, 2000);
-    // window.addEventListener('DOMContentLoaded', () => {
-    //   const swiper = new Swiper('.swiper', {
-    //     modules: [Navigation, Pagination],
-    //     speed: 500,
-    //     direction: 'horizontal',
-    //     loop: true,
-    //     pagination: {
-    //       el: '.swiper-pagination',
-    //       clickable: true,
-    //     },
-    //     navigation: {
-    //       nextEl: '.swiper-button-next',
-    //       prevEl: '.swiper-button-prev',
-    //     },
-    //     // keyboard: true,
-    //     // ...
-    //   });
-    //   // Swiper.use([Navigation, Pagination]);
-    //   // register();
-    //   console.log(swiper);
-    // });
-  }
-
   private createContent() {
-    // TODO: create content for current this.productId
-    this.renderProductCart(this.productId)
-      // TODO !!!!!!!!!!!!!!!!!
-      .then(() => {
-        const swiper = new Swiper('.swiper', {
-          modules: [Navigation, Pagination],
-          speed: 500,
-          direction: 'horizontal',
-          loop: true,
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-          keyboard: true,
-          // ...
-        });
-
-        // Swiper.use([Navigation, Pagination]);
-        // register();
-        console.log(swiper);
+    this.wrapper.replaceChildren('');
+    this.renderProductCart(this.productId).then(() => {
+      const swiper = new Swiper('.swiper', {
+        modules: [Navigation, Pagination],
+        speed: 500,
+        effect: 'fade',
+        direction: 'horizontal',
+        loop: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        keyboard: true,
+        // ...
       });
+
+      // Swiper.use([Navigation, Pagination]);
+      // register();
+      console.log(swiper.params);
+    });
   }
 
   private renderProductCart(key: string) {
     const imagesUrls: Array<string> = [];
-    // TODO !!!!!!!!!!!!!!!!!
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
-        if (response.statusCode !== 200) {
-          this.createMessagePopup(ERROR_NOT_FOUND_GAME);
-        }
-        console.log('product', response);
+        // console.log('product', response);
 
         const section = new ElementCreator({
           tag: TagName.SECTION,
@@ -176,42 +121,31 @@ export default class ProductView extends DefaultView {
 
         const productImagesSwiper = new ElementCreator({
           tag: TagName.DIV,
-          // TODO !!!!!!!!!!!!!!!!!
           classNames: ['swiper'],
           textContent: '',
         });
 
         const swiperNext = new ElementCreator({
           tag: TagName.DIV,
-          // TODO !!!!!!!!!!!!!!!!!
           classNames: ['swiper-button-next'],
           textContent: '',
         });
 
         const swiperPrev = new ElementCreator({
           tag: TagName.DIV,
-          // TODO !!!!!!!!!!!!!!!!!
           classNames: ['swiper-button-prev'],
           textContent: '',
         });
 
         const swiperPagination = new ElementCreator({
           tag: TagName.DIV,
-          // TODO !!!!!!!!!!!!!!!!!
           classNames: ['swiper-pagination'],
           textContent: '',
         });
 
-        // const productImage = new ElementCreator({
-        //   tag: TagName.DIV,
-        //   classNames: [styleCss['product-image']],
-        //   textContent: '',
-        // });
-
         if (response.body.masterVariant.images) {
           response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
           // productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
-          console.log('images', imagesUrls);
         }
 
         const productInfo = new ElementCreator({
@@ -233,16 +167,19 @@ export default class ProductView extends DefaultView {
           textContent: `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`,
         });
 
-        const price =
-          response.body.masterVariant.prices?.length !== 0
-            ? `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(2)} ${response
-                .body.masterVariant.prices?.[1].value?.currencyCode}`
-            : '';
+        const price = () => {
+          if (response.body.masterVariant.prices?.[1].value) {
+            return `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
+              2
+            )} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
+          }
+          return '';
+        };
 
         const productPrice = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-price']],
-          textContent: price,
+          textContent: price(),
         });
 
         const productAttributes = new ElementCreator({
@@ -283,7 +220,6 @@ export default class ProductView extends DefaultView {
         });
 
         // const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
-
         // productVideo.setAttribute('data-href', `${response.body.masterVariant.attributes?.[5].value[0]}`);
         // console.log(response.body.masterVariant.attributes?.[5].value[0]);
 
@@ -295,11 +231,10 @@ export default class ProductView extends DefaultView {
 
         const addToCart = new ElementCreator({
           tag: TagName.BUTTON,
-          classNames: [styleCss['product-description'], styleCss.button],
+          classNames: [styleCss['product-button'], styleCss.button],
           textContent: 'ADD TO CART',
         });
 
-        // productImages.addInnerElement(productImage);
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
         productImagesSwiper.addInnerElement(swiperNext);
@@ -321,7 +256,8 @@ export default class ProductView extends DefaultView {
         this.wrapper.append(section.getElement());
         // this.wrapper.append(productVideo);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log('error', error);
         this.createMessagePopup(ERROR_NOT_FOUND_GAME);
       });
   }
@@ -367,7 +303,6 @@ export default class ProductView extends DefaultView {
   public createSwiperWrapper(images: Array<string>) {
     const swiperWrapper = new ElementCreator({
       tag: TagName.DIV,
-      // TODO !!!!!!!!!!!!!!!!!
       classNames: ['swiper-wrapper'],
       textContent: '',
     });
@@ -379,7 +314,6 @@ export default class ProductView extends DefaultView {
   private createSlide(imgUrl: string) {
     const slide = new ElementCreator({
       tag: TagName.DIV,
-      // TODO !!!!!!!!!!!!!!!!!
       classNames: ['swiper-slide'],
       textContent: '',
     });
