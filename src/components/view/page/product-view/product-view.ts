@@ -31,7 +31,7 @@ export default class ProductView extends DefaultView {
     this.anonimApi = new ClientApi();
 
     // this.productKey = window.location.hash;
-    this.getProducts();
+    // this.getProducts();
 
     this.router = router;
 
@@ -104,7 +104,7 @@ export default class ProductView extends DefaultView {
 
         if (response.body.masterVariant.images)
           productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
-        console.log(response.body.masterVariant.images?.[0].url);
+        // console.log(response.body.masterVariant.images?.[0].url);
 
         const productInfo = new ElementCreator({
           tag: TagName.DIV,
@@ -215,7 +215,7 @@ export default class ProductView extends DefaultView {
   private getProducts() {
     this.anonimApi
       .getProducts()
-      .then((response) => console.log(response))
+      // .then((response) => console.log(response))
       .catch((error) => {
         this.createMessagePopup('error.message');
         throw new Error(error.message);

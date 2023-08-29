@@ -42,7 +42,7 @@ export const createAnonim = () => {
   // Configure httpMiddlewareOptions
   const httpMiddlewareOptions: HttpMiddlewareOptions = {
     host: CTP_API_URL || '',
-    fetch,
+    // fetch,
   };
 
   const anonimClient = new ClientBuilder()
