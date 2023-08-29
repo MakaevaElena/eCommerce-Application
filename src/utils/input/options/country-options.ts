@@ -4,6 +4,7 @@ export default class CountryOptions {
   private countrysList: Array<Array<string>>;
 
   private countryListElement: HTMLDataListElement;
+
   constructor() {
     this.countrysList = this.createCountryList();
 
