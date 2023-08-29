@@ -24,11 +24,26 @@ const baseConfig = {
           MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
-            // options: {
-            //   modules: {
-            //     localIdentName: '[local]--[hash:base64:5]',
-            //   },
-            // },
+            options: {
+              modules: {
+                localIdentName: '[local]',
+              },
+            },
+          },
+        ],
+        exclude: /\.module.css$/i,
+      },
+      {
+        test: /\.module.css$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[local]',
+              },
+            },
           },
         ],
       },
@@ -38,11 +53,27 @@ const baseConfig = {
           MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
-            // options: {
-            //   modules: {
-            //     localIdentName: '[local]--[hash:base64:5]',
-            //   },
-            // },
+            options: {
+              modules: {
+                localIdentName: '[local]',
+              },
+            },
+          },
+          'sass-loader',
+        ],
+        exclude: /\.module.s[ac]ss$/i,
+      },
+      {
+        test: /\.module.s[ac]ss$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[local]',
+              },
+            },
           },
           'sass-loader',
         ],
