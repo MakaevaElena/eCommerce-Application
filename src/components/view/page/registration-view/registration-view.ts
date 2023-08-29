@@ -36,8 +36,6 @@ import InputParamsCreator from '../../../../utils/input/input-values/input-param
 export default class RegistrationView extends DefaultView {
   private readonly DEFAULT_ADDRESS_NUMBER = 1;
 
-  private inputsParams: Array<InputParams>;
-
   private inputs: Array<InputCreator>;
 
   private mainInputsGroup: Array<InputCreator>;
@@ -81,10 +79,10 @@ export default class RegistrationView extends DefaultView {
     super(params);
     this.router = router;
     this.observer = Observer.getInstance();
-    this.inputs = [];
-    this.mainInputsGroup = [];
-    this.billingInputsGroup = [];
-    this.shippingInputsGroup = [];
+    this.mainInputsGroup = this.fillInputsGroups(this.createMainParams());
+    this.shippingInputsGroup = this.fillInputsGroups(this.createShippingAddressParams());
+    this.billingInputsGroup = this.fillInputsGroups(this.createBillingAddressParams());
+    this.inputs = [...this.mainInputsGroup, ...this.shippingInputsGroup, ...this.billingInputsGroup];
     this.checkValidityElement = this.createValidMessageElement();
     this.buttonDefaultShippingAddress = this.createDefaultButton(TextContents.BUTTON_DEFAULT, [
       styles.registrationView__defaultSelect,
@@ -102,7 +100,6 @@ export default class RegistrationView extends DefaultView {
     this.isBillingAddress = true;
     this.countryOption = new CountryOptions();
     this.countryList = this.countryOption.getListElement();
-    this.inputsParams = this.createParams();
 
     this.configView();
   }
@@ -110,7 +107,6 @@ export default class RegistrationView extends DefaultView {
   private configView() {
     const title = this.createTitle();
     const description = this.createDescription();
-    this.fillInputsGroups();
     const form = this.createForm();
     const button = document.createElement(TagName.BUTTON);
     button.textContent = TextContents.TO_LOGIN;
@@ -158,20 +154,14 @@ export default class RegistrationView extends DefaultView {
     return description;
   }
 
-  private fillInputsGroups(): void {
-    this.inputsParams.forEach((inputParams: InputParams) => {
+  private fillInputsGroups(inputsParams: Array<InputParams>): Array<InputCreator> {
+    const inputs: Array<InputCreator> = [];
+    inputsParams.forEach((inputParams: InputParams) => {
       const input = new InputCreator(inputParams);
-      this.inputs.push(input);
-      if (inputParams.group) {
-        if (inputParams.group === InputsGroups.MAIN) {
-          this.mainInputsGroup.push(input);
-        } else if (inputParams.group === InputsGroups.SHIPPING) {
-          this.shippingInputsGroup.push(input);
-        } else {
-          this.billingInputsGroup.push(input);
-        }
-      }
+      inputs.push(input);
     });
+
+    return inputs;
   }
 
   private createForm(): HTMLFormElement {
@@ -442,7 +432,7 @@ export default class RegistrationView extends DefaultView {
     return result;
   }
 
-  private createParams(): Array<InputParams> {
+  private createMainParams(): Array<InputParams> {
     const paramsCreator = new InputParamsCreator();
     const stylesList = [styles.registrationView__form];
     return [
@@ -452,18 +442,28 @@ export default class RegistrationView extends DefaultView {
       paramsCreator.getFirstNameParams(stylesList),
       paramsCreator.getLastNameParams(stylesList),
       paramsCreator.getDateParams(stylesList, [[this.changeInputDateHandler.bind(this), Events.CLICK]]),
-      paramsCreator.getStreetParams(stylesList, InputsGroups.SHIPPING),
-      paramsCreator.getCityParams(stylesList, InputsGroups.SHIPPING),
-      paramsCreator.getSPostalParams(stylesList, InputsGroups.SHIPPING),
-      paramsCreator.getCountryParams(stylesList, InputsGroups.SHIPPING, [
-        [this.validateCountryShippingHandler.bind(this), Events.CHANGE],
-      ]),
-      paramsCreator.getStreetParams(stylesList, InputsGroups.BILLING),
-      paramsCreator.getCityParams(stylesList, InputsGroups.BILLING),
-      paramsCreator.getSPostalParams(stylesList, InputsGroups.BILLING),
-      paramsCreator.getCountryParams(stylesList, InputsGroups.BILLING, [
-        [this.validateCountryBillingHandler.bind(this), Events.CHANGE],
-      ]),
+    ];
+  }
+
+  private createShippingAddressParams(): Array<InputParams> {
+    const paramsCreator = new InputParamsCreator();
+    const stylesList = [styles.registrationView__form];
+    return [
+      paramsCreator.getStreetParams(stylesList),
+      paramsCreator.getCityParams(stylesList),
+      paramsCreator.getSPostalParams(stylesList),
+      paramsCreator.getCountryParams(stylesList, [[this.validateCountryShippingHandler.bind(this), Events.CHANGE]]),
+    ];
+  }
+
+  private createBillingAddressParams(): Array<InputParams> {
+    const paramsCreator = new InputParamsCreator();
+    const stylesList = [styles.registrationView__form];
+    return [
+      paramsCreator.getStreetParams(stylesList),
+      paramsCreator.getCityParams(stylesList),
+      paramsCreator.getSPostalParams(stylesList),
+      paramsCreator.getCountryParams(stylesList, [[this.validateCountryBillingHandler.bind(this), Events.CHANGE]]),
     ];
   }
 }

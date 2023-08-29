@@ -7,7 +7,6 @@ export default class InputParamsCreator {
   getMailParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group: InputsGroups.MAIN,
       attributes: {
         type: InputTypes.EMAIL,
         name: InputNames.EMAIL,
@@ -21,7 +20,6 @@ export default class InputParamsCreator {
   getPasswordParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
-      group: InputsGroups.MAIN,
       callback,
       attributes: {
         type: InputTypes.PASSWORD,
@@ -36,7 +34,6 @@ export default class InputParamsCreator {
   getPasswordRepeatParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
-      group: InputsGroups.MAIN,
       callback,
       attributes: {
         type: InputTypes.PASSWORD,
@@ -50,7 +47,6 @@ export default class InputParamsCreator {
   getFirstNameParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group: InputsGroups.MAIN,
       attributes: {
         type: InputTypes.TEXT,
         name: InputNames.FIRST_NAME,
@@ -64,7 +60,6 @@ export default class InputParamsCreator {
   getLastNameParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group: InputsGroups.MAIN,
       attributes: {
         type: InputTypes.TEXT,
         name: InputNames.LAST_NAME,
@@ -90,10 +85,9 @@ export default class InputParamsCreator {
     };
   }
 
-  getStreetParams(styles: Array<string>, group: string): InputParams {
+  getStreetParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group,
       attributes: {
         type: InputTypes.TEXT,
         title: InputTittles.EASY_TEXT,
@@ -102,13 +96,11 @@ export default class InputParamsCreator {
     };
   }
 
-  getCityParams(styles: Array<string>, group: string): InputParams {
+  getCityParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group,
       attributes: {
         type: InputTypes.TEXT,
-        name: group,
         title: InputTittles.TEXT,
         placeholder: InputPlaceholders.CITY,
         pattern: InputPatterns.TEXT,
@@ -116,10 +108,9 @@ export default class InputParamsCreator {
     };
   }
 
-  getSPostalParams(styles: Array<string>, group: string): InputParams {
+  getSPostalParams(styles: Array<string>): InputParams {
     return {
       classNames: styles,
-      group,
       attributes: {
         type: InputTypes.TEXT,
         name: InputNames.SHIPPING_POSTAL,
@@ -129,11 +120,10 @@ export default class InputParamsCreator {
     };
   }
 
-  getCountryParams(styles: Array<string>, group: string, callback: Array<[CallbackListener, string]>): InputParams {
+  getCountryParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
       callback,
-      group,
       attributes: {
         type: InputTypes.TEXT,
         name: InputNames.SHIPPING_COUNTRY,
