@@ -1,5 +1,5 @@
 npm i -D webpack webpack-cli webpack-dev-server webpack-merge
-npm install --save @types/webpack
+npm i -D @types/webpack
 
 
 npm i -g commitizen
@@ -25,4 +25,7 @@ npm i -D prettier
 npx husky-init
 npm install
 
+rem Install Toastify
+npm i --save toastify-js
+npm i --save-dev @types/toastify-js
 

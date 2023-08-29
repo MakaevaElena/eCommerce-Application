@@ -96,4 +96,15 @@ export default class RegApi {
       .execute();
     return customer;
   }
+
+  public getCustomer(customerEmail: string) {
+    return this.clientRoot
+      .customers()
+      .get({
+        queryArgs: {
+          where: `email="${customerEmail}"`,
+        },
+      })
+      .execute();
+  }
 }

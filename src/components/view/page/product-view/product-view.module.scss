@@ -23,7 +23,6 @@
 
   background: url('../../../../assets/images/product.jpg') no-repeat top center;
   background-size: cover;
-  // height: 80vh;
   width: 100%;
   font-family: 'Karla', sans-serif;
   @include border();
@@ -59,7 +58,6 @@
   justify-content: center;
   align-items: center;
   width: 60%;
-  // height: 79vh;
   font-family: 'Karla', sans-serif;
   @include border();
   background-color: black;
@@ -71,7 +69,6 @@
   justify-content: start;
   align-items: start;
   width: 50%;
-  // height: 79vh;
   gap: 30px;
   font-family: 'Karla', sans-serif;
   @include border();
@@ -96,7 +93,7 @@
 }
 
 .product-description {
-  height: 200px;
+  height: 20vh;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -105,6 +102,9 @@
   background-color: yellow;
   color: black;
   font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.486);
+  border-radius: 2px;
+  padding: 0.1rem;
 }
 
 .product-price {

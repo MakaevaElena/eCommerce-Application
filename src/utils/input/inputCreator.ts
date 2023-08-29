@@ -1,3 +1,4 @@
+import labelStyles from './label-style.module.scss';
 import { CallbackListener, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
 import TagName from '../../enum/tag-name';
@@ -43,6 +44,10 @@ export default class InputCreator {
     this.messageElement.textContent = '';
   }
 
+  removeMessageElement() {
+    this.element.removeChild(this.messageElement);
+  }
+
   appendMessage() {
     this.element.append(this.messageElement);
   }
@@ -69,6 +74,16 @@ export default class InputCreator {
 
   getInput(): HTMLInputElement {
     return this.inputElement;
+  }
+
+  setLabel(labelValue: string): void {
+    const label = document.createElement('label');
+    label.textContent = labelValue;
+    label.classList.add(...Object.values(labelStyles));
+
+    label.append(this.inputElement);
+    this.inputElement.disabled = true;
+    this.element.append(label);
   }
 
   getTitle(): string {

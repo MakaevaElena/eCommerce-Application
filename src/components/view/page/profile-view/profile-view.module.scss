@@ -3,7 +3,7 @@
 .profile-view {
   background: url('../../../../assets/images/profile.jpg') no-repeat top center;
   background-size: cover;
-  height: 80vh;
+  min-height: 80vh;
   width: 100%;
 
   .content-wrapper {

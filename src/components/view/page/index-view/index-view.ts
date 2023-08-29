@@ -6,6 +6,9 @@ import Router from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
 import styleCss from './index-view.module.scss';
+import ErrorMessage from '../../../message/error-message';
+import WarningMessage from '../../../message/warning-message';
+import InfoMessage from '../../../message/info-message';
 
 export default class IndexView extends DefaultView {
   private router: Router;
@@ -34,22 +37,24 @@ export default class IndexView extends DefaultView {
 
   private createLinks() {
     const wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
-    const logInButton = this.createLogInButton();
-    const signInButton = this.createSignInButton();
+    const messageButton = this.createMessageButton();
 
-    wrapper.append(logInButton.getElement(), signInButton.getElement());
+    wrapper.append(messageButton.getElement());
     this.getCreator().addInnerElement(wrapper);
   }
 
-  private createLogInButton() {
-    const linkButton = new LinkButton(LinkName.LOGIN, () => {
-      if (localStorage.getItem('isLogin') === 'true') {
-        this.router.navigate(PagePath.INDEX);
-      } else {
-        this.router.navigate(PagePath.LOGIN);
-      }
+  private createMessageButton() {
+    const linkButton = new LinkButton('Messages', () => {
+      this.showMessage();
     });
+
     return linkButton;
+  }
+
+  private showMessage() {
+    new WarningMessage().showMessage('Warning!');
+    new ErrorMessage().showMessage('Error!');
+    new InfoMessage().showMessage('Infomation!');
   }
 
   private createSignInButton() {

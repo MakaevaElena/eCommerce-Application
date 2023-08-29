@@ -49,7 +49,7 @@ export default class ProductView extends DefaultView {
     this.anonimApi = new ClientApi();
 
     // this.productKey = window.location.hash;
-    this.getProducts();
+    // this.getProducts();
 
     this.router = router;
 
@@ -81,7 +81,7 @@ export default class ProductView extends DefaultView {
 
   private createContent() {
     this.wrapper.replaceChildren('');
-    this.renderProductCart(this.productId).then(() => {
+    this.renderProductCard(this.productId).then(() => {
       const swiper = new Swiper('.swiper', {
         modules: [Navigation, Pagination],
         speed: 500,
@@ -106,7 +106,7 @@ export default class ProductView extends DefaultView {
     });
   }
 
-  private renderProductCart(key: string) {
+  private renderProductCard(key: string) {
     const imagesUrls: Array<string> = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
@@ -151,7 +151,7 @@ export default class ProductView extends DefaultView {
         const productInfo = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-info']],
-          textContent: 'PRODUCT INFO',
+          textContent: '',
         });
 
         const productName = new ElementCreator({
@@ -237,11 +237,11 @@ export default class ProductView extends DefaultView {
           textContent: `DESCRIPTION: ${response.body.description?.en}`,
         });
 
-        const addToCart = new ElementCreator({
-          tag: TagName.BUTTON,
-          classNames: [styleCss['product-button'], styleCss.button],
-          textContent: 'ADD TO CART',
-        });
+        // const addToCard = new ElementCreator({
+        //   tag: TagName.BUTTON,
+        //   classNames: [styleCss['product-button'], styleCss.button],
+        //   textContent: 'ADD TO CART',
+        // });
 
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
@@ -255,7 +255,8 @@ export default class ProductView extends DefaultView {
         productInfo.addInnerElement(productPrice);
         productInfo.addInnerElement(productDiscountPrice);
         productInfo.addInnerElement(productDescription);
-        productInfo.addInnerElement(addToCart);
+        // productInfo.addInnerElement(addToCard);
+        productInfo.addInnerElement(this.createToCartButton().getElement());
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -274,7 +275,7 @@ export default class ProductView extends DefaultView {
   private getProducts() {
     this.anonimApi
       .getProducts()
-      .then((response) => console.log(response))
+      // .then((response) => console.log(response))
       .catch((error) => {
         this.createMessagePopup('error.message');
         throw new Error(error.message);
@@ -295,7 +296,7 @@ export default class ProductView extends DefaultView {
     });
 
     this.getCreator().addInnerElement(this.createMainButton().getElement());
-    this.getCreator().addInnerElement(messagePopup);
+    messagePopup.addInnerElement(messagePopup);
 
     messagePopup.getElement().addEventListener('click', () => {
       messagePopup.getElement().remove();
@@ -305,6 +306,13 @@ export default class ProductView extends DefaultView {
   private createMainButton() {
     const button = new LinkButton(LinkName.INDEX, () => {
       this.router.navigate(PagePath.INDEX);
+    });
+    return button;
+  }
+
+  private createToCartButton() {
+    const button = new LinkButton('Add to cart', () => {
+      this.router.navigate(PagePath.EMPTY);
     });
     return button;
   }

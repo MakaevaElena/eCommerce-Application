@@ -1,13 +1,13 @@
 export type InputParams = {
   attributes: InputAttributes;
   classNames?: Array<string>;
-  group?: Group;
+  group?: string;
   callback?: Array<[CallbackListener, string]>;
 };
 
 export type InputAttributes = {
   type: string;
-  name: string;
+  name?: string;
   placeholder?: string;
   title?: string;
   pattern?: string;
