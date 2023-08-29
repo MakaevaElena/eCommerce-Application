@@ -1,5 +1,7 @@
 import InputCreator from '../../../../../utils/input/inputCreator';
-import styles from '../../registration-view/registration-view.module.scss';
+import styleButton from './styles/button-style.module.scss';
+import stylesField from './styles/field-view.module.scss';
+import stylesRedactionButton from './styles/redaction-button-style.module.scss';
 import InputsGroups from '../../../../../utils/input/input-values/inputs-groups';
 import {
   InputNames,
@@ -10,7 +12,8 @@ import {
 } from '../../../../../utils/input/input-values/input-values';
 import UserFieldProps from './user-field-props';
 import TagName from '../../../../../enum/tag-name';
-import { InputParams } from '../../../../../utils/input/inputParams';
+import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
+import TextContent from '../enum/text-content';
 
 export default class UserField {
   private elementField!: HTMLDivElement;
@@ -42,7 +45,7 @@ export default class UserField {
 
   private createFieldElement(inputValue: string, labelValue: string) {
     const fieldElement = document.createElement(TagName.DIV);
-    fieldElement.classList.add();
+    fieldElement.classList.add(...Object.values(stylesField));
 
     if (typeof inputValue !== 'undefined') {
       this.inputElement.setInputValue(inputValue);
@@ -54,12 +57,37 @@ export default class UserField {
 
     this.inputElement.removeMessageElement();
 
-    fieldElement.append(this.inputElement.getElement());
+    const redactionModeButton = this.createButton(
+      TextContent.REDACTION_MODE_BUTTON,
+      Object.values(stylesRedactionButton)
+    );
+
+    fieldElement.append(this.inputElement.getElement(), redactionModeButton);
     return fieldElement;
   }
 
   private createInputElement(inputParams: InputParams) {
     const inputElement = new InputCreator(inputParams);
     return inputElement;
+  }
+
+  private createButton(
+    textContent: string,
+    classList?: Array<string>,
+    eventListener?: CallbackListener,
+    event?: string
+  ): HTMLButtonElement {
+    const button = document.createElement(TagName.BUTTON);
+    button.textContent = textContent;
+    button.classList.add(...Object.values(styleButton));
+    if (classList) {
+      button.classList.add(...classList);
+    }
+
+    if (eventListener && event) {
+      button.addEventListener(event, eventListener);
+    }
+
+    return button;
   }
 }

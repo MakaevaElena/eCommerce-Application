@@ -8,6 +8,8 @@ enum TextContent {
   TITLE_ADDRESS_BILLING = 'billing addresses',
 
   DEFAULT_ADDRESS = 'default address',
+
+  REDACTION_MODE_BUTTON = 'edit',
 }
 
 export default TextContent;

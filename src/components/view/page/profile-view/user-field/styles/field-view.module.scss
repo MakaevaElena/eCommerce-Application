@@ -1,0 +1,6 @@
+@import '../../../../../../style/helper';
+
+.field-view {
+  @include flex(center);
+  flex-wrap: wrap;
+}
