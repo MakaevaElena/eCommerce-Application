@@ -1,5 +1,5 @@
 import Toastify from 'toastify-js';
-import './message.module.scss';
+import 'toastify-js/src/toastify.css';
 
 export enum MessageType {
   Info,
