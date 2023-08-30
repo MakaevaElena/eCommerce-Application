@@ -24,6 +24,7 @@
   background: url('../../../../assets/images/product.jpg') no-repeat top center;
   background-size: cover;
   width: 100%;
+  min-height: 85vh;
   font-family: 'Karla', sans-serif;
   @include border();
 

@@ -1,19 +1,12 @@
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-
 //
 import './swiper.css';
 
-// import 'swiper/scss';
 import 'swiper/css/bundle';
-// import 'swiper/scss/navigation';
-// import 'swiper/scss/pagination';
 import 'swiper/css/zoom';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import Swiper from 'swiper';
-// import { register } from 'swiper/element/bundle';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Navigation, Pagination } from 'swiper/modules';
 
 import ClientApi from '../../../../api/client-api';
@@ -25,8 +18,7 @@ import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
 import styleCss from './product-view.module.scss';
 import CreateTagElement from '../../../../utils/create-tag-element';
-
-const ERROR_NOT_FOUND_GAME = 'GAME not found';
+import ErrorMessage from '../../../message/error-message';
 
 export default class ProductView extends DefaultView {
   private router: Router;
@@ -66,10 +58,6 @@ export default class ProductView extends DefaultView {
     this.configView();
   }
 
-  private configView() {
-    this.createContent();
-  }
-
   public setContent(element: InsertableElement) {
     this.wrapper.replaceChildren('');
     if (element instanceof ElementCreator) {
@@ -79,7 +67,7 @@ export default class ProductView extends DefaultView {
     }
   }
 
-  private createContent() {
+  private configView() {
     this.wrapper.replaceChildren('');
     this.renderProductCard(this.productId).then(() => {
       const swiper = new Swiper('.swiper', {
@@ -237,12 +225,6 @@ export default class ProductView extends DefaultView {
           textContent: `DESCRIPTION: ${response.body.description?.en}`,
         });
 
-        // const addToCard = new ElementCreator({
-        //   tag: TagName.BUTTON,
-        //   classNames: [styleCss['product-button'], styleCss.button],
-        //   textContent: 'ADD TO CART',
-        // });
-
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
         productImagesSwiper.addInnerElement(swiperNext);
@@ -266,10 +248,7 @@ export default class ProductView extends DefaultView {
         this.wrapper.append(section.getElement());
         // this.wrapper.append(productVideo);
       })
-      .catch((error) => {
-        console.log('error', error);
-        this.createMessagePopup(ERROR_NOT_FOUND_GAME);
-      });
+      .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
   private getProducts() {
