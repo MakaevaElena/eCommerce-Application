@@ -4,7 +4,7 @@ import { InputNames, InputPatterns, InputPlaceholders, InputTittles, InputTypes 
 import InputsList from '../../../components/view/page/registration-view/inputs-params/inputs-list';
 
 export default class InputParamsCreator {
-  getMailParams(styles: Array<string>): InputParams {
+  getMailParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -17,7 +17,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getPasswordParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
+  getPasswordParams(styles?: Array<string>, callback?: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
       callback,
@@ -31,7 +31,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getPasswordRepeatParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
+  getPasswordRepeatParams(styles?: Array<string>, callback?: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
       callback,
@@ -44,7 +44,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getFirstNameParams(styles: Array<string>): InputParams {
+  getFirstNameParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -57,7 +57,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getLastNameParams(styles: Array<string>): InputParams {
+  getLastNameParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -70,14 +70,14 @@ export default class InputParamsCreator {
     };
   }
 
-  getDateParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
+  getDateParams(styles?: Array<string>, callback?: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
       callback,
       group: InputsGroups.MAIN,
       attributes: {
         type: InputTypes.DATE,
-        placeholder: InputTittles.DATE_OF_BIRTH_HINT,
+        placeholder: `${InputPlaceholders.DATE_OF_BIRTH}. ${InputTittles.DATE_OF_BIRTH_HINT}`,
         name: InputNames.DATE_OF_BIRTH,
         title: InputTittles.DATE_OF_BIRTH_HINT,
         max: this.maxPossibleDate(InputPatterns.DATE_OF_BIRTH_MAX),
@@ -85,7 +85,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getStreetParams(styles: Array<string>): InputParams {
+  getStreetParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -96,7 +96,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getCityParams(styles: Array<string>): InputParams {
+  getCityParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -108,7 +108,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getSPostalParams(styles: Array<string>): InputParams {
+  getSPostalParams(styles?: Array<string>): InputParams {
     return {
       classNames: styles,
       attributes: {
@@ -120,7 +120,7 @@ export default class InputParamsCreator {
     };
   }
 
-  getCountryParams(styles: Array<string>, callback: Array<[CallbackListener, string]>): InputParams {
+  getCountryParams(styles?: Array<string>, callback?: Array<[CallbackListener, string]>): InputParams {
     return {
       classNames: styles,
       callback,
