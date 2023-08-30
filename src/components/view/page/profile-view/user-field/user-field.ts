@@ -1,6 +1,7 @@
 import InputCreator from '../../../../../utils/input/inputCreator';
 import styleButton from './styles/button-style.module.scss';
 import stylesField from './styles/field-view.module.scss';
+import stylesRedactionMode from './styles/redaction-mode-style.module.scss';
 import stylesRedactionButton from './styles/redaction-button-style.module.scss';
 import InputsGroups from '../../../../../utils/input/input-values/inputs-groups';
 import {
@@ -22,6 +23,8 @@ import InfoMessage from '../../../../message/info-message';
 export default class UserField {
   private elementField!: HTMLDivElement;
 
+  private value!: string;
+
   private inputElement: InputCreator;
 
   private confirmButton: HTMLButtonElement;
@@ -31,7 +34,12 @@ export default class UserField {
   private redactionModeButton: HTMLButtonElement;
 
   constructor({ group, inputType, inputValue, labelValue }: UserFieldProps) {
-    this.cancelButton = this.createButton(TextContent.CANCEL_BUTTON, Object.values(stylesRedactionButton));
+    this.cancelButton = this.createButton(
+      TextContent.CANCEL_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.cancelValueHandler.bind(this),
+      Events.CLICK
+    );
     this.confirmButton = this.createButton(
       TextContent.CONFIRM_BUTTON,
       Object.values(stylesRedactionButton),
@@ -49,6 +57,7 @@ export default class UserField {
     this.inputElement = this.createInputElement(inputParams);
     if (typeof inputValue !== 'undefined') {
       this.elementField = this.createFieldElement(inputValue, labelValue);
+      this.value = inputValue;
     }
   }
 
@@ -126,22 +135,23 @@ export default class UserField {
     messageShower.showMessage(textContent);
   }
 
-  private showMessage() {
-    new WarningMessage().showMessage('Warning!');
-    new ErrorMessage().showMessage('Error!');
-    new InfoMessage().showMessage('Infomation!');
-  }
-
   private redactionModeHandler() {
     this.elementField.removeChild(this.redactionModeButton);
     this.inputElement.removeDisabled();
     this.elementField.append(this.confirmButton, this.cancelButton);
+    this.elementField.classList.add(...Object.values(stylesRedactionMode));
   }
 
   private saveValueHandler() {
     this.exitEditModeChangeButton();
-
+    this.value = this.inputElement.getInputValue();
     this.showInfoMessage(TextContent.CONFIRM_MESSAGE_INFO);
+  }
+
+  private cancelValueHandler() {
+    this.exitEditModeChangeButton();
+    this.inputElement.setInputValue(this.value);
+    this.showInfoMessage(TextContent.CANCEL_MESSAGE_INFO);
   }
 
   private exitEditModeChangeButton() {
@@ -149,5 +159,6 @@ export default class UserField {
     this.elementField.removeChild(this.confirmButton);
     this.elementField.removeChild(this.cancelButton);
     this.elementField.append(this.redactionModeButton);
+    this.elementField.classList.remove(...Object.values(stylesRedactionMode));
   }
 }

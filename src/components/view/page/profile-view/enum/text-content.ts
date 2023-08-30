@@ -15,6 +15,7 @@ enum TextContent {
   CANCEL_BUTTON = 'cancel',
 
   CONFIRM_MESSAGE_INFO = 'new data successfully saved',
+  CANCEL_MESSAGE_INFO = 'modifications have been canceled',
 }
 
 export default TextContent;
