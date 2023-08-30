@@ -1,25 +1,16 @@
-import InputCreator from '../../../../../utils/input/inputCreator';
-import styleButton from '../../../../shared/button/button-style.module.scss';
 import stylesField from './styles/field-view.module.scss';
 import stylesRedactionMode from './styles/redaction-mode-style.module.scss';
 import stylesRedactionButton from './styles/redaction-button-style.module.scss';
-import InputsGroups from '../../../../../utils/input/input-values/inputs-groups';
-import {
-  InputNames,
-  InputPatterns,
-  InputPlaceholders,
-  InputTittles,
-  InputTypes,
-} from '../../../../../utils/input/input-values/input-values';
 import UserFieldProps from './user-field-props';
 import TagName from '../../../../../enum/tag-name';
-import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
+import { CallbackListener } from '../../../../../utils/input/inputParams';
 import TextContent from '../enum/text-content';
 import Events from '../../../../../enum/events';
 import WarningMessage from '../../../../message/warning-message';
 import ErrorMessage from '../../../../message/error-message';
 import InfoMessage from '../../../../message/info-message';
 import buttonCreator from '../../../../shared/button/button-creator';
+import InputCreator from '../../../../../utils/input/inputCreator';
 
 export default class UserField {
   private elementField: HTMLDivElement;
@@ -109,53 +100,10 @@ export default class UserField {
     return button.getButton();
   }
 
-  //   const inputParams = this.createInputParams(group, inputType, labelValue);
-  //   this.inputElement = this.createInputElement(inputParams);
-  //   if (typeof inputValue !== 'undefined') {
-  //     this.elementField = this.createFieldElement(inputValue, labelValue);
-  //     this.value = inputValue;
-  //   }
-  // }
-
-  // getElementField() {
-  //   return this.elementField;
-  // }
-
-  // private createInputParams(group: string, inputType: string, labelValue: string) {
-  //   return {
-  //     group: group,
-  //     attributes: {
-  //       type: inputType,
-  //       name: InputNames.EMAIL,
-  //       placeholder: labelValue,
-  //     },
-  //   };
-  // }
-
-  // private createFieldElement(inputValue: string, labelValue: string) {
-  //   const fieldElement = document.createElement(TagName.DIV);
-  //   fieldElement.classList.add(...Object.values(stylesField));
-  //
-
-  //
-  //   this.inputElement.removeMessageElement();
-  //
-  //   fieldElement.append(this.inputElement.getElement(), this.redactionModeButton);
-  //   return fieldElement;
-  // }
-  //
-  // private createInputElement(inputParams: InputParams) {
-  //   const inputElement = new InputCreator(inputParams);
-  //   return inputElement;
-  // }
-  //
-
-  //
   private showInfoMessage(textContent: string) {
     const messageShower = new InfoMessage();
     messageShower.showMessage(textContent);
   }
-
   //
   // private showErrorMessage(textContent: string) {
   //   const messageShower = new ErrorMessage();
@@ -166,9 +114,10 @@ export default class UserField {
   //   const messageShower = new WarningMessage();
   //   messageShower.showMessage(textContent);
   // }
-  //
+
   private redactionModeHandler() {
     this.value = this.inputElement.getInputValue();
+    this.inputElement.appendMessage();
     this.elementField.removeChild(this.redactionModeButton);
     this.inputElement.removeDisabled();
     this.elementField.append(this.confirmButton, this.cancelButton);
@@ -191,6 +140,7 @@ export default class UserField {
     this.inputElement.setDisabled();
     this.elementField.removeChild(this.confirmButton);
     this.elementField.removeChild(this.cancelButton);
+    this.inputElement.removeMessageElementFromLabel();
     this.elementField.append(this.redactionModeButton);
     this.elementField.classList.remove(...Object.values(stylesRedactionMode));
   }
