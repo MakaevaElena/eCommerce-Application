@@ -82,8 +82,16 @@ export default class InputCreator {
     label.classList.add(...Object.values(labelStyles));
 
     label.append(this.inputElement);
-    this.inputElement.disabled = true;
+
     this.element.append(label);
+  }
+
+  setDisabled() {
+    this.inputElement.disabled = true;
+  }
+
+  removeDisabled() {
+    this.inputElement.disabled = false;
   }
 
   getTitle(): string {
