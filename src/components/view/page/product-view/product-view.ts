@@ -1,3 +1,4 @@
+import { ClientResponse, ProductProjection } from '@commercetools/platform-sdk';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -27,7 +28,13 @@ export default class ProductView extends DefaultView {
 
   private wrapper: HTMLDivElement;
 
-  anonimApi: ClientApi;
+  private anonimApi: ClientApi;
+
+  private productCategory = new ElementCreator({
+    tag: TagName.SPAN,
+    classNames: [styleCss['product-category']],
+    textContent: `CATEGORY: `,
+  });
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -101,6 +108,8 @@ export default class ProductView extends DefaultView {
       .then((response) => {
         console.log('product', response);
 
+        this.getCategory(response);
+
         const section = new ElementCreator({
           tag: TagName.SECTION,
           classNames: [styleCss['product-section']],
@@ -148,12 +157,8 @@ export default class ProductView extends DefaultView {
           textContent: `${response.body.name.en}`,
         });
 
-        const productCategory = new ElementCreator({
-          tag: TagName.SPAN,
-          classNames: [styleCss['product-category']],
-          // textContent: `CATEGORY: ${response.body.categories?.[0]}`,
-          textContent: `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`,
-        });
+        // this.category = `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`;
+        // eslint-disable-next-line consistent-return
 
         const price = () => {
           if (response.body.masterVariant.prices?.[1].value) {
@@ -191,10 +196,19 @@ export default class ProductView extends DefaultView {
           textContent: `DEVELOPER: ${response.body.masterVariant.attributes?.[0].value[0]}`,
         });
 
+        // eslint-disable-next-line consistent-return
+        const playersQuantity = () => {
+          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'players_quantity');
+          if (index && index > -1) {
+            return response.body.masterVariant.attributes?.[index].value?.[0];
+          }
+          return '';
+        };
+
         const productPlayersQuantity = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-developer'], styleCss.attributes],
-          textContent: `PLAYERS QUANTITY: ${response.body.masterVariant.attributes?.[1].value[0]}`,
+          textContent: `PLAYERS QUANTITY: ${playersQuantity()}`,
         });
 
         const productPlatform = new ElementCreator({
@@ -203,10 +217,18 @@ export default class ProductView extends DefaultView {
           textContent: `PLATFORM: ${response.body.masterVariant.attributes?.[2].value[0].key}`,
         });
 
+        const genre = () => {
+          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
+          if (index && index > -1) {
+            return response.body.masterVariant.attributes?.[index].value?.[0].key;
+          }
+          return '';
+        };
+
         const productGenre = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-developer'], styleCss.attributes],
-          textContent: `GENRE: ${response.body.masterVariant.attributes?.[3].value[0].key}`,
+          textContent: `GENRE: ${genre()}`,
         });
 
         const productRelease = new ElementCreator({
@@ -233,7 +255,7 @@ export default class ProductView extends DefaultView {
         section.addInnerElement(productImagesSwiper);
         section.addInnerElement(productInfo);
         productInfo.addInnerElement(productName);
-        productInfo.addInnerElement(productCategory);
+        productInfo.addInnerElement(this.productCategory);
         productInfo.addInnerElement(productPrice);
         productInfo.addInnerElement(productDiscountPrice);
         productInfo.addInnerElement(productDescription);
@@ -249,6 +271,21 @@ export default class ProductView extends DefaultView {
         // this.wrapper.append(productVideo);
       })
       .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
+  private getCategory(response: ClientResponse<ProductProjection>) {
+    const categoryId = response.body.categories?.[0].id;
+
+    return this.anonimApi
+      .getCategory(categoryId)
+      .then((category) => {
+        console.log('category', category);
+        this.productCategory.getElement().textContent = `CATEGORY: ${category.body.name.ru}`;
+      })
+      .catch((error) => {
+        this.createMessagePopup('error.message');
+        throw new Error(error.message);
+      });
   }
 
   private getProducts() {

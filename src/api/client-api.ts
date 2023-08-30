@@ -96,6 +96,10 @@ export default class ClientApi {
     return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
 
+  public getCategory(id: string) {
+    return this.clientRoot.categories().withId({ ID: id }).get().execute();
+  }
+
   // REGISTRATION
 
   private createCustomerDraft(customerData: CustomerData) {
