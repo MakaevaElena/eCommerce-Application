@@ -13,6 +13,8 @@ enum TextContent {
   REDACTION_MODE_BUTTON = 'edit',
   CONFIRM_BUTTON = 'confirm',
   CANCEL_BUTTON = 'cancel',
+
+  CONFIRM_MESSAGE_INFO = 'new data successfully saved',
 }
 
 export default TextContent;
