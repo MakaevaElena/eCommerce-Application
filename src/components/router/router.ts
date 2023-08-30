@@ -29,6 +29,11 @@ export default class Router {
     this.handler.navigate(url);
   }
 
+  public setHref(newUrlHashPath: string) {
+    const href = `${window.location.href.replace(/#(.*)$/, '')}#${newUrlHashPath}`;
+    window.location.href = href;
+  }
+
   private urlChangedHandler(requestParams: RequestParams) {
     const newPath = requestParams.resource === '' ? requestParams.path : `${requestParams.path}/${ITEM_ID}`;
     const route = this.routes.find((item) => item.path === newPath);
