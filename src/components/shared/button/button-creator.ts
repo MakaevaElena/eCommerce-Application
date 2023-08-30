@@ -18,7 +18,7 @@ export default class buttonCreator {
     this.classList = classList;
     this.eventListener = eventListener;
     this.event = event;
-    this.createButton();
+    this.button = this.createButton();
   }
 
   getButton() {
@@ -26,15 +26,16 @@ export default class buttonCreator {
   }
 
   private createButton() {
-    this.button = document.createElement(TagName.BUTTON);
-    this.button.textContent = this.textContent;
-    this.button.classList.add(...Object.values(styleButton));
+    const button = document.createElement(TagName.BUTTON);
+    button.textContent = this.textContent;
+    button.classList.add(...Object.values(styleButton));
     if (this.classList) {
-      this.button.classList.add(...this.classList);
+      button.classList.add(...this.classList);
     }
 
     if (this.eventListener && this.event) {
-      this.button.addEventListener(this.event, this.eventListener);
+      button.addEventListener(this.event, this.eventListener);
     }
+    return button;
   }
 }
