@@ -1,12 +1,10 @@
 import Groups from './enum/groups';
 import { InputPlaceholders, InputTypes } from '../../../../../utils/input/input-values/input-values';
-import { Group } from '../../../../../utils/input/inputParams';
+import { Group, InputParams } from '../../../../../utils/input/inputParams';
 
 type UserFieldProps = {
-  group: Group;
-  inputType: string;
-  labelValue: string;
-  inputValue?: string;
+  value: string;
+  inputParams: InputParams;
   isDefaultAddress?: boolean;
 };
 
