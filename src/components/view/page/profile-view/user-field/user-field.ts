@@ -44,6 +44,10 @@ export default class UserField {
     return this.elementField;
   }
 
+  getInputElement() {
+    return this.inputElement;
+  }
+
   private createElementField() {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylesField));

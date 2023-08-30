@@ -16,6 +16,8 @@ enum TextContent {
 
   CONFIRM_MESSAGE_INFO = 'new data successfully saved',
   CANCEL_MESSAGE_INFO = 'modifications have been canceled',
+
+  CHANGE_COUNTRY_INFO = "Don't forget to change the postal code according to the selected country",
 }
 
 export default TextContent;
