@@ -24,6 +24,7 @@ import UserFieldProps from './user-field/user-field-props';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import CountryOptions from '../../../../utils/input/options/country-options';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -35,6 +36,8 @@ export default class ProfileView extends DefaultView {
   private emailAddress: string | null;
 
   private observer: Observer;
+
+  private countryOptions: CountryOptions;
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -49,6 +52,8 @@ export default class ProfileView extends DefaultView {
     this.emailAddress = window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS);
 
     this.observer = Observer.getInstance();
+
+    this.countryOptions = new CountryOptions();
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
@@ -195,16 +200,9 @@ export default class ProfileView extends DefaultView {
 
   private createAdressesProps(adressGroup: Array<Address>, group: Groups): Array<Array<userFieldProps>> {
     const addressesProps: Array<Array<userFieldProps>> = [];
-
     adressGroup.forEach((addressProps) => {
-      const countrys = this.createCountries();
-      let countryName = '';
+      let countryName = this.countryOptions.getCountryByCode(addressProps.country!);
       let isAddressDefault = false;
-      countrys.flat().forEach((country) => {
-        if (country.slice(-2) === addressProps.country) {
-          countryName = country.slice(0, -2);
-        }
-      });
       if (addressProps.isDefault) {
         isAddressDefault = true;
       }
@@ -355,155 +353,5 @@ export default class ProfileView extends DefaultView {
         },
       ],
     };
-  }
-
-  private createCountries(): Array<Array<string>> {
-    const sixDigitsPostalCodeCountries = [
-      'Belarus BY',
-      'China CN',
-      'Colombia CO',
-      'Ecuador EC',
-      'Kazakhstan KZ',
-      'Kyrgyzstan KG',
-      'Malawi MW',
-      'Nigeria NG',
-      'Romania RO',
-      'Russia RU',
-      'Singapore SG',
-      'Tajikistan TJ',
-      'Trinidad and Tobago TT',
-      'Turkmenistan TM',
-      'Uzbekistan UZ',
-      'India IN',
-    ];
-    const fiveDigitsPostalCodeCountries = [
-      'Czech Republic CZ',
-      'Greece CR',
-      'Slovakia SK',
-      'Sweden SE',
-      'Algeria DZ',
-      'Bhutan BT',
-      'Bosnia and Herzegovina BA',
-      'Costa Rica CR',
-      'Croatia HR',
-      'Cuba CU',
-      'Dominican Republic DO',
-      'Egypt EG',
-      'Estonia EE',
-      'Finland FI',
-      'France FR',
-      'Germany DE',
-      'Guatemala GT',
-      'Indonesia ID',
-      'Iraq IQ',
-      'Italy IT',
-      'Jordan JO',
-      'Kenya KE',
-      'Korea, South KR',
-      'Kosovo XK',
-      'Kuwait KW',
-      'Laos LA',
-      'Malaysia MY',
-      'Maldives MV',
-      'Mauritius MU',
-      'Mexico MX',
-      'Mongolia MN',
-      'Montenegro ME',
-      'Morocco MA',
-      'Myanmar MM',
-      'Namibia NA',
-      'Nepal NP',
-      'Nicaragua NI',
-      'Pakistan PK',
-      'Puerto Rico PR',
-      'Senegal SN',
-      'Serbia RS',
-      'Spain ES',
-      'Sri Lanka LK',
-      'Sudan SD',
-      'Tanzania TZ',
-      'Thailand TH',
-      'Turkey TR',
-      'Ukraine UA',
-      'United States US',
-      'Uruguay UY',
-      'Vietnam VN',
-      'Zambia ZM',
-      'Saudi Arabia SA',
-      'Iran IR',
-      'Peru PE',
-      'Åland AX',
-      'Lebanon LB',
-      'Brazil BR',
-      'American Samoa AS',
-      'Guam GU',
-      'Marshall Islands MH',
-      'Micronesia FM',
-      'Northern Mariana Islands MP',
-      'Palau PW',
-      'U.S. Virgin Islands VI',
-    ];
-    const fourDigitsPostalCodeCountries = [
-      'Guinea',
-      'Iceland',
-      'Lesotho',
-      'Madagascar',
-      'Oman',
-      'Palestine',
-      'Papua New Guinea',
-      'Afghanistan AF',
-      'Albania AL',
-      'Argentina AR',
-      'Armenia AM',
-      'Australia AU',
-      'Austria AT',
-      'Bangladesh BD',
-      'Belgium BE',
-      'Bulgaria BG',
-      'Cape Verde CV',
-      'Christmas Island CX',
-      'Greenland GL',
-      'Hungary HU',
-      'Liechtenstein LI',
-      'Luxembourg LU',
-      'New Zealand NZ',
-      'Niger NE',
-      'North Macedonia MK',
-      'Norway NO',
-      'Panama PA',
-      'Paraguay PY',
-      'Philippines PH',
-      'Portugal PT',
-      'Singapore SG',
-      'South Africa ZA',
-      'Switzerland CH',
-      'Svalbard and Jan Mayen SJ',
-      'Tunisia TN',
-      'Portugal PT',
-      'Slovenia SI',
-      'Venezuela VE',
-    ];
-    const twoDigitsPostalCodeCountries = ['Jamaica JM', 'Singapore SG'];
-    const twoLetterThreeDigitsPostalCodeCountries = ['Faroe Islands', 'Barbados', 'Andorra AD'];
-    const twoLetterFourDigitsPostalCodeCountries = [
-      'Azerbaijan AZ',
-      'Latvia LV',
-      'British Virgin Islands VG',
-      'Saint Kitts and Nevis KN',
-      'Saint Vincent and the Grenadines VC',
-      'Samoa WS',
-      'Moldova MD',
-    ];
-    const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania LT', 'Barbados BB'];
-    const allCountries = [
-      sixDigitsPostalCodeCountries,
-      fiveDigitsPostalCodeCountries,
-      fourDigitsPostalCodeCountries,
-      twoDigitsPostalCodeCountries,
-      twoLetterThreeDigitsPostalCodeCountries,
-      twoLetterFourDigitsPostalCodeCountries,
-      twoLetterFiveDigitsPostalCodeCountries,
-    ];
-    return allCountries;
   }
 }
