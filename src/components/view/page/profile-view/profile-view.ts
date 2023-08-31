@@ -171,6 +171,11 @@ export default class ProfileView extends DefaultView {
 
   private createAddressGroup(addressArray: Array<Address>): Array<HTMLDivElement> {
     const addresses: Array<HTMLDivElement> = [];
+    let title = '';
+    title =
+      addressArray === this.userData.shippingAddresses
+        ? TextContent.TITLE_ADDRESS_SHIPPING
+        : TextContent.TITLE_ADDRESS_BILLING;
     addressArray.forEach((address) => {
       const values: Array<string> = [];
       Object.values(address).forEach((value) => {
@@ -178,7 +183,7 @@ export default class ProfileView extends DefaultView {
           values.push(value);
         }
       });
-      const addressGroup = new AddressFieldsGroup(values, TextContent.TITLE_ADDRESS_SHIPPING, address.isDefault);
+      const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
       addresses.push(addressGroup.getElement());
     });
 
