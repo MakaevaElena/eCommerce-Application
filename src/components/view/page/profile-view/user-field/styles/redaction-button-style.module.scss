@@ -1,0 +1,8 @@
+@import '../../../../../../style/helper';
+
+.redaction-button {
+  width: clamp(136px, 16rem + 2px, 272px);
+  margin-bottom: 0.5rem;
+  margin-right: 12px;
+  font-size: 1rem;
+}

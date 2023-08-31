@@ -66,8 +66,10 @@ export default class CatalogView extends DefaultView {
   private createProductLinks(products: Product[]) {
     products.forEach((product) => {
       if (product.key) {
-        // const link = new LinkButton(product.key, () => this.router.navigate(`${PagePath.CATALOG}/${product.key}`));
-        const card = new ProductCard(product.key, this.router);
+        const link = new LinkButton(product.key, () => {
+          this.router.setHref(`${PagePath.CATALOG}/${product.key}`);
+        });
+        this.wrapper.append(link.getElement());
 
         this.wrapper.append(card.getElement());
       }

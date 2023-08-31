@@ -1,0 +1,5 @@
+@import '../../../../../../style/helper';
+
+.active {
+  background-color: transparentize($color-brand-secondary, 0.5);
+}
