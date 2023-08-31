@@ -3,60 +3,96 @@
 
 .product-card {
   display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
   width: 20vw;
   min-height: 10vh;
   font-family: 'Karla', sans-serif;
   @include border();
-  background-color: black;
+  background: $color-page-background;
   border-radius: 0.5rem;
   overflow: hidden;
+
+  transition: box-shadow 0.5s;
+}
+
+.product-card:hover {
+  box-shadow: 0px 0px 8px 12px rgba(255, 0, 0, 0.5);
 }
 
 .product-card__link {
-  text-decoration: none;
   cursor: pointer;
 }
 
 .product-card__image {
+  display: block;
   width: 100%;
   object-fit: contain;
-  // align-self: flex-start;
+  align-self: flex-start;
+}
+
+.product-card__content-wrapper {
+  padding: 0 5px;
 }
 
 .product-card__title {
-  font-size: 3rem;
-  color: transparentize($color-brand-primary, 0.2);
-}
-
-.product-section {
   display: flex;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 60%;
-  // gap: 30px;
-  font-family: 'Karla', sans-serif;
-  @include border();
-  background-color: black;
+  height: 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  color: lighten($color-brand-primary, 10%);
 }
 
-.product-info {
+.product-card__description {
   display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  width: 50%;
-  gap: 30px;
-  font-family: 'Karla', sans-serif;
-  @include border();
-  padding: 1rem;
+  height: 4rem;
+  font-size: 0.8rem;
+  line-height: 1rem;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
 }
 
-.product-name {
-  font-size: 3rem;
-  color: transparentize($color-brand-primary, 0.2);
+.product-card__description:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0.6rem;
+  background: linear-gradient(180deg, transparent, #000000 51%);
 }
 
-.product-view .button:hover {
-  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+.product-card__prices-wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 2rem;
+}
+
+.product-card__price {
+  font-size: 1.2rem;
+  background: $color-text-dark;
+  border-radius: 0.5rem;
+  padding: 0.1rem;
+  color: $color-text-price;
+}
+
+.product-card__discount {
+  font-size: 1.2rem;
+  color: $color-text-discount;
+  background: $color-background-discount;
+  border-radius: 0.5rem;
+  padding: 0.1rem;
+}
+
+.product-card__price_discounted {
+  font-size: 1rem;
+  color: $color-text-primary;
+  background: transparent;
+  text-decoration: line-through;
 }
