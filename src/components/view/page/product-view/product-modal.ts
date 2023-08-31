@@ -1,6 +1,12 @@
+import Swiper from 'swiper';
+import { Navigation, Pagination } from 'swiper/modules';
 import Modal from './modal';
 import ElementCreator from '../../../../utils/element-creator';
 import TagName from '../../../../enum/tag-name';
+import 'swiper/css';
+import './modal.css';
+
+// import styleCss from './product-view.module.scss';
 
 export default class ProductModal extends Modal {
   private images: string[];
@@ -8,31 +14,68 @@ export default class ProductModal extends Modal {
   constructor(classes: string, images: Array<string>) {
     super(classes);
     this.images = images;
+    this.initSwiper();
+  }
+
+  private initSwiper() {
+    setTimeout(() => {
+      const productModalSwiper = new Swiper('.product-modal-swiper', {
+        modules: [Navigation, Pagination],
+        speed: 500,
+        effect: 'fade',
+        direction: 'horizontal',
+        loop: true,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        keyboard: true,
+        // ...
+      });
+
+      console.log(productModalSwiper.params);
+      // });
+    }, 2000);
   }
 
   private createProductModal() {
-    let template = '';
     const card = document.createElement('div');
-    card.className = 'modal__product-card';
+    card.className = 'product-modal__product-card';
 
     const productImagesSwiper = new ElementCreator({
       tag: TagName.DIV,
-      classNames: ['modal-swiper'],
+      classNames: ['product-modal-swiper'],
+      textContent: '',
+    });
+
+    const swiperPagination = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: ['swiper-pagination'],
+      textContent: '',
+    });
+
+    const swiperPrev = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: ['swiper-button-prev'],
+      textContent: '',
+    });
+
+    const swiperNext = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: ['swiper-button-next'],
       textContent: '',
     });
 
     productImagesSwiper.addInnerElement(this.createSwiperWrapper(this.images));
+    productImagesSwiper.addInnerElement(swiperPrev);
+    productImagesSwiper.addInnerElement(swiperNext);
+    productImagesSwiper.addInnerElement(swiperPagination);
 
-    template += ` `;
-
-    //   <div class="modal-swiper">
-    //   ${productImagesSwiper.addInnerElement(this.createSwiperWrapper(this.images))}
-    //   <div class="swiper-pagination"></div>
-    //   <div class="swiper-button-prev"></div>
-    //   <div class="swiper-button-next"></div>
-    // </div>`;
-
-    card.innerHTML = template;
+    card.append(productImagesSwiper.getElement());
 
     return card;
   }

@@ -99,8 +99,6 @@ export default class ProductView extends DefaultView {
         // ...
       });
 
-      // Swiper.use([Navigation, Pagination]);
-      // register();
       console.log(swiper.params);
     });
   }

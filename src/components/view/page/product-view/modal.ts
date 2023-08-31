@@ -18,11 +18,11 @@ export default class Modal {
   }
 
   public buildModal(content: string | HTMLElement) {
-    this.overlay.classList.add('overlay', 'overlay_modal');
+    this.overlay.classList.add('overlay', 'overlay_product-modal');
     // this.modal = this.createDomeNode(this.modal, 'modal', this.classes);
-    this.modal.classList.add('modal');
-    this.modalContent.classList.add('modal__content');
-    this.modalCloseBtn.classList.add('modal__close-icon');
+    this.modal.classList.add('product-modal');
+    this.modalContent.classList.add('product-modal__content');
+    this.modalCloseBtn.classList.add('product-modal__close-icon');
 
     // this.modalCloseBtn.innerHTML = '';
     this.setContent(content);
@@ -59,7 +59,7 @@ export default class Modal {
   private closeModal(evt: Event) {
     if (evt.target instanceof HTMLElement) {
       const classes = evt.target?.classList;
-      if (classes.contains('overlay') || classes.contains('modal__close-icon')) {
+      if (classes.contains('overlay') || classes.contains('product-modal__close-icon')) {
         document.querySelector('.overlay')?.remove();
         document.body.style.overflow = '';
       }
