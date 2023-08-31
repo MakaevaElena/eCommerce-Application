@@ -21,6 +21,7 @@ import MainFieldGroup from './user-field/user-field-group/main-field-group';
 import AddressFieldsGroup from './user-field/user-field-group/address-fields-group';
 import Actions from './user-field/enum/actions';
 import ActionNames from './user-field/enum/action-names';
+import PasswordChanger from './user-field/password-changer';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -98,6 +99,7 @@ export default class ProfileView extends DefaultView {
     const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
     const addressBillingGroup = this.createAddressGroup(this.userData.billingAddresses);
     wrap.append(fields, ...addressShippingGroup, ...addressBillingGroup);
+    wrap.append(new PasswordChanger().getPasswordChanger());
     this.wrapper.append(wrap);
   }
 
