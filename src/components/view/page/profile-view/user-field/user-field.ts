@@ -132,11 +132,10 @@ export default class UserField {
     messageShower.showMessage(textContent);
   }
 
-  //
-  // private showWarningMessage(textContent: string) {
-  //   const messageShower = new WarningMessage();
-  //   messageShower.showMessage(textContent);
-  // }
+  private showWarningMessage(textContent: string) {
+    const messageShower = new WarningMessage();
+    messageShower.showMessage(textContent);
+  }
 
   private redactionModeHandler() {
     this.value = this.inputElement.getInputValue();
@@ -148,9 +147,13 @@ export default class UserField {
   }
 
   private saveValueHandler() {
-    this.exitEditModeChangeButton();
     this.value = this.inputElement.getInputValue();
-    this.saveValue();
+    if (this.inputElement.getInput().checkValidity()) {
+      this.exitEditModeChangeButton();
+      this.saveValue();
+    } else {
+      this.showWarningMessage(TextContent.VALIDATE_INPUT_BEFORE_SUBMIT);
+    }
   }
 
   private cancelValueHandler() {
