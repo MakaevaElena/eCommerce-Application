@@ -1,0 +1,3 @@
+type MainFieldGroupParams = {
+  mailAddress: string;
+};

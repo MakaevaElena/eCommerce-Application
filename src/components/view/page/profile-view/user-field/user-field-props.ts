@@ -1,13 +1,28 @@
 import Groups from './enum/groups';
 import { InputPlaceholders, InputTypes } from '../../../../../utils/input/input-values/input-values';
-import { Group } from '../../../../../utils/input/inputParams';
+import { Group, InputParams } from '../../../../../utils/input/inputParams';
 
 type UserFieldProps = {
-  group: Group;
-  inputType: string;
-  labelValue: string;
-  inputValue?: string;
+  id: string;
+
+  // version: number;
+
+  action: string;
+
+  actionName: string;
+  value: string;
+  inputParams: InputParams;
   isDefaultAddress?: boolean;
+};
+
+type FirstNameAction = {
+  action: string;
+  firstName: string;
+};
+
+type EmailAddressAction = {
+  action: string;
+  firstName: string;
 };
 
 export default UserFieldProps;

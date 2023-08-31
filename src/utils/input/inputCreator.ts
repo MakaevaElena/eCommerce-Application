@@ -17,7 +17,10 @@ export default class InputCreator {
 
   private title: string;
 
+  private label: HTMLLabelElement;
+
   constructor(params: InputParams) {
+    this.label = this.createLabel();
     this.inputElement = document.createElement('input');
     this.messageElement = document.createElement(TagName.SPAN);
     this.element = document.createElement(TagName.DIV);
@@ -48,8 +51,12 @@ export default class InputCreator {
     this.element.removeChild(this.messageElement);
   }
 
+  removeMessageElementFromLabel() {
+    this.label.removeChild(this.messageElement);
+  }
+
   appendMessage() {
-    this.element.append(this.messageElement);
+    this.label.append(this.messageElement);
   }
 
   setMessageError(message: string) {
@@ -77,13 +84,9 @@ export default class InputCreator {
   }
 
   setLabel(labelValue: string): void {
-    const label = document.createElement('label');
-    label.textContent = labelValue;
-    label.classList.add(...Object.values(labelStyles));
-
-    label.append(this.inputElement);
-
-    this.element.append(label);
+    this.label.textContent = labelValue;
+    this.label.append(this.inputElement);
+    this.element.append(this.label);
   }
 
   setDisabled() {
@@ -105,6 +108,11 @@ export default class InputCreator {
 
   setPattern(title: string): void {
     this.inputElement.pattern = title;
+  }
+
+  private createLabel(): HTMLLabelElement {
+    const label = document.createElement('label');
+    return label;
   }
 
   private createElement(params: InputParams): void {

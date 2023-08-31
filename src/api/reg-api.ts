@@ -107,4 +107,24 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public changeData(customerID: string, version: number, action: any, actionName: string, value: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: customerID })
+      .post({
+        // The CustomerUpdate is the object within the body
+        body: {
+          // The version of a new Customer is 1. This value is incremented every time an update action is applied to the Customer. If the specified version does not match the current version, the request returns an error.
+          version: version,
+          actions: [
+            {
+              action,
+              [actionName]: value,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }

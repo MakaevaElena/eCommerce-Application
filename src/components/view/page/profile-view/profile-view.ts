@@ -1,7 +1,3 @@
-import styleGroupFields from './user-field/styles/field-group.module.scss';
-import styleAddress from './user-field/styles/adress-style.module.scss';
-import styleButton from './user-field/styles/button-style.module.scss';
-import styleFieldContainer from './user-field/styles/field-container-style.module.scss';
 import styleWrap from './user-field/styles/wrap-style.module.scss';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
@@ -14,16 +10,17 @@ import styleCss from './profile-view.module.scss';
 import RegApi from '../../../../api/reg-api';
 import Address from './types/addresses/address';
 import UserData from './types/user-data';
-import localStorageKeys from '../../../../enum/local-storage-keys';
-import UserField from './user-field/user-field';
-import Groups from './user-field/enum/groups';
-import { InputPlaceholders, InputTypes } from '../../../../utils/input/input-values/input-values';
 import userFieldProps from './user-field/user-field-props';
 import TextContent from './enum/text-content';
-import UserFieldProps from './user-field/user-field-props';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import CountryOptions from '../../../../utils/input/options/country-options';
+import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
+import MainFieldGroup from './user-field/user-field-group/main-field-group';
+import AddressFieldsGroup from './user-field/user-field-group/address-fields-group';
+import Actions from './user-field/enum/actions';
+import ActionNames from './user-field/enum/action-names';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -35,6 +32,8 @@ export default class ProfileView extends DefaultView {
   private emailAddress: string | null;
 
   private observer: Observer;
+
+  private countryOptions: CountryOptions;
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -49,6 +48,8 @@ export default class ProfileView extends DefaultView {
     this.emailAddress = window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS);
 
     this.observer = Observer.getInstance();
+
+    this.countryOptions = new CountryOptions();
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
@@ -87,16 +88,16 @@ export default class ProfileView extends DefaultView {
   }
 
   private createContent() {
-    // TODO: create content for current this.productId
-
     this.wrapper.textContent = '';
 
     const button = this.createMainButton();
 
     this.wrapper.append(button.getElement());
-    const fields = this.createFields();
+    const fields = this.createUserField();
     const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
-    wrap.append(...fields);
+    const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
+    const addressBillingGroup = this.createAddressGroup(this.userData.billingAddresses);
+    wrap.append(fields, ...addressShippingGroup, ...addressBillingGroup);
     this.wrapper.append(wrap);
   }
 
@@ -116,6 +117,14 @@ export default class ProfileView extends DefaultView {
         .getCustomer(localStorageEmail)
         .then((result) => {
           const results = result.body.results[0];
+
+          if (results.id != null) {
+            userData.id = results.id;
+          }
+
+          if (results.version != null) {
+            userData.version = results.version;
+          }
 
           if (results.firstName != null) {
             userData.firstName = results.firstName;
@@ -170,167 +179,71 @@ export default class ProfileView extends DefaultView {
     return addresses;
   }
 
+  private createAddressGroup(addressArray: Array<Address>): Array<HTMLDivElement> {
+    const addresses: Array<HTMLDivElement> = [];
+    let title = '';
+    title =
+      addressArray === this.userData.shippingAddresses
+        ? TextContent.TITLE_ADDRESS_SHIPPING
+        : TextContent.TITLE_ADDRESS_BILLING;
+    addressArray.forEach((address) => {
+      const values: Array<string> = [];
+      Object.values(address).forEach((value) => {
+        if (typeof value !== 'boolean') {
+          values.push(value);
+        }
+      });
+      const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
+      addresses.push(addressGroup.getElement());
+    });
+
+    return addresses;
+  }
+
   private createMainProps(): Array<userFieldProps> {
+    const inputsParams = new InputParamsCreator();
     return [
       {
-        group: Groups.MAIN,
-        inputType: InputTypes.TEXT,
-        labelValue: InputPlaceholders.FIRST_NAME,
-        inputValue: this.userData.firstName,
+        id: this.userData.id,
+        action: Actions.CHANGE_EMAIL_ADDRESS,
+        actionName: ActionNames.EMAIL_ADDRESS,
+        value: this.emailAddress!,
+        inputParams: inputsParams.getMailParams(),
       },
       {
-        group: Groups.MAIN,
-        inputType: InputTypes.TEXT,
-        labelValue: InputPlaceholders.LAST_NAME,
-        inputValue: this.userData.lastName,
+        id: this.userData.id,
+        action: Actions.CHANGE_FIRST_NAME,
+        actionName: ActionNames.FIRST_NAME,
+        value: this.userData.firstName,
+        inputParams: inputsParams.getFirstNameParams(),
       },
       {
-        group: Groups.MAIN,
-        inputType: InputTypes.DATE,
-        labelValue: InputPlaceholders.DATE_OF_BIRTH,
-        inputValue: this.userData.dateOfBirth,
+        id: this.userData.id,
+        action: Actions.CHANGE_LAST_NAME,
+        value: this.userData.lastName,
+        actionName: ActionNames.LAST_NAME,
+        inputParams: inputsParams.getLastNameParams(),
+      },
+      {
+        id: this.userData.id,
+        action: Actions.CHANGE_DATE_OF_BIRTH,
+        value: this.userData.dateOfBirth,
+        actionName: ActionNames.DATE_OF_BIRTH,
+        inputParams: inputsParams.getDateParams(),
       },
     ];
   }
 
-  private createAdressesProps(adressGroup: Array<Address>, group: Groups): Array<Array<userFieldProps>> {
-    const addressesProps: Array<Array<userFieldProps>> = [];
-
-    adressGroup.forEach((addressProps) => {
-      const countrys = this.createCountries();
-      let countryName = '';
-      let isAddressDefault = false;
-      countrys.flat().forEach((country) => {
-        if (country.slice(-2) === addressProps.country) {
-          countryName = country.slice(0, -2);
-        }
-      });
-      if (addressProps.isDefault) {
-        isAddressDefault = true;
-      }
-      const props = [
-        {
-          group: group,
-          inputType: InputTypes.TEXT,
-          labelValue: InputPlaceholders.CITY,
-          inputValue: addressProps.city,
-          isDefaultAddress: isAddressDefault,
-        },
-        {
-          group: group,
-          inputType: InputTypes.TEXT,
-          labelValue: InputPlaceholders.STREET,
-          inputValue: addressProps.streetName,
-        },
-        {
-          group: group,
-          inputType: InputTypes.TEXT,
-          labelValue: InputPlaceholders.POSTAL,
-          inputValue: addressProps.postalCode,
-        },
-        {
-          group: group,
-          inputType: InputTypes.TEXT,
-          labelValue: InputPlaceholders.COUNTRY,
-          inputValue: countryName,
-        },
-      ];
-      addressesProps.push(props);
-    });
-    return addressesProps;
-  }
-
-  private createContainer() {
-    const container = document.createElement(TagName.DIV);
-    container.classList.add(...Object.values(styleFieldContainer));
-    return container;
-  }
-
-  private createFieldGroup(textContent?: string): HTMLDivElement {
-    const fieldGroup = document.createElement(TagName.DIV);
-    fieldGroup.classList.add(...Object.values(styleGroupFields));
-    if (textContent) {
-      const title = this.сreateTitleAddress(textContent);
-      fieldGroup.append(title);
-    }
-
-    return fieldGroup;
-  }
-
-  private createFields() {
-    const mainProps = this.createMainProps();
-    const mainFields: HTMLDivElement = this.createFieldGroup();
-    const shippingProps = this.createAdressesProps(this.userData.shippingAddresses, Groups.SHIPPING);
-    const billingProps = this.createAdressesProps(this.userData.billingAddresses, Groups.SHIPPING);
-    const shippingFields: HTMLDivElement = this.createFieldGroup(TextContent.TITLE_ADDRESS_SHIPPING);
-    const billingFields: HTMLDivElement = this.createFieldGroup(TextContent.TITLE_ADDRESS_BILLING);
-    const fields: Array<HTMLElement> = [mainFields];
-
-    mainProps.forEach((fieldProps) => {
-      this.fillMainFieldGroups(fieldProps, mainFields);
-    });
-
-    shippingProps.forEach((fieldProps) => {
-      this.fillAddressGroup(fieldProps, shippingFields);
-    });
-
-    billingProps.forEach((fieldProps) => {
-      this.fillAddressGroup(fieldProps, billingFields);
-    });
-
-    const minChildrenLength = 1;
-
-    if (shippingFields.children.length > minChildrenLength) {
-      fields.push(shippingFields);
-    }
-
-    if (shippingFields.children.length > minChildrenLength) {
-      fields.push(billingFields);
-    }
-
-    return fields;
-  }
-
-  private fillMainFieldGroups(fieldProps: UserFieldProps, group: HTMLDivElement) {
-    const fieldElement = new UserField(fieldProps);
-    group.append(fieldElement.getElementField());
-  }
-
-  private fillAddressGroup(fieldsProps: Array<UserFieldProps>, group: HTMLDivElement) {
-    const address = this.createFieldGroup();
-    address.classList.add(...Object.values(styleAddress));
-    fieldsProps.forEach((fieldProps) => {
-      if (fieldProps.isDefaultAddress) {
-        const title = this.сreateTitleAddress(TextContent.DEFAULT_ADDRESS);
-        address.append(title);
-      }
-      this.fillMainFieldGroups(fieldProps, address);
-    });
-
-    group.append(address);
-  }
-
-  private createButtonsAddressesAdd() {
-    const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
-    const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
-  }
-
-  private сreateTitleAddress(textContent: string): HTMLElement {
-    const title = document.createElement('h3');
-    title.textContent = textContent;
-    return title;
-  }
-
-  private createButton(textContent: string) {
-    const button = document.createElement(TagName.BUTTON);
-    button.classList.add(...Object.values(styleButton));
-    button.textContent = textContent;
-    return button;
-  }
+  // private createButtonsAddressesAdd() {
+  //   const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
+  //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
+  // }
 
   private createUserData(): UserData {
     const message = 'unassigned';
     return {
+      id: message,
+      version: 0,
       firstName: message,
       lastName: message,
       dateOfBirth: message,
@@ -357,153 +270,10 @@ export default class ProfileView extends DefaultView {
     };
   }
 
-  private createCountries(): Array<Array<string>> {
-    const sixDigitsPostalCodeCountries = [
-      'Belarus BY',
-      'China CN',
-      'Colombia CO',
-      'Ecuador EC',
-      'Kazakhstan KZ',
-      'Kyrgyzstan KG',
-      'Malawi MW',
-      'Nigeria NG',
-      'Romania RO',
-      'Russia RU',
-      'Singapore SG',
-      'Tajikistan TJ',
-      'Trinidad and Tobago TT',
-      'Turkmenistan TM',
-      'Uzbekistan UZ',
-      'India IN',
-    ];
-    const fiveDigitsPostalCodeCountries = [
-      'Czech Republic CZ',
-      'Greece CR',
-      'Slovakia SK',
-      'Sweden SE',
-      'Algeria DZ',
-      'Bhutan BT',
-      'Bosnia and Herzegovina BA',
-      'Costa Rica CR',
-      'Croatia HR',
-      'Cuba CU',
-      'Dominican Republic DO',
-      'Egypt EG',
-      'Estonia EE',
-      'Finland FI',
-      'France FR',
-      'Germany DE',
-      'Guatemala GT',
-      'Indonesia ID',
-      'Iraq IQ',
-      'Italy IT',
-      'Jordan JO',
-      'Kenya KE',
-      'Korea, South KR',
-      'Kosovo XK',
-      'Kuwait KW',
-      'Laos LA',
-      'Malaysia MY',
-      'Maldives MV',
-      'Mauritius MU',
-      'Mexico MX',
-      'Mongolia MN',
-      'Montenegro ME',
-      'Morocco MA',
-      'Myanmar MM',
-      'Namibia NA',
-      'Nepal NP',
-      'Nicaragua NI',
-      'Pakistan PK',
-      'Puerto Rico PR',
-      'Senegal SN',
-      'Serbia RS',
-      'Spain ES',
-      'Sri Lanka LK',
-      'Sudan SD',
-      'Tanzania TZ',
-      'Thailand TH',
-      'Turkey TR',
-      'Ukraine UA',
-      'United States US',
-      'Uruguay UY',
-      'Vietnam VN',
-      'Zambia ZM',
-      'Saudi Arabia SA',
-      'Iran IR',
-      'Peru PE',
-      'Åland AX',
-      'Lebanon LB',
-      'Brazil BR',
-      'American Samoa AS',
-      'Guam GU',
-      'Marshall Islands MH',
-      'Micronesia FM',
-      'Northern Mariana Islands MP',
-      'Palau PW',
-      'U.S. Virgin Islands VI',
-    ];
-    const fourDigitsPostalCodeCountries = [
-      'Guinea',
-      'Iceland',
-      'Lesotho',
-      'Madagascar',
-      'Oman',
-      'Palestine',
-      'Papua New Guinea',
-      'Afghanistan AF',
-      'Albania AL',
-      'Argentina AR',
-      'Armenia AM',
-      'Australia AU',
-      'Austria AT',
-      'Bangladesh BD',
-      'Belgium BE',
-      'Bulgaria BG',
-      'Cape Verde CV',
-      'Christmas Island CX',
-      'Greenland GL',
-      'Hungary HU',
-      'Liechtenstein LI',
-      'Luxembourg LU',
-      'New Zealand NZ',
-      'Niger NE',
-      'North Macedonia MK',
-      'Norway NO',
-      'Panama PA',
-      'Paraguay PY',
-      'Philippines PH',
-      'Portugal PT',
-      'Singapore SG',
-      'South Africa ZA',
-      'Switzerland CH',
-      'Svalbard and Jan Mayen SJ',
-      'Tunisia TN',
-      'Portugal PT',
-      'Slovenia SI',
-      'Venezuela VE',
-    ];
-    const twoDigitsPostalCodeCountries = ['Jamaica JM', 'Singapore SG'];
-    const twoLetterThreeDigitsPostalCodeCountries = ['Faroe Islands', 'Barbados', 'Andorra AD'];
-    const twoLetterFourDigitsPostalCodeCountries = [
-      'Azerbaijan AZ',
-      'Latvia LV',
-      'British Virgin Islands VG',
-      'Saint Kitts and Nevis KN',
-      'Saint Vincent and the Grenadines VC',
-      'Samoa WS',
-      'Moldova MD',
-    ];
-    const twoLetterFiveDigitsPostalCodeCountries = ['Lithuania LT', 'Barbados BB'];
-    const allCountries = [
-      sixDigitsPostalCodeCountries,
-      fiveDigitsPostalCodeCountries,
-      fourDigitsPostalCodeCountries,
-      twoDigitsPostalCodeCountries,
-      twoLetterThreeDigitsPostalCodeCountries,
-      twoLetterFourDigitsPostalCodeCountries,
-      twoLetterFiveDigitsPostalCodeCountries,
-    ];
-    return allCountries;
+  private createUserField(): HTMLDivElement {
+    const mainGroupProps = this.createMainProps();
+
+    const userFieldElement = new MainFieldGroup(mainGroupProps);
+    return userFieldElement.getElement();
   }
 }

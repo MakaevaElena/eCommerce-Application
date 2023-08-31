@@ -1,31 +1,37 @@
-import InputCreator from '../../../../../utils/input/inputCreator';
-import styleButton from './styles/button-style.module.scss';
 import stylesField from './styles/field-view.module.scss';
 import stylesRedactionMode from './styles/redaction-mode-style.module.scss';
 import stylesRedactionButton from './styles/redaction-button-style.module.scss';
-import InputsGroups from '../../../../../utils/input/input-values/inputs-groups';
-import {
-  InputNames,
-  InputPatterns,
-  InputPlaceholders,
-  InputTittles,
-  InputTypes,
-} from '../../../../../utils/input/input-values/input-values';
 import UserFieldProps from './user-field-props';
 import TagName from '../../../../../enum/tag-name';
-import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
+import { CallbackListener } from '../../../../../utils/input/inputParams';
 import TextContent from '../enum/text-content';
 import Events from '../../../../../enum/events';
 import WarningMessage from '../../../../message/warning-message';
 import ErrorMessage from '../../../../message/error-message';
 import InfoMessage from '../../../../message/info-message';
+import buttonCreator from '../../../../shared/button/button-creator';
+import InputCreator from '../../../../../utils/input/inputCreator';
+import RegApi from '../../../../../api/reg-api';
+import LocalStorageKeys from '../../../../../enum/local-storage-keys';
+import ActionNames from './enum/action-names';
+import StatusCodes from '../../../../../enum/status-codes';
 
 export default class UserField {
-  private elementField!: HTMLDivElement;
+  private elementField: HTMLDivElement;
 
-  private value!: string;
+  private value: string;
+
+  private labelValue: string;
 
   private inputElement: InputCreator;
+
+  private action: string;
+
+  private actionName: string;
+
+  private id: string;
+
+  // private version: number;
 
   private confirmButton: HTMLButtonElement;
 
@@ -33,71 +39,76 @@ export default class UserField {
 
   private redactionModeButton: HTMLButtonElement;
 
-  constructor({ group, inputType, inputValue, labelValue }: UserFieldProps) {
-    this.cancelButton = this.createButton(
-      TextContent.CANCEL_BUTTON,
-      Object.values(stylesRedactionButton),
-      this.cancelValueHandler.bind(this),
-      Events.CLICK
-    );
-    this.confirmButton = this.createButton(
-      TextContent.CONFIRM_BUTTON,
-      Object.values(stylesRedactionButton),
-      this.saveValueHandler.bind(this),
-      Events.CLICK
-    );
-    this.redactionModeButton = this.createButton(
+  constructor(userFieldsProps: UserFieldProps) {
+    this.elementField = this.createElementField();
+    this.inputElement = new InputCreator(userFieldsProps.inputParams);
+    this.value = userFieldsProps.value;
+    this.labelValue = userFieldsProps.inputParams.attributes.placeholder;
+
+    this.action = userFieldsProps.action;
+    this.actionName = userFieldsProps.actionName;
+    this.id = userFieldsProps.id;
+    // this.version = userFieldsProps.version;
+
+    this.cancelButton = this.createCancelButton();
+    this.confirmButton = this.createConfirmButton();
+    this.redactionModeButton = this.createRedactionModeButton();
+
+    this.configureView();
+  }
+
+  getElement() {
+    return this.elementField;
+  }
+
+  getInputElement() {
+    return this.inputElement;
+  }
+
+  private createElementField() {
+    const element = document.createElement(TagName.DIV);
+    element.classList.add(...Object.values(stylesField));
+    return element;
+  }
+
+  private configureView() {
+    this.configureInputElement();
+
+    this.elementField.append(this.inputElement.getElement(), this.redactionModeButton);
+  }
+
+  private configureInputElement() {
+    this.inputElement.setDisabled();
+    this.inputElement.setInputValue(this.value);
+    this.inputElement.setLabel(this.labelValue);
+    this.inputElement.removeMessageElement();
+  }
+
+  private createRedactionModeButton() {
+    return this.createButton(
       TextContent.REDACTION_MODE_BUTTON,
       Object.values(stylesRedactionButton),
       this.redactionModeHandler.bind(this),
       Events.CLICK
     );
-
-    const inputParams = this.createInputParams(group, inputType, labelValue);
-    this.inputElement = this.createInputElement(inputParams);
-    if (typeof inputValue !== 'undefined') {
-      this.elementField = this.createFieldElement(inputValue, labelValue);
-      this.value = inputValue;
-    }
   }
 
-  getElementField() {
-    return this.elementField;
+  private createConfirmButton() {
+    return this.createButton(
+      TextContent.CONFIRM_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.saveValueHandler.bind(this),
+      Events.CLICK
+    );
   }
 
-  private createInputParams(group: string, inputType: string, labelValue: string) {
-    return {
-      group: group,
-      attributes: {
-        type: inputType,
-        name: InputNames.EMAIL,
-        placeholder: labelValue,
-      },
-    };
-  }
-
-  private createFieldElement(inputValue: string, labelValue: string) {
-    const fieldElement = document.createElement(TagName.DIV);
-    fieldElement.classList.add(...Object.values(stylesField));
-
-    if (typeof inputValue !== 'undefined') {
-      this.inputElement.setInputValue(inputValue);
-    }
-
-    if (typeof labelValue !== 'undefined') {
-      this.inputElement.setLabel(labelValue);
-    }
-
-    this.inputElement.removeMessageElement();
-    this.inputElement.setDisabled();
-
-    fieldElement.append(this.inputElement.getElement(), this.redactionModeButton);
-    return fieldElement;
-  }
-
-  private createInputElement(inputParams: InputParams) {
-    const inputElement = new InputCreator(inputParams);
-    return inputElement;
+  private createCancelButton() {
+    return this.createButton(
+      TextContent.CANCEL_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.cancelValueHandler.bind(this),
+      Events.CLICK
+    );
   }
 
   private createButton(
@@ -106,18 +117,8 @@ export default class UserField {
     eventListener?: CallbackListener,
     event?: string
   ): HTMLButtonElement {
-    const button = document.createElement(TagName.BUTTON);
-    button.textContent = textContent;
-    button.classList.add(...Object.values(styleButton));
-    if (classList) {
-      button.classList.add(...classList);
-    }
-
-    if (eventListener && event) {
-      button.addEventListener(event, eventListener);
-    }
-
-    return button;
+    const button = new buttonCreator(textContent, classList, eventListener, event);
+    return button.getButton();
   }
 
   private showInfoMessage(textContent: string) {
@@ -125,6 +126,7 @@ export default class UserField {
     messageShower.showMessage(textContent);
   }
 
+  //
   private showErrorMessage(textContent: string) {
     const messageShower = new ErrorMessage();
     messageShower.showMessage(textContent);
@@ -136,6 +138,8 @@ export default class UserField {
   }
 
   private redactionModeHandler() {
+    this.value = this.inputElement.getInputValue();
+    this.inputElement.appendMessage();
     this.elementField.removeChild(this.redactionModeButton);
     this.inputElement.removeDisabled();
     this.elementField.append(this.confirmButton, this.cancelButton);
@@ -143,9 +147,13 @@ export default class UserField {
   }
 
   private saveValueHandler() {
-    this.exitEditModeChangeButton();
     this.value = this.inputElement.getInputValue();
-    this.showInfoMessage(TextContent.CONFIRM_MESSAGE_INFO);
+    if (this.inputElement.getInput().checkValidity()) {
+      this.exitEditModeChangeButton();
+      this.saveValue();
+    } else {
+      this.showWarningMessage(TextContent.VALIDATE_INPUT_BEFORE_SUBMIT);
+    }
   }
 
   private cancelValueHandler() {
@@ -158,7 +166,32 @@ export default class UserField {
     this.inputElement.setDisabled();
     this.elementField.removeChild(this.confirmButton);
     this.elementField.removeChild(this.cancelButton);
+    this.inputElement.removeMessageElementFromLabel();
     this.elementField.append(this.redactionModeButton);
     this.elementField.classList.remove(...Object.values(stylesRedactionMode));
+  }
+
+  private saveValue() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .changeData(this.id, response.body.results[0].version, this.action, this.actionName, this.value)
+          .then((respone) => {
+            if (this.actionName === ActionNames.EMAIL_ADDRESS) {
+              window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, this.value);
+            }
+            if (respone.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.showInfoMessage(TextContent.CONFIRM_MESSAGE_INFO);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error.message);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error.message);
+      });
   }
 }

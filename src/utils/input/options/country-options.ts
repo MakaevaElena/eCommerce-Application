@@ -19,6 +19,16 @@ export default class CountryOptions {
     return this.countrysList;
   }
 
+  getCountryByCode(code: string) {
+    let countryName = '';
+    this.countrysList.flat().forEach((country) => {
+      if (country.slice(-2) === code) {
+        countryName = country;
+      }
+    });
+    return countryName;
+  }
+
   private createCountryListElement(): HTMLDataListElement {
     const countryListElement = document.createElement('datalist');
     countryListElement.id = InputsList.COUNTRY;
