@@ -32,8 +32,6 @@ export default class ProductView extends DefaultView {
 
   private anonimApi: ClientApi;
 
-  private imagesUrls: Array<string> = [];
-
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
     classNames: [styleCss['product-category']],
@@ -104,6 +102,7 @@ export default class ProductView extends DefaultView {
   }
 
   private renderProductCard(key: string) {
+    const imagesUrls: string[] = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
@@ -142,7 +141,7 @@ export default class ProductView extends DefaultView {
         });
 
         if (response.body.masterVariant.images) {
-          response.body.masterVariant.images.forEach((image) => this.imagesUrls.push(image.url));
+          response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
           // productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
 
           // productImagesSwiper.getElement().addEventListener('click', (event: Event) => {
@@ -253,7 +252,7 @@ export default class ProductView extends DefaultView {
           textContent: `DESCRIPTION: ${response.body.description?.en}`,
         });
 
-        productImagesSwiper.addInnerElement(this.createSwiperWrapper(this.imagesUrls));
+        productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
         productImagesSwiper.addInnerElement(swiperNext);
         productImagesSwiper.addInnerElement(swiperPagination);
@@ -352,23 +351,25 @@ export default class ProductView extends DefaultView {
       textContent: '',
     });
 
-    images.forEach((image) => swiperWrapper.getElement().append(this.createSlide(image)));
+    images.forEach((image) => swiperWrapper.getElement().append(this.createSlide(image, images)));
     return swiperWrapper;
   }
 
-  private createSlide(imgUrl: string) {
+  private createSlide(imgUrl: string, images: Array<string>) {
     const slide = new ElementCreator({
       tag: TagName.DIV,
       classNames: ['swiper-slide'],
       textContent: '',
     });
 
+    slide.getElement().style.backgroundImage = `url(${imgUrl})`;
+
     slide.getElement().addEventListener('click', (event: Event) => {
       event.stopPropagation();
-      this.showModal(this.imagesUrls);
+
+      this.showModal(images);
     });
 
-    slide.getElement().style.backgroundImage = `url(${imgUrl})`;
     return slide.getElement();
   }
 }
