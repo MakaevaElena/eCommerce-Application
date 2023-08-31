@@ -216,12 +216,6 @@ export default class ProfileView extends DefaultView {
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
   // }
 
-  private сreateTitleAddress(textContent: string): HTMLElement {
-    const title = document.createElement('h3');
-    title.textContent = textContent;
-    return title;
-  }
-
   private createUserData(): UserData {
     const message = 'unassigned';
     return {
