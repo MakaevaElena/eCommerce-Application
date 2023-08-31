@@ -26,7 +26,6 @@ export default class HeaderView extends DefaultView {
     super(params);
 
     this.observer = Observer.getInstance();
-    // this.observer.subscribe(EventName.LOGIN, this.updateHeader.bind(this));
 
     this.headerLinks = new Map();
 
@@ -70,8 +69,10 @@ export default class HeaderView extends DefaultView {
     const title = LinkName.INDEX;
     const route = this.getRoute(path);
     if (route) {
-      const link = new LinkButton(title, () => this.router.navigate(path));
-      this.headerLinks.set(LinkName.INDEX, link);
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
       parentElement.append(link.getElement());
     }
   }
@@ -82,8 +83,10 @@ export default class HeaderView extends DefaultView {
     const title = LinkName.CATALOG;
     const route = this.getRoute(path);
     if (route) {
-      const link = new LinkButton(title, () => this.router.navigate(path));
-      this.headerLinks.set(LinkName.CATALOG, link);
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
 
       parentElement.append(link.getElement());
     }
@@ -95,8 +98,10 @@ export default class HeaderView extends DefaultView {
     const title = LinkName.LOGIN;
     const route = this.getRoute(path);
     if (route) {
-      const link = new LinkButton(title, () => this.router.navigate(path));
-      this.headerLinks.set(LinkName.LOGIN, link);
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
 
       this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
       this.observer.subscribe(EventName.LOGOUT, () => link.showButton());
@@ -111,8 +116,10 @@ export default class HeaderView extends DefaultView {
     const title = LinkName.REGISTRATION;
     const route = this.getRoute(path);
     if (route) {
-      const link = new LinkButton(title, () => this.router.navigate(path));
-      this.headerLinks.set(LinkName.REGISTRATION, link);
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
 
       this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
       this.observer.subscribe(EventName.LOGOUT, () => link.showButton());
@@ -126,7 +133,7 @@ export default class HeaderView extends DefaultView {
     const link = new LinkButton(LinkName.LOGOUT, () => {
       this.observer.notify(EventName.LOGOUT);
       localStorage.setItem(`isLogin`, 'false');
-      this.router.navigate('');
+      this.router.setHref('');
     });
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
@@ -138,7 +145,7 @@ export default class HeaderView extends DefaultView {
   private createProfileButton(parent: ElementCreator) {
     const parentElement = parent.getElement();
     const link = new LinkButton(LinkName.PROFILE, () => {
-      this.router.navigate(PagePath.PROFILE);
+      this.router.setHref(PagePath.PROFILE);
     });
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
