@@ -1,0 +1,61 @@
+.overlay_modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: rgba(41, 41, 41, 0.6);
+  position: fixed;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+.modal {
+  padding: 5rem;
+  background-color: transparent;
+  position: absolute;
+  overflow: auto;
+  z-index: 4;
+}
+.modal__close-icon {
+  width: 3rem;
+  height: 3rem;
+  border: 0.2rem solid #f1cdb3;
+  border-radius: 10rem;
+  background-image: url('./img/Vector.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  right: 8px;
+  top: 0px;
+  cursor: pointer;
+}
+@media (max-width: 819px) {
+  .modal__close-icon {
+    right: 8px;
+  }
+}
+@media (max-width: 500px) {
+  .modal__close-icon {
+    right: 8px;
+  }
+}
+.modal .modal__product-card {
+  background-color: white;
+  border-radius: 9px;
+  width: 90rem;
+  display: flex;
+}
+@media (max-width: 819px) {
+  .modal .modal__product-card {
+    width: 63rem;
+  }
+}
+@media (max-width: 500px) {
+  .modal .modal__product-card {
+    width: 24rem;
+  }
+}

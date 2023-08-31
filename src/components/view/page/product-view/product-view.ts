@@ -4,6 +4,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 //
 import './swiper.css';
+import './modal.css';
 
 import 'swiper/css/bundle';
 import 'swiper/css/zoom';
@@ -20,6 +21,7 @@ import DefaultView from '../../default-view';
 import styleCss from './product-view.module.scss';
 import CreateTagElement from '../../../../utils/create-tag-element';
 import ErrorMessage from '../../../message/error-message';
+import ProductModal from './product-modal';
 
 export default class ProductView extends DefaultView {
   private router: Router;
@@ -29,6 +31,8 @@ export default class ProductView extends DefaultView {
   private wrapper: HTMLDivElement;
 
   private anonimApi: ClientApi;
+
+  private imagesUrls: Array<string> = [];
 
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
@@ -102,7 +106,6 @@ export default class ProductView extends DefaultView {
   }
 
   private renderProductCard(key: string) {
-    const imagesUrls: Array<string> = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
@@ -141,8 +144,13 @@ export default class ProductView extends DefaultView {
         });
 
         if (response.body.masterVariant.images) {
-          response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
+          response.body.masterVariant.images.forEach((image) => this.imagesUrls.push(image.url));
           // productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
+
+          // productImagesSwiper.getElement().addEventListener('click', (event: Event) => {
+          //   event.stopPropagation();
+          //   this.showModal(imagesUrls);
+          // });
         }
 
         const productInfo = new ElementCreator({
@@ -247,7 +255,7 @@ export default class ProductView extends DefaultView {
           textContent: `DESCRIPTION: ${response.body.description?.en}`,
         });
 
-        productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
+        productImagesSwiper.addInnerElement(this.createSwiperWrapper(this.imagesUrls));
         productImagesSwiper.addInnerElement(swiperPrev);
         productImagesSwiper.addInnerElement(swiperNext);
         productImagesSwiper.addInnerElement(swiperPagination);
@@ -267,11 +275,16 @@ export default class ProductView extends DefaultView {
         productAttributes.addInnerElement(productPlatform);
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
-        this.wrapper.textContent = '';
+        // this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
         // this.wrapper.append(productVideo);
       })
       .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
+  private showModal(images: Array<string>) {
+    const modal = new ProductModal('modal', images);
+    modal.renderModal();
   }
 
   private getCategory(response: ClientResponse<ProductProjection>) {
@@ -280,7 +293,7 @@ export default class ProductView extends DefaultView {
     return this.anonimApi
       .getCategory(categoryId)
       .then((category) => {
-        console.log('category', category);
+        // console.log('category', category);
         this.productCategory.getElement().textContent = `CATEGORY: ${category.body.name.ru}`;
       })
       .catch((error) => {
@@ -350,6 +363,11 @@ export default class ProductView extends DefaultView {
       tag: TagName.DIV,
       classNames: ['swiper-slide'],
       textContent: '',
+    });
+
+    slide.getElement().addEventListener('click', (event: Event) => {
+      event.stopPropagation();
+      this.showModal(this.imagesUrls);
     });
 
     slide.getElement().style.backgroundImage = `url(${imgUrl})`;
