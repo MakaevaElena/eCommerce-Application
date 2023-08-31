@@ -273,7 +273,7 @@ export default class ProductView extends DefaultView {
         productAttributes.addInnerElement(productPlatform);
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
-        // this.wrapper.textContent = '';
+        this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
         // this.wrapper.append(productVideo);
       })
