@@ -74,8 +74,12 @@ export default class AddressFieldsGroup {
   }
 
   private createStreetField(): UserField {
+    const value = this.values[CountryValues.STREET];
     const userFieldProps: UserFieldProps = {
-      value: this.values[CountryValues.STREET],
+      id: 'this.userData.id',
+      action: '',
+      actionName: '',
+      value: value,
       inputParams: this.inputsParams.getStreetParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -83,8 +87,12 @@ export default class AddressFieldsGroup {
   }
 
   private createCityField(): UserField {
+    const value = this.values[CountryValues.CITY];
     const userFieldProps: UserFieldProps = {
-      value: this.values[CountryValues.CITY],
+      id: 'this.userData.id',
+      action: '',
+      actionName: '',
+      value: value,
       inputParams: this.inputsParams.getCityParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -92,8 +100,12 @@ export default class AddressFieldsGroup {
   }
 
   private createPostalField(): UserField {
+    const value = this.values[CountryValues.POSTAL];
     const userFieldProps: UserFieldProps = {
-      value: this.values[CountryValues.POSTAL],
+      id: 'this.userData.id',
+      action: '',
+      actionName: '',
+      value: value,
       inputParams: this.inputsParams.getSPostalParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -103,6 +115,9 @@ export default class AddressFieldsGroup {
   private createCountryField(): UserField {
     const value = this.countryOptions.getCountryByCode(this.values[CountryValues.COUNTRY]);
     const userFieldProps: UserFieldProps = {
+      id: 'this.userData.id',
+      action: '',
+      actionName: '',
       value: value,
       inputParams: this.inputsParams.getCountryParams(),
     };

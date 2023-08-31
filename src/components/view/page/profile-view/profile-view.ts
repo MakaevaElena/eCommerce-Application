@@ -19,6 +19,8 @@ import CountryOptions from '../../../../utils/input/options/country-options';
 import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
 import MainFieldGroup from './user-field/user-field-group/main-field-group';
 import AddressFieldsGroup from './user-field/user-field-group/address-fields-group';
+import Actions from './user-field/enum/actions';
+import ActionNames from './user-field/enum/action-names';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -116,6 +118,14 @@ export default class ProfileView extends DefaultView {
         .then((result) => {
           const results = result.body.results[0];
 
+          if (results.id != null) {
+            userData.id = results.id;
+          }
+
+          if (results.version != null) {
+            userData.version = results.version;
+          }
+
           if (results.firstName != null) {
             userData.firstName = results.firstName;
           }
@@ -194,23 +204,36 @@ export default class ProfileView extends DefaultView {
     const inputsParams = new InputParamsCreator();
     return [
       {
+        id: this.userData.id,
+        action: Actions.CHANGE_EMAIL_ADDRESS,
+        actionName: ActionNames.EMAIL_ADDRESS,
         value: this.emailAddress!,
         inputParams: inputsParams.getMailParams(),
       },
       {
+        id: this.userData.id,
+        action: Actions.CHANGE_FIRST_NAME,
+        actionName: ActionNames.FIRST_NAME,
         value: this.userData.firstName,
         inputParams: inputsParams.getFirstNameParams(),
       },
       {
+        id: this.userData.id,
+        action: Actions.CHANGE_LAST_NAME,
         value: this.userData.lastName,
+        actionName: ActionNames.LAST_NAME,
         inputParams: inputsParams.getLastNameParams(),
       },
       {
+        id: this.userData.id,
+        action: Actions.CHANGE_DATE_OF_BIRTH,
         value: this.userData.dateOfBirth,
+        actionName: ActionNames.DATE_OF_BIRTH,
         inputParams: inputsParams.getDateParams(),
       },
     ];
   }
+
   // private createButtonsAddressesAdd() {
   //   const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
@@ -219,6 +242,8 @@ export default class ProfileView extends DefaultView {
   private createUserData(): UserData {
     const message = 'unassigned';
     return {
+      id: message,
+      version: 0,
       firstName: message,
       lastName: message,
       dateOfBirth: message,

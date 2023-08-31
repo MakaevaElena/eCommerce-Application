@@ -11,6 +11,10 @@ import ErrorMessage from '../../../../message/error-message';
 import InfoMessage from '../../../../message/info-message';
 import buttonCreator from '../../../../shared/button/button-creator';
 import InputCreator from '../../../../../utils/input/inputCreator';
+import RegApi from '../../../../../api/reg-api';
+import LocalStorageKeys from '../../../../../enum/local-storage-keys';
+import ActionNames from './enum/action-names';
+import StatusCodes from '../../../../../enum/status-codes';
 
 export default class UserField {
   private elementField: HTMLDivElement;
@@ -20,6 +24,14 @@ export default class UserField {
   private labelValue: string;
 
   private inputElement: InputCreator;
+
+  private action: string;
+
+  private actionName: string;
+
+  private id: string;
+
+  // private version: number;
 
   private confirmButton: HTMLButtonElement;
 
@@ -32,6 +44,11 @@ export default class UserField {
     this.inputElement = new InputCreator(userFieldsProps.inputParams);
     this.value = userFieldsProps.value;
     this.labelValue = userFieldsProps.inputParams.attributes.placeholder;
+
+    this.action = userFieldsProps.action;
+    this.actionName = userFieldsProps.actionName;
+    this.id = userFieldsProps.id;
+    // this.version = userFieldsProps.version;
 
     this.cancelButton = this.createCancelButton();
     this.confirmButton = this.createConfirmButton();
@@ -108,11 +125,13 @@ export default class UserField {
     const messageShower = new InfoMessage();
     messageShower.showMessage(textContent);
   }
+
   //
-  // private showErrorMessage(textContent: string) {
-  //   const messageShower = new ErrorMessage();
-  //   messageShower.showMessage(textContent);
-  // }
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
+    messageShower.showMessage(textContent);
+  }
+
   //
   // private showWarningMessage(textContent: string) {
   //   const messageShower = new WarningMessage();
@@ -131,7 +150,7 @@ export default class UserField {
   private saveValueHandler() {
     this.exitEditModeChangeButton();
     this.value = this.inputElement.getInputValue();
-    this.showInfoMessage(TextContent.CONFIRM_MESSAGE_INFO);
+    this.saveValue();
   }
 
   private cancelValueHandler() {
@@ -147,5 +166,29 @@ export default class UserField {
     this.inputElement.removeMessageElementFromLabel();
     this.elementField.append(this.redactionModeButton);
     this.elementField.classList.remove(...Object.values(stylesRedactionMode));
+  }
+
+  private saveValue() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .changeData(this.id, response.body.results[0].version, this.action, this.actionName, this.value)
+          .then((respone) => {
+            if (this.actionName === ActionNames.EMAIL_ADDRESS) {
+              window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, this.value);
+            }
+            if (respone.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.showInfoMessage(TextContent.CONFIRM_MESSAGE_INFO);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error.message);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error.message);
+      });
   }
 }
