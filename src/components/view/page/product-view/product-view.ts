@@ -22,8 +22,12 @@ import styleCss from './product-view.module.scss';
 import CreateTagElement from '../../../../utils/create-tag-element';
 import ErrorMessage from '../../../message/error-message';
 import ProductModal from './product-modal';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class ProductView extends DefaultView {
+  private observer: Observer;
+
   private router: Router;
 
   private productId: string = '';
@@ -46,7 +50,7 @@ export default class ProductView extends DefaultView {
     };
     super(params);
     // this.router = router;
-    // this.observer = Observer.getInstance();
+    this.observer = Observer.getInstance();
     this.anonimApi = new ClientApi();
 
     // this.productKey = window.location.hash;
@@ -142,12 +146,6 @@ export default class ProductView extends DefaultView {
 
         if (response.body.masterVariant.images) {
           response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
-          // productImage.getElement().style.backgroundImage = `url(${response.body.masterVariant.images?.[0].url})`;
-
-          // productImagesSwiper.getElement().addEventListener('click', (event: Event) => {
-          //   event.stopPropagation();
-          //   this.showModal(imagesUrls);
-          // });
         }
 
         const productInfo = new ElementCreator({
@@ -366,8 +364,8 @@ export default class ProductView extends DefaultView {
 
     slide.getElement().addEventListener('click', (event: Event) => {
       event.stopPropagation();
-
       this.showModal(images);
+      this.observer.notify(EventName.IMAGES_LOADED_TO_PRODUCT_PAGE);
     });
 
     return slide.getElement();

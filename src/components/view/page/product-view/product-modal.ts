@@ -5,41 +5,39 @@ import ElementCreator from '../../../../utils/element-creator';
 import TagName from '../../../../enum/tag-name';
 import 'swiper/css';
 import './modal.css';
-
-// import styleCss from './product-view.module.scss';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class ProductModal extends Modal {
+  private observer: Observer;
+
   private images: string[];
 
   constructor(classes: string, images: Array<string>) {
     super(classes);
+    this.observer = Observer.getInstance();
     this.images = images;
-    this.initSwiper();
+    this.observer?.subscribe(EventName.IMAGES_LOADED_TO_PRODUCT_PAGE, this.initSwiper.bind(this));
   }
 
   private initSwiper() {
-    setTimeout(() => {
-      const productModalSwiper = new Swiper('.product-modal-swiper', {
-        modules: [Navigation, Pagination],
-        speed: 500,
-        effect: 'fade',
-        direction: 'horizontal',
-        loop: true,
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-        },
-        navigation: {
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        },
-        keyboard: true,
-        // ...
-      });
+    const productModalSwiper = new Swiper('.product-modal-swiper', {
+      modules: [Navigation, Pagination],
+      speed: 500,
+      direction: 'horizontal',
+      loop: true,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      keyboard: true,
+    });
 
-      console.log(productModalSwiper.params);
-      // });
-    }, 2000);
+    console.log(productModalSwiper.params);
   }
 
   private createProductModal() {

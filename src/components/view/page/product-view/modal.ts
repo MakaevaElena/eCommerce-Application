@@ -1,30 +1,23 @@
 export default class Modal {
-  modal: HTMLElement;
+  private modal = document.createElement('div');
 
-  modalCloseBtn: HTMLElement;
+  private modalCloseBtn = document.createElement('div');
 
-  modalContent: HTMLElement;
+  private modalContent = document.createElement('div');
 
-  overlay: HTMLElement;
+  private overlay = document.createElement('div');
 
-  classes: string;
+  private classes: string;
 
   constructor(classes: string) {
     this.classes = classes;
-    this.modal = document.createElement('div');
-    this.modalContent = document.createElement('div');
-    this.modalCloseBtn = document.createElement('div');
-    this.overlay = document.createElement('div');
   }
 
   public buildModal(content: string | HTMLElement) {
-    this.overlay.classList.add('overlay', 'overlay_product-modal');
-    // this.modal = this.createDomeNode(this.modal, 'modal', this.classes);
+    this.overlay.classList.add('overlay_product-modal');
     this.modal.classList.add('product-modal');
     this.modalContent.classList.add('product-modal__content');
     this.modalCloseBtn.classList.add('product-modal__close-icon');
-
-    // this.modalCloseBtn.innerHTML = '';
     this.setContent(content);
     this.appendModalElements();
     this.bindEvents();
@@ -53,14 +46,13 @@ export default class Modal {
 
   private openModal() {
     document.body.append(this.overlay);
-    document.body.style.overflow = 'hidden';
   }
 
   private closeModal(evt: Event) {
     if (evt.target instanceof HTMLElement) {
       const classes = evt.target?.classList;
-      if (classes.contains('overlay') || classes.contains('product-modal__close-icon')) {
-        document.querySelector('.overlay')?.remove();
+      if (classes.contains('overlay_product-modal') || classes.contains('product-modal__close-icon')) {
+        document.querySelector('.overlay_product-modal')?.remove();
         document.body.style.overflow = '';
       }
     }
