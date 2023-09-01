@@ -18,6 +18,7 @@ enum TextContent {
   CANCEL_MESSAGE_INFO = 'modifications have been canceled',
 
   CHANGE_COUNTRY_INFO = "Don't forget to change the postal code according to the selected country",
+  COUNTRY_CHANGING_OK = 'data successfully changed',
 
   CHANGE_PASSWORD = 'change password',
   CHANGE_PASSWORD_INFO_IS_OK = 'password successfully changed',

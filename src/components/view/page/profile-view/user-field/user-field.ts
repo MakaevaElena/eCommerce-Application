@@ -66,6 +66,10 @@ export default class UserField {
     return this.inputElement;
   }
 
+  getConfirmButton() {
+    return this.confirmButton;
+  }
+
   private createElementField() {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylesField));
@@ -127,7 +131,6 @@ export default class UserField {
     messageShower.showMessage(textContent);
   }
 
-  //
   private showErrorMessage(textContent: string) {
     const messageShower = new ErrorMessage();
     messageShower.showMessage(textContent);
@@ -171,7 +174,7 @@ export default class UserField {
     this.showInfoMessage(TextContent.CANCEL_MESSAGE_INFO);
   }
 
-  private exitEditModeChangeButton() {
+  public exitEditModeChangeButton() {
     this.inputElement.setDisabled();
     this.elementField.removeChild(this.confirmButton);
     this.elementField.removeChild(this.cancelButton);

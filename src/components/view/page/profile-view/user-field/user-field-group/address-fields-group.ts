@@ -1,3 +1,4 @@
+import stylesRedactionMode from '../styles/redaction-mode-style.module.scss';
 import TagName from '../../../../../../enum/tag-name';
 import styleGroupFields from '../styles/field-group.module.scss';
 import UserField from '../user-field';
@@ -12,6 +13,10 @@ import PostalPatterns from '../../../registration-view/inputs-params/postal-pate
 import PostalTitles from '../../../registration-view/inputs-params/postal-titles';
 import Events from '../../../../../../enum/events';
 import InfoMessage from '../../../../../message/info-message';
+import RegApi from '../../../../../../api/reg-api';
+import LocalStorageKeys from '../../../../../../enum/local-storage-keys';
+import ErrorMessage from '../../../../../message/error-message';
+import WarningMessage from '../../../../../message/warning-message';
 
 export default class AddressFieldsGroup {
   private addressGroup: HTMLDivElement;
@@ -28,13 +33,20 @@ export default class AddressFieldsGroup {
 
   private title: HTMLElement;
 
+  private confirmButtons: Array<HTMLButtonElement>;
+
+  private fields: Array<UserField>;
+
   private inputsParams: InputParamsCreator;
 
   private countryOptions: CountryOptions;
 
+  private addressId: string;
+
   constructor(values: Array<string>, title: string, isDefault: boolean | undefined) {
     this.addressGroup = this.createAddressFieldGroupElement();
     this.values = values;
+    this.addressId = values[0];
     this.countryOptions = new CountryOptions();
 
     this.inputsParams = new InputParamsCreator();
@@ -44,6 +56,10 @@ export default class AddressFieldsGroup {
     this.cityField = this.createCityField();
     this.postalField = this.createPostalField();
     this.countryField = this.createCountryField();
+
+    this.confirmButtons = this.createConfirmButtons();
+    this.configureConfirmButtons();
+    this.fields = [this.streetField, this.cityField, this.postalField, this.countryField];
 
     this.countryField.getElement().addEventListener(Events.CHANGE, this.validateCountryListHandler.bind(this));
     this.countryField.getElement().addEventListener('change', this.changeCountryHandler.bind(this));
@@ -65,6 +81,19 @@ export default class AddressFieldsGroup {
       this.countryField.getElement(),
       this.countryOptions.getListElement()
     );
+  }
+
+  private createConfirmButtons(): Array<HTMLButtonElement> {
+    return [
+      this.streetField.getConfirmButton(),
+      this.cityField.getConfirmButton(),
+      this.postalField.getConfirmButton(),
+      this.countryField.getConfirmButton(),
+    ];
+  }
+
+  private configureConfirmButtons() {
+    this.confirmButtons.forEach((button) => button.addEventListener(Events.CLICK, this.confirmHandler.bind(this)));
   }
 
   private createAddressFieldGroupElement(): HTMLDivElement {
@@ -182,6 +211,49 @@ export default class AddressFieldsGroup {
 
   private showInfoMessage(textContent: string) {
     const messageShower = new InfoMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private confirmHandler() {
+    console.log(this.addressId);
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .changeAddress(
+            response.body.results[0].id,
+            response.body.results[0].version,
+            this.addressId,
+            this.streetField.getInputElement().getInputValue(),
+            this.postalField.getInputElement().getInputValue(),
+            this.cityField.getInputElement().getInputValue(),
+            this.countryField.getInputElement().getInputValue().slice(-2)
+          )
+          .catch((error) => {
+            this.showErrorMessage(error.message);
+          });
+      })
+      .then(() => {
+        this.fields.forEach((field) => {
+          if (field.getElement().classList.contains(stylesRedactionMode.active)) {
+            field.exitEditModeChangeButton();
+            this.showInfoMessage(TextContent.COUNTRY_CHANGING_OK);
+          }
+        });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error.message);
+      });
+  }
+
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showWarningMessage(textContent: string) {
+    const messageShower = new WarningMessage();
     messageShower.showMessage(textContent);
   }
 }

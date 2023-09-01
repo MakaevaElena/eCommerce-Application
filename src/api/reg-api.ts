@@ -244,4 +244,36 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public changeAddress(
+    userID: string,
+    version: number,
+    addressId: string,
+    street: string,
+    postal: string,
+    city: string,
+    country: string
+  ) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'changeAddress',
+              addressId: addressId,
+              address: {
+                streetName: street,
+                postalCode: postal,
+                city: city,
+                country: country,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }
