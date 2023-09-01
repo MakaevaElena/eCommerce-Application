@@ -13,6 +13,8 @@ import buttonCreator from '../../../../shared/button/button-creator';
 export default class PasswordChanger {
   private passwordChangerElement: HTMLDivElement;
 
+  private parentElement: HTMLDivElement;
+
   private newPasswordField: InputCreator;
   //
   private repeatPasswordField: InputCreator;
@@ -25,7 +27,8 @@ export default class PasswordChanger {
 
   private buttonCancel: HTMLButtonElement;
 
-  constructor() {
+  constructor(parentElement: HTMLDivElement) {
+    this.parentElement = parentElement;
     this.passwordChangerElement = this.createPasswordChangerElement();
     this.inputParamsCreator = new InputParamsCreator();
 
@@ -53,6 +56,7 @@ export default class PasswordChanger {
   private configureView() {
     this.repeatPasswordField.getInput().addEventListener(Events.CHANGE, this.passwordCheckHandler.bind(this));
     this.newPasswordField.getInput().addEventListener(Events.CHANGE, this.passwordCheckHandler.bind(this));
+    this.passwordChangerElement.addEventListener(Events.CLICK, this.goOutFromRedactionHandler.bind(this));
 
     const wrap = this.createWrap();
     wrap.append(
@@ -127,10 +131,16 @@ export default class PasswordChanger {
   }
 
   private cancelHandler() {
-    console.log('cancel');
+    this.parentElement.removeChild(this.passwordChangerElement);
   }
 
   private confirmHandler() {
     console.log('confirm');
+  }
+
+  private goOutFromRedactionHandler(event: Event) {
+    if (event.target === this.passwordChangerElement) {
+      this.cancelHandler();
+    }
   }
 }

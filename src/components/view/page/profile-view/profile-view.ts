@@ -1,4 +1,5 @@
 import styleWrap from './user-field/styles/wrap-style.module.scss';
+import styleCss from './profile-view.module.scss';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -6,7 +7,6 @@ import { LinkName, PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
-import styleCss from './profile-view.module.scss';
 import RegApi from '../../../../api/reg-api';
 import Address from './types/addresses/address';
 import UserData from './types/user-data';
@@ -22,6 +22,9 @@ import AddressFieldsGroup from './user-field/user-field-group/address-fields-gro
 import Actions from './user-field/enum/actions';
 import ActionNames from './user-field/enum/action-names';
 import PasswordChanger from './user-field/password-changer';
+import { CallbackListener } from '../../../../utils/input/inputParams';
+import buttonCreator from '../../../shared/button/button-creator';
+import Events from '../../../../enum/events';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -52,7 +55,7 @@ export default class ProfileView extends DefaultView {
 
     this.countryOptions = new CountryOptions();
 
-    this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
+    this.wrapper = new TagElement().createTagElement('div', Object.values(styleWrap));
 
     this.getCreator().addInnerElement(this.wrapper);
 
@@ -92,14 +95,19 @@ export default class ProfileView extends DefaultView {
     this.wrapper.textContent = '';
 
     const button = this.createMainButton();
+    const changePasswordButton = this.createButton(
+      TextContent.CHANGE_PASSWORD,
+      this.goToPasswordChangerHandler.bind(this),
+      Events.CLICK
+    );
 
-    this.wrapper.append(button.getElement());
+    this.wrapper.append(button.getElement(), changePasswordButton);
     const fields = this.createUserField();
     const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
     const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
     const addressBillingGroup = this.createAddressGroup(this.userData.billingAddresses);
     wrap.append(fields, ...addressShippingGroup, ...addressBillingGroup);
-    wrap.append(new PasswordChanger().getPasswordChanger());
+
     this.wrapper.append(wrap);
   }
 
@@ -240,6 +248,10 @@ export default class ProfileView extends DefaultView {
   //   const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
   // }
+  private createButton(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
+    const button = new buttonCreator(textContent, undefined, eventListener, event);
+    return button.getButton();
+  }
 
   private createUserData(): UserData {
     const message = 'unassigned';
@@ -277,5 +289,10 @@ export default class ProfileView extends DefaultView {
 
     const userFieldElement = new MainFieldGroup(mainGroupProps);
     return userFieldElement.getElement();
+  }
+
+  private goToPasswordChangerHandler() {
+    const passwordChanger = new PasswordChanger(this.wrapper);
+    this.wrapper.append(passwordChanger.getPasswordChanger());
   }
 }
