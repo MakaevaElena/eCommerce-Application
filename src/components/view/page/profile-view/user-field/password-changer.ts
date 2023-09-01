@@ -11,6 +11,11 @@ import InputCreator from '../../../../../utils/input/inputCreator';
 import buttonCreator from '../../../../shared/button/button-creator';
 import RegApi from '../../../../../api/reg-api';
 import WarningMessage from '../../../../message/warning-message';
+import LocalStorageKeys from '../../../../../enum/local-storage-keys';
+import StatusCodes from '../../../../../enum/status-codes';
+import InfoMessage from '../../../../message/info-message';
+import Delays from '../../../../../enum/delays';
+import ErrorMessage from '../../../../message/error-message';
 
 export default class PasswordChanger {
   private passwordChangerElement: HTMLDivElement;
@@ -140,12 +145,23 @@ export default class PasswordChanger {
     if (this.isCheckValidityForm()) {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
-      console.log('form valid');
+      this.changePassword();
+      // console.log('form valid');
     }
   }
 
   private showWarningMessage(textContent: string) {
     const messageShower = new WarningMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showInfoMessage(textContent: string) {
+    const messageShower = new InfoMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
     messageShower.showMessage(textContent);
   }
 
@@ -157,20 +173,42 @@ export default class PasswordChanger {
 
   private changePassword() {
     const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .changePassword(
+            response.body.results[0].id,
+            this.newPasswordField.getInputValue(),
+            this.confirmOldPasswordField.getInputValue(),
+            response.body.results[0].version
+          )
+          .then((response) => {
+            if (response.statusCode === StatusCodes.PASSWORD_CHANGED) {
+              this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
+              this.cancelHandler();
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error.message);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error.message);
+      });
   }
 
   private isCheckValidityForm(): boolean {
     let result = true;
 
-    if (this.newPasswordField.getInput().checkValidity()) {
+    if (
+      this.newPasswordField.getInput().checkValidity() &&
+      this.confirmOldPasswordField.getInput().checkValidity() &&
+      this.repeatPasswordField.getInput().checkValidity()
+    ) {
       result = false;
     }
-    if (this.confirmOldPasswordField.getInput().checkValidity()) {
-      result = false;
-    }
-    if (this.repeatPasswordField.getInput().checkValidity()) {
-      result = false;
-    }
+
     return result;
   }
 }

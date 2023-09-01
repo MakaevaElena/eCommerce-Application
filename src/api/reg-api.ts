@@ -127,4 +127,19 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public changePassword(customerID: string, newPassword: string, oldPassword: string, version: number) {
+    return this.clientRoot
+      .customers()
+      .password()
+      .post({
+        body: {
+          id: customerID,
+          version: version,
+          currentPassword: oldPassword,
+          newPassword: newPassword,
+        },
+      })
+      .execute();
+  }
 }
