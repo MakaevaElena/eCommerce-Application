@@ -215,36 +215,39 @@ export default class AddressFieldsGroup {
   }
 
   private confirmHandler() {
-    console.log(this.addressId);
-    const api = new RegApi();
-    api
-      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
-      .then((response) => {
-        api
-          .changeAddress(
-            response.body.results[0].id,
-            response.body.results[0].version,
-            this.addressId,
-            this.streetField.getInputElement().getInputValue(),
-            this.postalField.getInputElement().getInputValue(),
-            this.cityField.getInputElement().getInputValue(),
-            this.countryField.getInputElement().getInputValue().slice(-2)
-          )
-          .catch((error) => {
-            this.showErrorMessage(error.message);
+    if (this.isCheckValidityForm()) {
+      this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
+    } else {
+      const api = new RegApi();
+      api
+        .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+        .then((response) => {
+          api
+            .changeAddress(
+              response.body.results[0].id,
+              response.body.results[0].version,
+              this.addressId,
+              this.streetField.getInputElement().getInputValue(),
+              this.postalField.getInputElement().getInputValue(),
+              this.cityField.getInputElement().getInputValue(),
+              this.countryField.getInputElement().getInputValue().slice(-2)
+            )
+            .catch((error) => {
+              this.showErrorMessage(error.message);
+            });
+        })
+        .then(() => {
+          this.fields.forEach((field) => {
+            if (field.getElement().classList.contains(stylesRedactionMode.active)) {
+              field.exitEditModeChangeButton();
+              this.showInfoMessage(TextContent.COUNTRY_CHANGING_OK);
+            }
           });
-      })
-      .then(() => {
-        this.fields.forEach((field) => {
-          if (field.getElement().classList.contains(stylesRedactionMode.active)) {
-            field.exitEditModeChangeButton();
-            this.showInfoMessage(TextContent.COUNTRY_CHANGING_OK);
-          }
+        })
+        .catch((error) => {
+          this.showErrorMessage(error.message);
         });
-      })
-      .catch((error) => {
-        this.showErrorMessage(error.message);
-      });
+    }
   }
 
   private showErrorMessage(textContent: string) {
@@ -255,5 +258,20 @@ export default class AddressFieldsGroup {
   private showWarningMessage(textContent: string) {
     const messageShower = new WarningMessage();
     messageShower.showMessage(textContent);
+  }
+
+  private isCheckValidityForm(): boolean {
+    let result = true;
+
+    if (
+      this.streetField.getInputElement().getInput().checkValidity() &&
+      this.postalField.getInputElement().getInput().checkValidity() &&
+      this.cityField.getInputElement().getInput().checkValidity() &&
+      this.countryField.getInputElement().getInput().checkValidity()
+    ) {
+      result = false;
+    }
+
+    return result;
   }
 }
