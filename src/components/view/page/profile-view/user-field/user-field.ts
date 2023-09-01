@@ -15,6 +15,7 @@ import RegApi from '../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import ActionNames from './enum/action-names';
 import StatusCodes from '../../../../../enum/status-codes';
+import { InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
 
 export default class UserField {
   private elementField: HTMLDivElement;
@@ -147,12 +148,20 @@ export default class UserField {
   }
 
   private saveValueHandler() {
-    this.value = this.inputElement.getInputValue();
-    if (this.inputElement.getInput().checkValidity()) {
-      this.exitEditModeChangeButton();
-      this.saveValue();
-    } else {
-      this.showWarningMessage(TextContent.VALIDATE_INPUT_BEFORE_SUBMIT);
+    const savingInuptsLabels: Array<string> = [
+      InputPlaceholders.EMAIL,
+      InputPlaceholders.FIRST_NAME,
+      InputPlaceholders.LAST_NAME,
+      `${InputPlaceholders.DATE_OF_BIRTH}. ${InputTittles.DATE_OF_BIRTH_HINT}`,
+    ];
+    if (savingInuptsLabels.includes(this.labelValue)) {
+      this.value = this.inputElement.getInputValue();
+      if (this.inputElement.getInput().checkValidity()) {
+        this.exitEditModeChangeButton();
+        this.saveValue();
+      } else {
+        this.showWarningMessage(TextContent.VALIDATE_INPUT_BEFORE_SUBMIT);
+      }
     }
   }
 
