@@ -20,6 +20,8 @@ enum TextContent {
   CHANGE_COUNTRY_INFO = "Don't forget to change the postal code according to the selected country",
 
   VALIDATE_INPUT_BEFORE_SUBMIT = 'Make sure you fill out your account correctly',
+
+  NEW_PASSWORD_FIELD_LABEL = 'enter a new password',
 }
 
 export default TextContent;
