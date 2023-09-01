@@ -16,7 +16,7 @@ export default class PasswordChanger {
   //
   private repeatPasswordField: InputCreator;
   //
-  // private confirmOldPasswordField: InputCreator;
+  private confirmOldPasswordField: InputCreator;
 
   private inputParamsCreator: InputParamsCreator;
 
@@ -31,7 +31,12 @@ export default class PasswordChanger {
 
     this.repeatPasswordField = this.createPasswordField(
       this.inputParamsCreator.getPasswordRepeatParams(),
-      TextContent.REPEAT_NEW_PASSWORD_FIELD
+      TextContent.REPEAT_NEW_PASSWORD_FIELD_LABEL
+    );
+
+    this.confirmOldPasswordField = this.createPasswordField(
+      this.inputParamsCreator.getPasswordParams(),
+      TextContent.OLD_PASSWORD_FIELD_LABEL
     );
 
     this.configureView();
@@ -42,7 +47,11 @@ export default class PasswordChanger {
     this.newPasswordField.getInput().addEventListener(Events.CHANGE, this.passwordCheckHandler.bind(this));
 
     const wrap = this.createWrap();
-    wrap.append(this.newPasswordField.getElement(), this.repeatPasswordField.getElement());
+    wrap.append(
+      this.newPasswordField.getElement(),
+      this.repeatPasswordField.getElement(),
+      this.confirmOldPasswordField.getElement()
+    );
     this.passwordChangerElement.append(wrap);
   }
 

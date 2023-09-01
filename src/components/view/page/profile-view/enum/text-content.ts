@@ -21,8 +21,9 @@ enum TextContent {
 
   VALIDATE_INPUT_BEFORE_SUBMIT = 'Make sure you fill out your account correctly',
 
-  NEW_PASSWORD_FIELD_LABEL = 'enter a new password',
-  REPEAT_NEW_PASSWORD_FIELD = 'repeat the new password',
+  NEW_PASSWORD_FIELD_LABEL = 'enter the new password',
+  REPEAT_NEW_PASSWORD_FIELD_LABEL = 'repeat the new password',
+  OLD_PASSWORD_FIELD_LABEL = 'enter the existing password',
 }
 
 export default TextContent;
