@@ -208,4 +208,40 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public makeAddressBillingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'setDefaultBillingAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressShippingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'setDefaultShippingAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }

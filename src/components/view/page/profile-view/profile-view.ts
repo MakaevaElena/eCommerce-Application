@@ -88,7 +88,7 @@ export default class ProfileView extends DefaultView {
 
   private addressChangedHandler() {
     this.userData = this.request();
-    this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
+    this.showInfoMessage(TextContent.ADD_ADRESS_OK);
   }
 
   private login() {

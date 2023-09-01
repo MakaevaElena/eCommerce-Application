@@ -7,7 +7,7 @@ import stylePasswordWrap from '../user-field/styles/password-wrap-style.module.s
 import stylePasswordChanger from '../user-field/styles/password-chenger-style.module.scss';
 import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
 import stylePasswordField from '../user-field/styles/password-fields-style.module.scss';
-import { InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
+import { InputLabels, InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
 import ButtonCreator from '../../../../shared/button/button-creator';
 import WarningMessage from '../../../../message/warning-message';
 import InfoMessage from '../../../../message/info-message';
@@ -20,6 +20,7 @@ import PostalTitles from '../../registration-view/inputs-params/postal-titles';
 import CountryOptions from '../../../../../utils/input/options/country-options';
 import Observer from '../../../../../observer/observer';
 import EventName from '../../../../../enum/event-name';
+import TextContents from '../../registration-view/enum/text-contents';
 
 export default class AddressCreator {
   private adressChangerElement: HTMLDivElement;
@@ -40,14 +41,19 @@ export default class AddressCreator {
 
   private buttonCancel: HTMLButtonElement;
 
+  private buttonDefault: HTMLButtonElement;
+
   private countryOptions: CountryOptions;
 
   private isShiping: boolean;
+
+  private isDefault: boolean;
 
   private observer: Observer;
 
   constructor(parentElement: HTMLDivElement, isShipping: boolean) {
     this.isShiping = isShipping;
+    this.isDefault = false;
     this.countryOptions = new CountryOptions();
     this.parentElement = parentElement;
     this.adressChangerElement = this.createAddressGroupElement();
@@ -64,6 +70,7 @@ export default class AddressCreator {
 
     this.buttonCancel = this.createButtonCancel();
     this.buttonConfirm = this.createButtonConfirm();
+    this.buttonDefault = this.createButtonDefault();
 
     this.configureView();
   }
@@ -75,6 +82,7 @@ export default class AddressCreator {
 
     const wrap = this.createWrap();
     wrap.append(
+      this.buttonDefault,
       this.streetField.getElement(),
       this.cityField.getElement(),
       this.postalField.getElement(),
@@ -165,6 +173,10 @@ export default class AddressCreator {
     return this.createButtons(TextContent.CANCEL_BUTTON, this.cancelHandler.bind(this), Events.CLICK);
   }
 
+  private createButtonDefault() {
+    return this.createButtons(TextContents.BUTTON_DEFAULT, this.defaultHandler.bind(this), Events.CLICK);
+  }
+
   private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
     const button = new ButtonCreator(textContent, undefined, eventListener, event);
     return button.getButton();
@@ -179,6 +191,16 @@ export default class AddressCreator {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
       this.changeAdress();
+    }
+  }
+
+  private defaultHandler() {
+    if (this.isDefault) {
+      this.isDefault = false;
+      this.buttonDefault.textContent = TextContents.BUTTON_DEFAULT;
+    } else {
+      this.isDefault = true;
+      this.buttonDefault.textContent = TextContents.BUTTON_UN_DEFAULT;
     }
   }
 
@@ -230,21 +252,51 @@ export default class AddressCreator {
           .then((result) => {
             if (this.isShiping) {
               if (result !== undefined) {
-                api.makeAddressShipping(response.body.results[0].id, result.version, result.id!).catch((error) => {
-                  this.showErrorMessage(error);
-                });
+                api
+                  .makeAddressShipping(response.body.results[0].id, result.version, result.id!)
+                  .then((response) => {
+                    if (this.isDefault) {
+                      api
+                        .makeAddressShippingDefault(
+                          response.body.id,
+                          response.body.version,
+                          response.body.addresses[response.body.addresses.length - 1].id!
+                        )
+                        .catch((error) => {
+                          this.showErrorMessage(error);
+                        });
+                    }
+                  })
+                  .catch((error) => {
+                    this.showErrorMessage(error);
+                  });
               }
             } else {
               if (result !== undefined) {
-                api.makeAddressBilling(response.body.results[0].id, result.version, result.id!).catch((error) => {
-                  this.showErrorMessage(error);
-                });
+                api
+                  .makeAddressBilling(response.body.results[0].id, result.version, result.id!)
+                  .then((response) => {
+                    if (this.isDefault) {
+                      api
+                        .makeAddressBillingDefault(
+                          response.body.id,
+                          response.body.version,
+                          response.body.addresses[response.body.addresses.length - 1].id!
+                        )
+                        .catch((error) => {
+                          this.showErrorMessage(error);
+                        });
+                    }
+                  })
+                  .catch((error) => {
+                    this.showErrorMessage(error);
+                  });
               }
             }
             return result;
           })
           .then((result) => {
-            if (result!.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+            if (result!.statusCode! === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })

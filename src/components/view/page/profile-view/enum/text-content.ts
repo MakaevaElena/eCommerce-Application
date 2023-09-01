@@ -22,6 +22,8 @@ enum TextContent {
   CHANGE_PASSWORD = 'change password',
   CHANGE_PASSWORD_INFO_IS_OK = 'password successfully changed',
 
+  ADD_ADRESS_OK = 'the address was successfully added',
+
   VALIDATE_INPUT_BEFORE_SUBMIT = 'Make sure you fill out your account correctly',
   VALIDATE_FORM_BEFORE_SUBMIT = 'Make sure you fill out all fields correctly',
 
