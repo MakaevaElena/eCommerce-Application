@@ -18,9 +18,11 @@ import StatusCodes from '../../../../../enum/status-codes';
 import PostalPatterns from '../../registration-view/inputs-params/postal-paterns';
 import PostalTitles from '../../registration-view/inputs-params/postal-titles';
 import CountryOptions from '../../../../../utils/input/options/country-options';
+import Observer from '../../../../../observer/observer';
+import EventName from '../../../../../enum/event-name';
 
 export default class AddressCreator {
-  private passwordChangerElement: HTMLDivElement;
+  private adressChangerElement: HTMLDivElement;
 
   private parentElement: HTMLDivElement;
 
@@ -42,12 +44,15 @@ export default class AddressCreator {
 
   private isShiping: boolean;
 
+  private observer: Observer;
+
   constructor(parentElement: HTMLDivElement, isShipping: boolean) {
     this.isShiping = isShipping;
     this.countryOptions = new CountryOptions();
     this.parentElement = parentElement;
-    this.passwordChangerElement = this.createAddressGroupElement();
+    this.adressChangerElement = this.createAddressGroupElement();
     this.inputParamsCreator = new InputParamsCreator();
+    this.observer = Observer.getInstance();
 
     this.streetField = this.createField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.STREET);
 
@@ -66,7 +71,7 @@ export default class AddressCreator {
   private configureView() {
     this.countryField.getInput().addEventListener(Events.CHANGE, this.validateCountryListHandler.bind(this));
 
-    this.passwordChangerElement.addEventListener(Events.CLICK, this.goOutFromRedactionHandler.bind(this));
+    this.adressChangerElement.addEventListener(Events.CLICK, this.goOutFromRedactionHandler.bind(this));
 
     const wrap = this.createWrap();
     wrap.append(
@@ -78,7 +83,7 @@ export default class AddressCreator {
       this.buttonConfirm,
       this.buttonCancel
     );
-    this.passwordChangerElement.append(wrap);
+    this.adressChangerElement.append(wrap);
   }
 
   private createWrap(): HTMLDivElement {
@@ -88,7 +93,7 @@ export default class AddressCreator {
   }
 
   getElement(): HTMLDivElement {
-    return this.passwordChangerElement;
+    return this.adressChangerElement;
   }
 
   private createAddressGroupElement(): HTMLDivElement {
@@ -166,15 +171,14 @@ export default class AddressCreator {
   }
 
   private cancelHandler() {
-    this.parentElement.removeChild(this.passwordChangerElement);
+    this.parentElement.removeChild(this.adressChangerElement);
   }
 
   private confirmHandler() {
     if (this.isCheckValidityForm()) {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
-      this.changePassword();
-      // console.log('form valid');
+      this.changeAdress();
     }
   }
 
@@ -194,12 +198,12 @@ export default class AddressCreator {
   }
 
   private goOutFromRedactionHandler(event: Event) {
-    if (event.target === this.passwordChangerElement) {
+    if (event.target === this.adressChangerElement) {
       this.cancelHandler();
     }
   }
 
-  private changePassword() {
+  private changeAdress() {
     const api = new RegApi();
     api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
@@ -215,11 +219,10 @@ export default class AddressCreator {
           )
           .then((responseAnswer) => {
             if (responseAnswer.statusCode === StatusCodes.USER_VALUE_CHANGED) {
-              this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
-              this.cancelHandler();
               const result = {
                 id: responseAnswer.body.addresses[responseAnswer.body.addresses.length - 1].id,
                 version: responseAnswer.body.version,
+                statusCode: responseAnswer.statusCode,
               };
               return result;
             }
@@ -237,6 +240,12 @@ export default class AddressCreator {
                   this.showErrorMessage(error);
                 });
               }
+            }
+            return result;
+          })
+          .then((result) => {
+            if (result!.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
           .catch((error) => {

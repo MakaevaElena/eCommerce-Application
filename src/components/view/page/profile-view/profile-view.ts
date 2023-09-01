@@ -27,6 +27,9 @@ import ButtonCreator from '../../../shared/button/button-creator';
 import Events from '../../../../enum/events';
 import stylesRedactionButton from './user-field/styles/redaction-button-style.module.scss';
 import AddressCreator from './address-creator/address-creator';
+import WarningMessage from '../../../message/warning-message';
+import InfoMessage from '../../../message/info-message';
+import ErrorMessage from '../../../message/error-message';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -67,6 +70,7 @@ export default class ProfileView extends DefaultView {
 
     this.observer.subscribe(EventName.LOGIN, this.login.bind(this));
     this.observer.subscribe(EventName.LOGOUT, this.logoutListener.bind(this));
+    this.observer.subscribe(EventName.ADDRESS_CHANGED, this.addressChangedHandler.bind(this));
   }
 
   public setContent(element: InsertableElement) {
@@ -80,6 +84,11 @@ export default class ProfileView extends DefaultView {
 
   private configView() {
     this.createContent();
+  }
+
+  private addressChangedHandler() {
+    this.userData = this.request();
+    this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
   }
 
   private login() {
@@ -222,7 +231,6 @@ export default class ProfileView extends DefaultView {
       Object.values(address).forEach((value) => {
         if (typeof value !== 'boolean') {
           values.push(value);
-          console.log(value);
         }
       });
       const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
@@ -326,5 +334,20 @@ export default class ProfileView extends DefaultView {
   private addBillingAddressHandler() {
     const addressCreator = new AddressCreator(this.wrapper, false);
     this.wrapper.append(addressCreator.getElement());
+  }
+
+  private showWarningMessage(textContent: string) {
+    const messageShower = new WarningMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showInfoMessage(textContent: string) {
+    const messageShower = new InfoMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
+    messageShower.showMessage(textContent);
   }
 }
