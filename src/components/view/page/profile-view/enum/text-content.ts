@@ -22,6 +22,7 @@ enum TextContent {
   CHANGE_PASSWORD = 'change password',
 
   VALIDATE_INPUT_BEFORE_SUBMIT = 'Make sure you fill out your account correctly',
+  VALIDATE_FORM_BEFORE_SUBMIT = 'Make sure you fill out all fields correctly',
 
   NEW_PASSWORD_FIELD_LABEL = 'enter the new password',
   REPEAT_NEW_PASSWORD_FIELD_LABEL = 'repeat the new password',
