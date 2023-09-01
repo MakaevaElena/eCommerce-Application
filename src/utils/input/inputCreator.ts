@@ -1,9 +1,8 @@
-import labelStyles from './label-style.module.scss';
-import { CallbackListener, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
+import { CallbackListener, InputAttributes, InputParams } from './inputParams';
+import { InputTypes } from './input-values/input-values';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
-import { InputTypes } from './input-values/input-values';
 import TextContents from '../../components/view/page/registration-view/enum/text-contents';
 
 export default class InputCreator {

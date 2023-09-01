@@ -2,7 +2,6 @@ import styleGroupFields from '../styles/field-group.module.scss';
 import UserField from '../user-field';
 import TagName from '../../../../../../enum/tag-name';
 import UserFieldProps from '../user-field-props';
-import userFieldProps from '../user-field-props';
 
 export default class MainFieldGroup {
   private mainFieldGroup: HTMLDivElement;
@@ -35,8 +34,8 @@ export default class MainFieldGroup {
 
   private createUserFieldsElements(): Array<HTMLDivElement> {
     const userFieldElements: Array<HTMLDivElement> = [];
-    this.userFieldsProps.forEach((userFieldProps) => {
-      const userFieldElement = new UserField(userFieldProps);
+    this.userFieldsProps.forEach((userFieldPropertis) => {
+      const userFieldElement = new UserField(userFieldPropertis);
       userFieldElements.push(userFieldElement.getElement());
     });
     return userFieldElements;

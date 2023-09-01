@@ -9,7 +9,7 @@ import Events from '../../../../../enum/events';
 import WarningMessage from '../../../../message/warning-message';
 import ErrorMessage from '../../../../message/error-message';
 import InfoMessage from '../../../../message/info-message';
-import buttonCreator from '../../../../shared/button/button-creator';
+import ButtonCreator from '../../../../shared/button/button-creator';
 import InputCreator from '../../../../../utils/input/inputCreator';
 import RegApi from '../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
@@ -117,7 +117,7 @@ export default class UserField {
     eventListener?: CallbackListener,
     event?: string
   ): HTMLButtonElement {
-    const button = new buttonCreator(textContent, classList, eventListener, event);
+    const button = new ButtonCreator(textContent, classList, eventListener, event);
     return button.getButton();
   }
 

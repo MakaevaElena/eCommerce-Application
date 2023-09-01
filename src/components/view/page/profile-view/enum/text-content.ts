@@ -19,7 +19,15 @@ enum TextContent {
 
   CHANGE_COUNTRY_INFO = "Don't forget to change the postal code according to the selected country",
 
+  CHANGE_PASSWORD = 'change password',
+  CHANGE_PASSWORD_INFO_IS_OK = 'password successfully changed',
+
   VALIDATE_INPUT_BEFORE_SUBMIT = 'Make sure you fill out your account correctly',
+  VALIDATE_FORM_BEFORE_SUBMIT = 'Make sure you fill out all fields correctly',
+
+  NEW_PASSWORD_FIELD_LABEL = 'enter the new password',
+  REPEAT_NEW_PASSWORD_FIELD_LABEL = 'repeat the new password',
+  OLD_PASSWORD_FIELD_LABEL = 'enter the existing password',
 }
 
 export default TextContent;
