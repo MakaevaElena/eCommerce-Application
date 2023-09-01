@@ -25,6 +25,8 @@ import PasswordChanger from './user-field/password-changer';
 import { CallbackListener } from '../../../../utils/input/inputParams';
 import ButtonCreator from '../../../shared/button/button-creator';
 import Events from '../../../../enum/events';
+import stylesRedactionButton from './user-field/styles/redaction-button-style.module.scss';
+import AddressCreator from './address-creator/address-creator';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -95,13 +97,32 @@ export default class ProfileView extends DefaultView {
     this.wrapper.textContent = '';
 
     const button = this.createMainButton();
+    button.getElement().classList.add(...Object.values(stylesRedactionButton));
     const changePasswordButton = this.createButton(
       TextContent.CHANGE_PASSWORD,
       this.goToPasswordChangerHandler.bind(this),
       Events.CLICK
     );
 
-    this.wrapper.append(button.getElement(), changePasswordButton);
+    const addShippingAddressButton = new ButtonCreator(
+      TextContent.ADD_SHIPPING_ADDRESS_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.addShippingAddressHandler.bind(this),
+      Events.CLICK
+    );
+    const addBillingAddressButton = new ButtonCreator(
+      TextContent.ADD_SHIPPING_ADDRESS_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.addShippingAddressHandler.bind(this),
+      Events.CLICK
+    );
+
+    this.wrapper.append(
+      button.getElement(),
+      changePasswordButton,
+      addShippingAddressButton.getButton(),
+      addBillingAddressButton.getButton()
+    );
     const fields = this.createUserField();
     const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
     const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
@@ -249,7 +270,7 @@ export default class ProfileView extends DefaultView {
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
   // }
   private createButton(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
-    const button = new ButtonCreator(textContent, undefined, eventListener, event);
+    const button = new ButtonCreator(textContent, Object.values(stylesRedactionButton), eventListener, event);
     return button.getButton();
   }
 
@@ -294,5 +315,15 @@ export default class ProfileView extends DefaultView {
   private goToPasswordChangerHandler() {
     const passwordChanger = new PasswordChanger(this.wrapper);
     this.wrapper.append(passwordChanger.getPasswordChanger());
+  }
+
+  private addShippingAddressHandler() {
+    const addressCreator = new AddressCreator(this.wrapper, true);
+    this.wrapper.append(addressCreator.getPasswordChanger());
+  }
+
+  private addBillingAddressHandler() {
+    const addressCreator = new AddressCreator(this.wrapper, false);
+    this.wrapper.append(addressCreator.getPasswordChanger());
   }
 }
