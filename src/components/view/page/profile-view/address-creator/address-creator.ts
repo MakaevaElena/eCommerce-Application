@@ -40,19 +40,22 @@ export default class AddressCreator {
 
   private countryOptions: CountryOptions;
 
+  private isShiping: boolean;
+
   constructor(parentElement: HTMLDivElement, isShipping: boolean) {
+    this.isShiping = isShipping;
     this.countryOptions = new CountryOptions();
     this.parentElement = parentElement;
-    this.passwordChangerElement = this.createPasswordChangerElement();
+    this.passwordChangerElement = this.createAddressGroupElement();
     this.inputParamsCreator = new InputParamsCreator();
 
-    this.streetField = this.createPasswordField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.STREET);
+    this.streetField = this.createField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.STREET);
 
-    this.cityField = this.createPasswordField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.CITY);
+    this.cityField = this.createField(this.inputParamsCreator.getCityParams(), InputPlaceholders.CITY);
 
-    this.postalField = this.createPasswordField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.POSTAL);
+    this.postalField = this.createField(this.inputParamsCreator.getSPostalParams(), InputPlaceholders.POSTAL);
 
-    this.countryField = this.createPasswordField(this.inputParamsCreator.getCountryParams(), InputPlaceholders.COUNTRY);
+    this.countryField = this.createField(this.inputParamsCreator.getCountryParams(), InputPlaceholders.COUNTRY);
 
     this.buttonCancel = this.createButtonCancel();
     this.buttonConfirm = this.createButtonConfirm();
@@ -84,25 +87,24 @@ export default class AddressCreator {
     return element;
   }
 
-  getPasswordChanger(): HTMLDivElement {
+  getElement(): HTMLDivElement {
     return this.passwordChangerElement;
   }
 
-  private createPasswordChangerElement(): HTMLDivElement {
+  private createAddressGroupElement(): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylePasswordChanger));
     return element;
   }
 
-  private createPasswordField(inputParams: InputParams, textContent: string): InputCreator {
+  private createField(inputParams: InputParams, textContent: string): InputCreator {
     const fieldProps: InputParams = inputParams;
-    const newPasswordField = new InputCreator(fieldProps);
-    newPasswordField.getElement().classList.add(...Object.values(stylePasswordField));
-
+    const newField = new InputCreator(fieldProps);
+    newField.getElement().classList.add(...Object.values(stylePasswordField));
     const subTitle = this.createSubTitle(textContent);
-    newPasswordField.getElement().prepend(subTitle);
+    newField.getElement().prepend(subTitle);
 
-    return newPasswordField;
+    return newField;
   }
 
   private createSubTitle(textContent: string): HTMLElement {
@@ -203,16 +205,38 @@ export default class AddressCreator {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .changePassword(
+          .addAddress(
             response.body.results[0].id,
+            response.body.results[0].version,
             this.streetField.getInputValue(),
             this.postalField.getInputValue(),
-            response.body.results[0].version
+            this.cityField.getInputValue(),
+            this.countryField.getInputValue().slice(-2)
           )
           .then((responseAnswer) => {
             if (responseAnswer.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
               this.cancelHandler();
+              const result = {
+                id: responseAnswer.body.addresses[responseAnswer.body.addresses.length - 1].id,
+                version: responseAnswer.body.version,
+              };
+              return result;
+            }
+          })
+          .then((result) => {
+            if (this.isShiping) {
+              if (result !== undefined) {
+                api.makeAddressShipping(response.body.results[0].id, result.version, result.id!).catch((error) => {
+                  this.showErrorMessage(error);
+                });
+              }
+            } else {
+              if (result !== undefined) {
+                api.makeAddressBilling(response.body.results[0].id, result.version, result.id!).catch((error) => {
+                  this.showErrorMessage(error);
+                });
+              }
             }
           })
           .catch((error) => {

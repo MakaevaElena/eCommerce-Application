@@ -111,9 +111,9 @@ export default class ProfileView extends DefaultView {
       Events.CLICK
     );
     const addBillingAddressButton = new ButtonCreator(
-      TextContent.ADD_SHIPPING_ADDRESS_BUTTON,
+      TextContent.ADD_BILLING_ADDRESS_BUTTON,
       Object.values(stylesRedactionButton),
-      this.addShippingAddressHandler.bind(this),
+      this.addBillingAddressHandler.bind(this),
       Events.CLICK
     );
 
@@ -222,6 +222,7 @@ export default class ProfileView extends DefaultView {
       Object.values(address).forEach((value) => {
         if (typeof value !== 'boolean') {
           values.push(value);
+          console.log(value);
         }
       });
       const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
@@ -319,11 +320,11 @@ export default class ProfileView extends DefaultView {
 
   private addShippingAddressHandler() {
     const addressCreator = new AddressCreator(this.wrapper, true);
-    this.wrapper.append(addressCreator.getPasswordChanger());
+    this.wrapper.append(addressCreator.getElement());
   }
 
   private addBillingAddressHandler() {
     const addressCreator = new AddressCreator(this.wrapper, false);
-    this.wrapper.append(addressCreator.getPasswordChanger());
+    this.wrapper.append(addressCreator.getElement());
   }
 }
