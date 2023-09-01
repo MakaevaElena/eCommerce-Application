@@ -3,18 +3,9 @@ import linStyle from './link.module.scss';
 import TagName from '../../../../enum/tag-name';
 import { ElementParams } from '../../../../utils/element-creator';
 import { InputParams } from '../../../../utils/input/inputParams';
-import {
-  InputLabels,
-  InputNames,
-  InputPatterns,
-  InputPlaceholders,
-  InputTittles,
-  InputTypes,
-} from '../../../../utils/input/input-values/input-values';
+import { InputLabels, InputTittles } from '../../../../utils/input/input-values/input-values';
 import InputCreator from '../../../../utils/input/inputCreator';
 import DefaultView from '../../default-view';
-import InputsGroups from '../../../../utils/input/input-values/inputs-groups';
-import InputsList from './inputs-params/inputs-list';
 import Events from '../../../../enum/events';
 import ButtonTypes from '../../../../enum/button-types';
 import Inputs from './inputs-params/inputs';
@@ -34,8 +25,6 @@ import CountryOptions from '../../../../utils/input/options/country-options';
 import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
 
 export default class RegistrationView extends DefaultView {
-  private readonly DEFAULT_ADDRESS_NUMBER = 1;
-
   private inputs: Array<InputCreator>;
 
   private mainInputsGroup: Array<InputCreator>;

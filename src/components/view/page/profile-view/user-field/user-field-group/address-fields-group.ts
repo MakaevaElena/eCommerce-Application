@@ -79,7 +79,7 @@ export default class AddressFieldsGroup {
       id: 'this.userData.id',
       action: '',
       actionName: '',
-      value: value,
+      value,
       inputParams: this.inputsParams.getStreetParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -92,7 +92,7 @@ export default class AddressFieldsGroup {
       id: 'this.userData.id',
       action: '',
       actionName: '',
-      value: value,
+      value,
       inputParams: this.inputsParams.getCityParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -105,7 +105,7 @@ export default class AddressFieldsGroup {
       id: 'this.userData.id',
       action: '',
       actionName: '',
-      value: value,
+      value,
       inputParams: this.inputsParams.getSPostalParams(),
     };
     const fieldCreator = new UserField(userFieldProps);
@@ -118,7 +118,7 @@ export default class AddressFieldsGroup {
       id: 'this.userData.id',
       action: '',
       actionName: '',
-      value: value,
+      value,
       inputParams: this.inputsParams.getCountryParams(),
     };
     const fieldCreator = new UserField(userFieldProps);

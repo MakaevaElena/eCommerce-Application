@@ -23,7 +23,7 @@ import Actions from './user-field/enum/actions';
 import ActionNames from './user-field/enum/action-names';
 import PasswordChanger from './user-field/password-changer';
 import { CallbackListener } from '../../../../utils/input/inputParams';
-import buttonCreator from '../../../shared/button/button-creator';
+import ButtonCreator from '../../../shared/button/button-creator';
 import Events from '../../../../enum/events';
 
 export default class ProfileView extends DefaultView {
@@ -249,7 +249,7 @@ export default class ProfileView extends DefaultView {
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
   // }
   private createButton(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
-    const button = new buttonCreator(textContent, undefined, eventListener, event);
+    const button = new ButtonCreator(textContent, undefined, eventListener, event);
     return button.getButton();
   }
 

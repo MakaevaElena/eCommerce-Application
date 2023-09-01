@@ -8,13 +8,12 @@ import { InputTittles } from '../../../../../utils/input/input-values/input-valu
 import InputParamsCreator from '../../../../../utils/input/input-values/input-params-creator';
 import Events from '../../../../../enum/events';
 import InputCreator from '../../../../../utils/input/inputCreator';
-import buttonCreator from '../../../../shared/button/button-creator';
+import ButtonCreator from '../../../../shared/button/button-creator';
 import RegApi from '../../../../../api/reg-api';
 import WarningMessage from '../../../../message/warning-message';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import StatusCodes from '../../../../../enum/status-codes';
 import InfoMessage from '../../../../message/info-message';
-import Delays from '../../../../../enum/delays';
 import ErrorMessage from '../../../../message/error-message';
 
 export default class PasswordChanger {
@@ -23,9 +22,9 @@ export default class PasswordChanger {
   private parentElement: HTMLDivElement;
 
   private newPasswordField: InputCreator;
-  //
+
   private repeatPasswordField: InputCreator;
-  //
+
   private confirmOldPasswordField: InputCreator;
 
   private inputParamsCreator: InputParamsCreator;
@@ -133,7 +132,7 @@ export default class PasswordChanger {
   }
 
   private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
-    const button = new buttonCreator(textContent, undefined, eventListener, event);
+    const button = new ButtonCreator(textContent, undefined, eventListener, event);
     return button.getButton();
   }
 
@@ -183,8 +182,8 @@ export default class PasswordChanger {
             this.confirmOldPasswordField.getInputValue(),
             response.body.results[0].version
           )
-          .then((response) => {
-            if (response.statusCode === StatusCodes.PASSWORD_CHANGED) {
+          .then((responseAnswer) => {
+            if (responseAnswer.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.showInfoMessage(TextContent.CHANGE_PASSWORD_INFO_IS_OK);
               this.cancelHandler();
             }
