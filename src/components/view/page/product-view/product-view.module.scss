@@ -142,11 +142,10 @@
   text-decoration: none;
 }
 
-.product-price:before {
+.product-price.crossed:before {
   content: '';
   border-bottom: 3px solid transparentize($color-brand-primary, 0.2);
   position: absolute;
   width: 100%;
   height: 50%;
-  // transform: rotate(-12deg);
 }

@@ -178,12 +178,20 @@ export default class ProductView extends DefaultView {
           textContent: price(),
         });
 
+        function discountPrice() {
+          if (response.body.masterVariant.prices?.[1].discounted?.value) {
+            productPrice.getElement().classList.add(styleCss.crossed);
+            return `DISCOUNT PRICE: ${(
+              Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
+            ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`;
+          }
+          return '';
+        }
+
         const productDiscountPrice = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-discount-price']],
-          textContent: `DISCOUNT PRICE: ${(
-            Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
-          ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`,
+          textContent: discountPrice(),
         });
 
         const productAttributes = new ElementCreator({
@@ -260,7 +268,11 @@ export default class ProductView extends DefaultView {
         productInfo.addInnerElement(productName);
         productInfo.addInnerElement(this.productCategory);
         productInfo.addInnerElement(productPrice);
-        productInfo.addInnerElement(productDiscountPrice);
+
+        if (response.body.masterVariant.prices?.[1].discounted?.value) {
+          productInfo.addInnerElement(productDiscountPrice);
+        }
+
         productInfo.addInnerElement(productDescription);
         // productInfo.addInnerElement(addToCard);
         productInfo.addInnerElement(this.createToCartButton().getElement());
