@@ -22,12 +22,12 @@
   position: absolute;
   overflow: auto;
   z-index: 4;
-  width: 40%;
+  width: 85%;
 }
 
 @media screen and (max-width: 800px) {
   .product-modal {
-    width: 80%;
+    width: 100%;
   }
 }
 
@@ -42,16 +42,9 @@
   background-repeat: no-repeat;
   background-position: center center;
   position: absolute;
-  right: 8px;
+  right: 10%;
   top: 100px;
   cursor: pointer;
-}
-
-@media screen and (max-width: 1500px) {
-  .product-modal__close-icon {
-    right: 20px;
-    top: 100px;
-  }
 }
 
 .product-modal .product-modal__product-card {
@@ -63,19 +56,20 @@
 }
 
 .product-modal__content {
-  width: 33vw;
+  margin: 0 auto;
+  width: 40%;
   height: 90vh;
 }
 
-@media screen and (max-width: 1500px) {
+@media screen and (max-width: 1200px) {
   .product-modal__content {
-    width: 31vw;
+    width: 60%;
   }
 }
 
 @media screen and (max-width: 800px) {
   .product-modal__content {
-    width: 70%;
+    width: 80%;
   }
 }
 
