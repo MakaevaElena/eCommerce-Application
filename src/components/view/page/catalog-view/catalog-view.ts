@@ -64,7 +64,7 @@ export default class CatalogView extends DefaultView {
   private createProductCards(products: Product[]) {
     products.forEach((product) => {
       if (product.key) {
-        const card = new ProductCard(product.key, this.router, product);
+        const card = new ProductCard(product, this.router);
         this.wrapper.append(card.getElement());
       }
     });

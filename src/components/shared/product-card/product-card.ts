@@ -23,15 +23,13 @@ export default class ProductCard extends DefaultView {
 
   private router: Router;
 
-  private productKey: string;
-
   private productApi: ProductApi;
 
   private product: Product;
 
   private creator = new TagElement();
 
-  constructor(productKey: string, router: Router, product: Product) {
+  constructor(product: Product, router: Router) {
     const params: ElementParams = {
       tag: TagName.DIV,
       classNames: [styleCss['product-card'], styleCss['product-card__link']],
@@ -41,7 +39,6 @@ export default class ProductCard extends DefaultView {
 
     this.product = product;
     this.router = router;
-    this.productKey = productKey;
     this.productApi = new ProductApi();
 
     this.configView();
@@ -54,7 +51,7 @@ export default class ProductCard extends DefaultView {
   }
 
   private setRouteLink() {
-    const routePath = `${PagePath.CATALOG}/${this.productKey}`;
+    const routePath = `${PagePath.CATALOG}/${this.product.key}`;
     this.getElement().addEventListener('click', () => this.router.setHref(routePath));
   }
 

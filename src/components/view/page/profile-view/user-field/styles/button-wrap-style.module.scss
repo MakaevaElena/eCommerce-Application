@@ -1,0 +1,10 @@
+@import '../../../../../../style/helper';
+
+.button-wrap {
+  box-sizing: border-box;
+  width: 90%;
+  margin: 0.5rem auto;
+  @include flex(center, center);
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}

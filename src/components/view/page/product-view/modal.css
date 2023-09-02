@@ -1,0 +1,87 @@
+/* @import '../../../../style/abstract/variables/colors.scss'; */
+/* @import './src/style/helper.scss'; */
+
+.overlay_product-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: rgba(41, 41, 41, 0.842);
+  position: fixed;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+.product-modal {
+  padding: 5rem;
+  background-color: transparent;
+  position: absolute;
+  overflow: auto;
+  z-index: 4;
+  width: 40%;
+}
+
+/* @media screen and (max-width: 1500px) {
+  .product-modal {
+    width: 30%;
+  }
+} */
+
+/* не подтянулась переменная transparentize($color-brand-primary, 0.2) */
+.product-modal__close-icon {
+  width: 5rem;
+  height: 5rem;
+  border: 0.2rem solid rgba(166, 38, 38, 1);
+  border-radius: 10rem;
+  background-image: url('./img/free-icon-close.png');
+  background-size: 30%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  right: 8px;
+  top: 100px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 1500px) {
+  .product-modal__close-icon {
+    right: 20px;
+    top: 100px;
+  }
+}
+
+.product-modal .product-modal__product-card {
+  background-color: rgba(41, 41, 41, 0.842);
+  border-radius: 9px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.product-modal__content {
+  width: 33vw;
+  height: 90vh;
+}
+
+@media screen and (max-width: 1500px) {
+  .product-modal__content {
+    width: 31vw;
+  }
+}
+
+.product-modal-swiper {
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  overflow: clip;
+  list-style: none;
+  padding: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}

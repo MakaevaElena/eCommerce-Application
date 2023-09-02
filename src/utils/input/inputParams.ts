@@ -8,7 +8,7 @@ export type InputParams = {
 export type InputAttributes = {
   type: string;
   name?: string;
-  placeholder?: string;
+  placeholder: string;
   title?: string;
   pattern?: string;
   max?: string;

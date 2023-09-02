@@ -40,13 +40,13 @@ export default class LoginView extends DefaultView {
 
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.field],
+    classNames: [styleCss['login-form__field']],
     textContent: 'email',
   });
 
   private loginPassword = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.field],
+    classNames: [styleCss['login-form__field']],
     textContent: 'password',
   });
 
@@ -118,7 +118,7 @@ export default class LoginView extends DefaultView {
 
     const showPasswordButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss.button],
+      classNames: [styleCss.button, styleCss['login-form__show-password']],
       textContent: 'SHOW',
     });
 

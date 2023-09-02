@@ -1,6 +1,9 @@
 import Address from './addresses/address';
 
 type UserData = {
+  id: string;
+
+  version: number;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
