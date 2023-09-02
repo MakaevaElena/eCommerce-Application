@@ -1,3 +1,4 @@
+import { Product, ProductVariant } from '@commercetools/platform-sdk';
 import styleCss from './product-card.module.scss';
 import Router from '../../router/router';
 import DefaultView from '../../view/default-view';
@@ -7,7 +8,6 @@ import ProductApi from '../../../api/products-api';
 import TagElement from '../../../utils/create-tag-element';
 import { PagePath } from '../../router/pages';
 import Strings from './strings';
-import ErrorMessage from '../../message/error-message';
 
 type LocalPrices = {
   value: string;
@@ -15,17 +15,23 @@ type LocalPrices = {
 };
 
 export default class ProductCard extends DefaultView {
+  private readonly URL_NO_IMAGE = '';
+
+  private readonly LANG = 'en-US';
+
+  private readonly COUNTRY = 'US';
+
   private router: Router;
 
   private productKey: string;
 
   private productApi: ProductApi;
 
-  private readonly LANG = 'en-US';
+  private product: Product;
 
-  private readonly COUNTRY = 'US';
+  private creator = new TagElement();
 
-  constructor(productKey: string, router: Router) {
+  constructor(productKey: string, router: Router, product: Product) {
     const params: ElementParams = {
       tag: TagName.DIV,
       classNames: [styleCss['product-card'], styleCss['product-card__link']],
@@ -33,6 +39,7 @@ export default class ProductCard extends DefaultView {
     };
     super(params);
 
+    this.product = product;
     this.router = router;
     this.productKey = productKey;
     this.productApi = new ProductApi();
@@ -52,75 +59,80 @@ export default class ProductCard extends DefaultView {
   }
 
   private createProductView() {
-    const creator = new TagElement();
     const parent = this.getElement();
 
-    this.productApi
-      .getProductbyKey(this.productKey)
-      .then((response) => {
-        const { masterVariant } = response.body.masterData.current;
+    const { masterVariant } = this.product.masterData.current;
 
-        const url = masterVariant.images ? masterVariant.images[0].url : '';
-        const image = creator.createTagElement('img', [styleCss['product-card__image']]);
-        image.setAttribute('src', url);
-        parent.append(image);
+    const image = this.getImageElement(masterVariant);
+    const wrapper = this.creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
+    parent.append(image, wrapper);
 
-        const wrapper = creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
-        parent.append(wrapper);
+    const title = this.getTitleElement();
+    const description = this.getDescriptionElement();
+    const prices = this.getPricesElement(masterVariant);
+    wrapper.append(title, description, prices);
+  }
 
-        const titleText = response.body.masterData.current.name[this.LANG] || Strings.Strings.NO_DATA[this.LANG];
-        const title = creator.createTagElement('span', [styleCss['product-card__title']], titleText);
-        wrapper.append(title);
+  private getPricesElement(masterVariant: ProductVariant) {
+    const pricesWrapper = this.creator.createTagElement('span', [styleCss['product-card__prices-wrapper']]);
 
-        if (response.body.masterData.current.description) {
-          const descriptionText = response.body.masterData.current.description[this.LANG];
-          const description = creator.createTagElement(
-            'span',
-            [styleCss['product-card__description']],
-            descriptionText
-          );
-          wrapper.append(description);
+    const price = this.getLocalPrices(masterVariant);
+
+    const priceElement = this.creator.createTagElement('span', [styleCss['product-card__price']], price.value);
+    pricesWrapper.append(priceElement);
+
+    if (price.discount) {
+      priceElement.classList.add(styleCss['product-card__price_discounted']);
+      const discountElement = this.creator.createTagElement(
+        'span',
+        [styleCss['product-card__discount']],
+        price.discount
+      );
+      pricesWrapper.append(discountElement);
+    }
+    return pricesWrapper;
+  }
+
+  private getDescriptionElement() {
+    const descriptionText =
+      this.product.masterData.current.description?.[this.LANG] || Strings.Strings.EMPTY_TEXT[this.LANG];
+    const description = this.creator.createTagElement('span', [styleCss['product-card__description']], descriptionText);
+
+    return description;
+  }
+
+  private getTitleElement() {
+    const titleText = this.product.masterData.current.name[this.LANG] || Strings.Strings.NO_DATA[this.LANG];
+    const title = this.creator.createTagElement('span', [styleCss['product-card__title']], titleText);
+    return title;
+  }
+
+  private getImageElement(masterVariant: ProductVariant) {
+    const url = masterVariant.images ? masterVariant.images[0].url : this.URL_NO_IMAGE;
+    const image = this.creator.createTagElement('img', [styleCss['product-card__image']]);
+    image.setAttribute('src', url);
+    return image;
+  }
+
+  private getLocalPrices(masterVariant: ProductVariant): LocalPrices {
+    const localPrices = {
+      value: '',
+      discount: '',
+    };
+    const { prices } = masterVariant;
+    if (prices) {
+      const locals = prices.filter((item) => item.country === this.COUNTRY);
+      if (locals.length > 0) {
+        const { value } = locals[0];
+        localPrices.value = `${(value.centAmount / 100).toFixed(value.fractionDigits)} ${value.currencyCode}`;
+        const { discounted } = locals[0];
+        if (discounted?.value) {
+          localPrices.discount = `${(discounted.value.centAmount / 100).toFixed(discounted.value.fractionDigits)} ${
+            discounted.value.currencyCode
+          }`;
         }
-
-        const pricesWrapper = creator.createTagElement('span', [styleCss['product-card__prices-wrapper']]);
-        const getLocalPrices = (): LocalPrices => {
-          const localPrices = {
-            value: '',
-            discount: '',
-          };
-          const { prices } = masterVariant;
-          if (prices) {
-            const locals = prices.filter((item) => item.country === this.COUNTRY);
-            if (locals.length > 0) {
-              const { value } = locals[0];
-              localPrices.value = `${(value.centAmount / 100).toFixed(value.fractionDigits)}${value.currencyCode}`;
-              const { discounted } = locals[0];
-              if (discounted?.value) {
-                localPrices.discount = `${(discounted.value.centAmount / 100).toFixed(
-                  discounted.value.fractionDigits
-                )}${discounted.value.currencyCode}`;
-              }
-            }
-          }
-          return localPrices;
-        };
-        const price = getLocalPrices();
-        const priceElement = creator.createTagElement('span', [styleCss['product-card__price']], price.value);
-        pricesWrapper.append(priceElement);
-        if (price.discount) {
-          priceElement.classList.add(styleCss['product-card__price_discounted']);
-          const discountElement = creator.createTagElement(
-            'span',
-            [styleCss['product-card__discount']],
-            price.discount
-          );
-          pricesWrapper.append(discountElement);
-        }
-        wrapper.append(pricesWrapper);
-      })
-      .catch((error) => {
-        new ErrorMessage().showMessage(error.message);
-        this.getElement().remove(); // TODO add retry to get a card's info insteed
-      });
+      }
+    }
+    return localPrices;
   }
 }

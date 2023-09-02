@@ -56,20 +56,15 @@ export default class CatalogView extends DefaultView {
       .getProducts()
       .then((response) => {
         const products = response.body.results;
-        this.createProductLinks(products);
+        this.createProductCards(products);
       })
       .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
-  private createProductLinks(products: Product[]) {
+  private createProductCards(products: Product[]) {
     products.forEach((product) => {
       if (product.key) {
-        // const link = new LinkButton(product.key, () => {
-        //   this.router.setHref(`${PagePath.CATALOG}/${product.key}`);
-        // });
-        // this.wrapper.append(link.getElement());
-
-        const card = new ProductCard(product.key, this.router);
+        const card = new ProductCard(product.key, this.router, product);
         this.wrapper.append(card.getElement());
       }
     });
