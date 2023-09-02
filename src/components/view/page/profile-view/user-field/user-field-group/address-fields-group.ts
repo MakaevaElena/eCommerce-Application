@@ -342,7 +342,24 @@ export default class AddressFieldsGroup {
   }
 
   private makeDefaulShippingtHandler() {
-    console.log('default ship');
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressShippingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
   }
 
   private createMakeDefaultBillingButton() {
@@ -441,6 +458,8 @@ export default class AddressFieldsGroup {
     if (!this.isDefault) {
       buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
     }
+
+    buttonWrap.append(this.deleteAddressButton);
     return buttonWrap;
   }
 }
