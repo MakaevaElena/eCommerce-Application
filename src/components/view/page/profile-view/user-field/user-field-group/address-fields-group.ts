@@ -1,3 +1,4 @@
+import stylesButtonWrap from '../styles/button-wrap-style.module.scss';
 import stylesRedactionMode from '../styles/redaction-mode-style.module.scss';
 import TagName from '../../../../../../enum/tag-name';
 import styleGroupFields from '../styles/field-group.module.scss';
@@ -17,6 +18,10 @@ import RegApi from '../../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../../../message/error-message';
 import WarningMessage from '../../../../../message/warning-message';
+import TextContents from '../../../registration-view/enum/text-contents';
+import { CallbackListener } from '../../../../../../utils/input/inputParams';
+import ButtonCreator from '../../../../../shared/button/button-creator';
+import stylesRedactionButton from '../styles/redaction-button-style.module.scss';
 
 export default class AddressFieldsGroup {
   private addressGroup: HTMLDivElement;
@@ -43,7 +48,31 @@ export default class AddressFieldsGroup {
 
   private addressId: string;
 
+  private isDefault: boolean | undefined;
+
+  private makeBillingDefaultButton: HTMLButtonElement;
+
+  private makeShippingDefaultButton: HTMLButtonElement;
+
+  private makeBillingButton: HTMLButtonElement;
+
+  private makeShippingButton: HTMLButtonElement;
+
+  private deleteAddressButton: HTMLButtonElement;
+
+  private titleContent: string;
+
+  private buttonWrap: HTMLDivElement;
+
   constructor(values: Array<string>, title: string, isDefault: boolean | undefined) {
+    this.deleteAddressButton = this.createDeleteButton();
+    this.makeShippingDefaultButton = this.createMakeDefaultShippingButton();
+    this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
+    this.makeShippingButton = this.createMakeShippingButton();
+    this.makeBillingButton = this.createMakeBillingButton();
+    this.isDefault = isDefault;
+    this.titleContent = title;
+
     this.addressGroup = this.createAddressFieldGroupElement();
     this.values = values;
     this.addressId = values[0];
@@ -64,6 +93,8 @@ export default class AddressFieldsGroup {
     this.countryField.getElement().addEventListener(Events.CHANGE, this.validateCountryListHandler.bind(this));
     this.countryField.getElement().addEventListener('change', this.changeCountryHandler.bind(this));
 
+    this.buttonWrap = this.configureButtons();
+
     this.configureView();
     this.makeAddressDefault(isDefault);
   }
@@ -79,6 +110,7 @@ export default class AddressFieldsGroup {
       this.cityField.getElement(),
       this.postalField.getElement(),
       this.countryField.getElement(),
+      this.buttonWrap,
       this.countryOptions.getListElement()
     );
   }
@@ -163,7 +195,7 @@ export default class AddressFieldsGroup {
   private makeAddressDefault(isDefault: boolean | undefined) {
     if (isDefault) {
       const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
-      this.addressGroup.append(subTittle);
+      this.addressGroup.prepend(subTittle);
     }
   }
 
@@ -273,5 +305,91 @@ export default class AddressFieldsGroup {
     }
 
     return result;
+  }
+
+  private createMakeDefaultShippingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_SHIPPING_DEFAULT_BUTTON,
+      this.makeDefaulShippingtHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeDefaulShippingtHandler() {
+    console.log('default ship');
+  }
+
+  private createMakeDefaultBillingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_BILLING_DEFAULT_BUTTON,
+      this.makeDefaultBillingHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeDefaultBillingHandler() {
+    console.log('default bill');
+  }
+
+  private createDeleteButton() {
+    return this.createButtons(
+      TextContent.DELETE_ADDRESS_BUTTON,
+      this.deleteAdressButtonHAndler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private deleteAdressButtonHAndler() {
+    console.log('delete');
+  }
+
+  private createMakeShippingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_SHIPPING_BUTTON,
+      this.makeShippingtHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeShippingtHandler() {
+    console.log('ship');
+  }
+
+  private createMakeBillingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_BILLING_BUTTON,
+      this.makeBillingHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeBillingHandler() {
+    console.log('bill');
+  }
+
+  private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
+    const button = new ButtonCreator(textContent, Object.values(stylesRedactionButton), eventListener, event);
+    return button.getButton();
+  }
+
+  private configureButtons(): HTMLDivElement {
+    const buttonWrap = document.createElement(TagName.DIV);
+    buttonWrap.classList.add(...Object.values(stylesButtonWrap));
+    if (this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      buttonWrap.append(this.makeBillingButton);
+      if (this.isDefault) {
+        buttonWrap.append(this.makeBillingDefaultButton);
+      } else {
+        buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+      }
+    } else {
+      buttonWrap.append(this.makeShippingButton);
+      if (this.isDefault) {
+        buttonWrap.append(this.makeShippingDefaultButton);
+      } else {
+        buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+      }
+    }
+    return buttonWrap;
   }
 }

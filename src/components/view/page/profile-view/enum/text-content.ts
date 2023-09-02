@@ -2,13 +2,16 @@ enum TextContent {
   ADD_SHIPPING_ADDRESS_BUTTON = 'add shipping address',
   ADD_BILLING_ADDRESS_BUTTON = 'add billing address',
 
-  REMOVE_SHIPPING_ADDRESS_BUTTON = 'remove shipping address',
-  REMOVE_BILLING_ADDRESS_BUTTON = 'remove billing address',
+  DELETE_ADDRESS_BUTTON = 'delete this address',
+  MAKE_ADDRESS_SHIPPING_BUTTON = 'make this address shipping',
+  MAKE_ADDRESS_BILLING_BUTTON = 'make this address billing',
+  MAKE_ADDRESS_SHIPPING_DEFAULT_BUTTON = 'make this address default shipping',
+  MAKE_ADDRESS_BILLING_DEFAULT_BUTTON = 'make this address default billing',
 
-  TITLE_ADDRESS_SHIPPING = 'shipping addresses',
-  TITLE_ADDRESS_BILLING = 'billing addresses',
+  TITLE_ADDRESS_SHIPPING = 'shipping address',
+  TITLE_ADDRESS_BILLING = 'billing address',
 
-  DEFAULT_ADDRESS = 'default address',
+  DEFAULT_ADDRESS = 'default',
 
   REDACTION_MODE_BUTTON = 'edit',
   CONFIRM_BUTTON = 'confirm',
