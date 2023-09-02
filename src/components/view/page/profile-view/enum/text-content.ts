@@ -11,7 +11,8 @@ enum TextContent {
   TITLE_ADDRESS_SHIPPING = 'shipping address',
   TITLE_ADDRESS_BILLING = 'billing address',
 
-  DEFAULT_ADDRESS = 'default',
+  DEFAULT_ADDRESS_SHIIPPING = 'default shipping',
+  DEFAULT_ADDRESS_BILLING = 'default billling',
 
   REDACTION_MODE_BUTTON = 'edit',
   CONFIRM_BUTTON = 'confirm',

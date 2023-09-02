@@ -114,7 +114,7 @@ export default class AddressFieldsGroup {
     this.buttonWrap = this.configureButtons();
 
     this.configureView();
-    this.makeAddressDefault(this.isDefaultShipping, this.isDefaultBilling, this.titleContent);
+    this.makeAddressDefault(this.isDefaultShipping, this.isDefaultBilling);
   }
 
   getElement() {
@@ -210,17 +210,13 @@ export default class AddressFieldsGroup {
     return title;
   }
 
-  private makeAddressDefault(
-    isDefaultShipping: boolean | undefined,
-    isDefaultBilling: boolean | undefined,
-    tittleContent: string
-  ) {
+  private makeAddressDefault(isDefaultShipping: boolean | undefined, isDefaultBilling: boolean | undefined) {
     if (isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
-      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
+      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_SHIIPPING);
       this.addressGroup.prepend(subTittle);
     }
     if (isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
-      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
+      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_BILLING);
       this.addressGroup.prepend(subTittle);
     }
   }
@@ -400,7 +396,24 @@ export default class AddressFieldsGroup {
   }
 
   private deleteAdressButtonHAndler() {
-    console.log('delete');
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
   }
 
   private createMakeShippingButton() {
@@ -412,7 +425,24 @@ export default class AddressFieldsGroup {
   }
 
   private makeShippingtHandler() {
-    console.log('ship');
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressShipping(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
   }
 
   private createMakeBillingButton() {
@@ -424,7 +454,24 @@ export default class AddressFieldsGroup {
   }
 
   private makeBillingHandler() {
-    console.log('bill');
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressBilling(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
   }
 
   private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {

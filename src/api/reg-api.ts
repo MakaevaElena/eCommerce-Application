@@ -276,4 +276,22 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public deleteAdress(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'removeAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }
