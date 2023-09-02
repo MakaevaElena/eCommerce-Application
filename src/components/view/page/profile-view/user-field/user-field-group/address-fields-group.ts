@@ -1,3 +1,5 @@
+import stylesButtonWrap from '../styles/button-wrap-style.module.scss';
+import stylesRedactionMode from '../styles/redaction-mode-style.module.scss';
 import TagName from '../../../../../../enum/tag-name';
 import styleGroupFields from '../styles/field-group.module.scss';
 import UserField from '../user-field';
@@ -12,8 +14,21 @@ import PostalPatterns from '../../../registration-view/inputs-params/postal-pate
 import PostalTitles from '../../../registration-view/inputs-params/postal-titles';
 import Events from '../../../../../../enum/events';
 import InfoMessage from '../../../../../message/info-message';
+import RegApi from '../../../../../../api/reg-api';
+import LocalStorageKeys from '../../../../../../enum/local-storage-keys';
+import ErrorMessage from '../../../../../message/error-message';
+import WarningMessage from '../../../../../message/warning-message';
+import TextContents from '../../../registration-view/enum/text-contents';
+import { CallbackListener } from '../../../../../../utils/input/inputParams';
+import ButtonCreator from '../../../../../shared/button/button-creator';
+import stylesRedactionButton from '../styles/redaction-button-style.module.scss';
+import StatusCodes from '../../../../../../enum/status-codes';
+import EventName from '../../../../../../enum/event-name';
+import Observer from '../../../../../../observer/observer';
 
 export default class AddressFieldsGroup {
+  private observer: Observer;
+
   private addressGroup: HTMLDivElement;
 
   private streetField: UserField;
@@ -28,13 +43,57 @@ export default class AddressFieldsGroup {
 
   private title: HTMLElement;
 
+  private confirmButtons: Array<HTMLButtonElement>;
+
+  private fields: Array<UserField>;
+
   private inputsParams: InputParamsCreator;
 
   private countryOptions: CountryOptions;
 
-  constructor(values: Array<string>, title: string, isDefault: boolean | undefined) {
+  private addressId: string;
+
+  private isDefault: boolean | undefined;
+
+  private isDefaultBilling: boolean | undefined;
+
+  private isDefaultShipping: boolean | undefined;
+
+  private makeBillingDefaultButton: HTMLButtonElement;
+
+  private makeShippingDefaultButton: HTMLButtonElement;
+
+  private makeBillingButton: HTMLButtonElement;
+
+  private makeShippingButton: HTMLButtonElement;
+
+  private deleteAddressButton: HTMLButtonElement;
+
+  private titleContent: string;
+
+  private buttonWrap: HTMLDivElement;
+
+  constructor(
+    values: Array<string>,
+    title: string,
+    isDefault: boolean | undefined,
+    isisDefaultBilling: boolean | undefined,
+    isisDefaultShipping: boolean | undefined
+  ) {
+    this.deleteAddressButton = this.createDeleteButton();
+    this.makeShippingDefaultButton = this.createMakeDefaultShippingButton();
+    this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
+    this.makeShippingButton = this.createMakeShippingButton();
+    this.makeBillingButton = this.createMakeBillingButton();
+    this.isDefault = isDefault;
+    this.isDefaultBilling = isisDefaultBilling;
+    this.isDefaultShipping = isisDefaultShipping;
+    this.titleContent = title;
+    this.observer = Observer.getInstance();
+
     this.addressGroup = this.createAddressFieldGroupElement();
     this.values = values;
+    this.addressId = values[0];
     this.countryOptions = new CountryOptions();
 
     this.inputsParams = new InputParamsCreator();
@@ -45,11 +104,17 @@ export default class AddressFieldsGroup {
     this.postalField = this.createPostalField();
     this.countryField = this.createCountryField();
 
+    this.confirmButtons = this.createConfirmButtons();
+    this.configureConfirmButtons();
+    this.fields = [this.streetField, this.cityField, this.postalField, this.countryField];
+
     this.countryField.getElement().addEventListener(Events.CHANGE, this.validateCountryListHandler.bind(this));
     this.countryField.getElement().addEventListener('change', this.changeCountryHandler.bind(this));
 
+    this.buttonWrap = this.configureButtons();
+
     this.configureView();
-    this.makeAddressDefault(isDefault);
+    this.makeAddressDefault(this.isDefaultShipping, this.isDefaultBilling);
   }
 
   getElement() {
@@ -63,8 +128,22 @@ export default class AddressFieldsGroup {
       this.cityField.getElement(),
       this.postalField.getElement(),
       this.countryField.getElement(),
+      this.buttonWrap,
       this.countryOptions.getListElement()
     );
+  }
+
+  private createConfirmButtons(): Array<HTMLButtonElement> {
+    return [
+      this.streetField.getConfirmButton(),
+      this.cityField.getConfirmButton(),
+      this.postalField.getConfirmButton(),
+      this.countryField.getConfirmButton(),
+    ];
+  }
+
+  private configureConfirmButtons() {
+    this.confirmButtons.forEach((button) => button.addEventListener(Events.CLICK, this.confirmHandler.bind(this)));
   }
 
   private createAddressFieldGroupElement(): HTMLDivElement {
@@ -131,10 +210,14 @@ export default class AddressFieldsGroup {
     return title;
   }
 
-  private makeAddressDefault(isDefault: boolean | undefined) {
-    if (isDefault) {
-      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
-      this.addressGroup.append(subTittle);
+  private makeAddressDefault(isDefaultShipping: boolean | undefined, isDefaultBilling: boolean | undefined) {
+    if (isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_SHIIPPING);
+      this.addressGroup.prepend(subTittle);
+    }
+    if (isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
+      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_BILLING);
+      this.addressGroup.prepend(subTittle);
     }
   }
 
@@ -183,5 +266,247 @@ export default class AddressFieldsGroup {
   private showInfoMessage(textContent: string) {
     const messageShower = new InfoMessage();
     messageShower.showMessage(textContent);
+  }
+
+  private confirmHandler() {
+    if (this.isCheckValidityForm()) {
+      this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
+    } else {
+      const api = new RegApi();
+      api
+        .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+        .then((response) => {
+          api
+            .changeAddress(
+              response.body.results[0].id,
+              response.body.results[0].version,
+              this.addressId,
+              this.streetField.getInputElement().getInputValue(),
+              this.postalField.getInputElement().getInputValue(),
+              this.cityField.getInputElement().getInputValue(),
+              this.countryField.getInputElement().getInputValue().slice(-2)
+            )
+            .catch((error) => {
+              this.showErrorMessage(error.message);
+            });
+        })
+        .then(() => {
+          this.fields.forEach((field) => {
+            if (field.getElement().classList.contains(stylesRedactionMode.active)) {
+              field.exitEditModeChangeButton();
+              this.showInfoMessage(TextContent.COUNTRY_CHANGING_OK);
+            }
+          });
+        })
+        .catch((error) => {
+          this.showErrorMessage(error.message);
+        });
+    }
+  }
+
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showWarningMessage(textContent: string) {
+    const messageShower = new WarningMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private isCheckValidityForm(): boolean {
+    let result = true;
+
+    if (
+      this.streetField.getInputElement().getInput().checkValidity() &&
+      this.postalField.getInputElement().getInput().checkValidity() &&
+      this.cityField.getInputElement().getInput().checkValidity() &&
+      this.countryField.getInputElement().getInput().checkValidity()
+    ) {
+      result = false;
+    }
+
+    return result;
+  }
+
+  private createMakeDefaultShippingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_SHIPPING_DEFAULT_BUTTON,
+      this.makeDefaulShippingtHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeDefaulShippingtHandler() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressShippingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
+  }
+
+  private createMakeDefaultBillingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_BILLING_DEFAULT_BUTTON,
+      this.makeDefaultBillingHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeDefaultBillingHandler() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressBillingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
+  }
+
+  private createDeleteButton() {
+    return this.createButtons(
+      TextContent.DELETE_ADDRESS_BUTTON,
+      this.deleteAdressButtonHAndler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private deleteAdressButtonHAndler() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
+  }
+
+  private createMakeShippingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_SHIPPING_BUTTON,
+      this.makeShippingtHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeShippingtHandler() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressShipping(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
+  }
+
+  private createMakeBillingButton() {
+    return this.createButtons(
+      TextContent.MAKE_ADDRESS_BILLING_BUTTON,
+      this.makeBillingHandler.bind(this),
+      Events.CLICK
+    );
+  }
+
+  private makeBillingHandler() {
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressBilling(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
+  }
+
+  private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
+    const button = new ButtonCreator(textContent, Object.values(stylesRedactionButton), eventListener, event);
+    return button.getButton();
+  }
+
+  private configureButtons(): HTMLDivElement {
+    const buttonWrap = document.createElement(TagName.DIV);
+    buttonWrap.classList.add(...Object.values(stylesButtonWrap));
+    if (this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      buttonWrap.append(this.makeBillingButton);
+    } else {
+      buttonWrap.append(this.makeShippingButton);
+    }
+    if (this.isDefaultBilling) {
+      buttonWrap.append(this.makeShippingDefaultButton);
+    }
+    if (this.isDefaultShipping) {
+      buttonWrap.append(this.makeBillingDefaultButton);
+    }
+
+    if (this.isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    }
+
+    if (this.isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    }
+
+    if (!this.isDefault) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    }
+
+    buttonWrap.append(this.deleteAddressButton);
+    return buttonWrap;
   }
 }

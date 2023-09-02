@@ -1,8 +1,8 @@
 enum CountryValues {
   ID,
-  CITY,
-  POSTAL,
   STREET,
+  POSTAL,
+  CITY,
   COUNTRY,
   IS_DEFAULT,
 }

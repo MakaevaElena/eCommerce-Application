@@ -25,6 +25,12 @@ import PasswordChanger from './user-field/password-changer';
 import { CallbackListener } from '../../../../utils/input/inputParams';
 import ButtonCreator from '../../../shared/button/button-creator';
 import Events from '../../../../enum/events';
+import stylesRedactionButton from './user-field/styles/redaction-button-style.module.scss';
+import AddressCreator from './address-creator/address-creator';
+import WarningMessage from '../../../message/warning-message';
+import InfoMessage from '../../../message/info-message';
+import ErrorMessage from '../../../message/error-message';
+import textContent from './enum/text-content';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -65,6 +71,7 @@ export default class ProfileView extends DefaultView {
 
     this.observer.subscribe(EventName.LOGIN, this.login.bind(this));
     this.observer.subscribe(EventName.LOGOUT, this.logoutListener.bind(this));
+    this.observer.subscribe(EventName.ADDRESS_CHANGED, this.addressChangedHandler.bind(this));
   }
 
   public setContent(element: InsertableElement) {
@@ -78,6 +85,11 @@ export default class ProfileView extends DefaultView {
 
   private configView() {
     this.createContent();
+  }
+
+  private addressChangedHandler() {
+    this.userData = this.request();
+    this.showInfoMessage(TextContent.ADD_ADRESS_OK);
   }
 
   private login() {
@@ -95,13 +107,32 @@ export default class ProfileView extends DefaultView {
     this.wrapper.textContent = '';
 
     const button = this.createMainButton();
+    button.getElement().classList.add(...Object.values(stylesRedactionButton));
     const changePasswordButton = this.createButton(
       TextContent.CHANGE_PASSWORD,
       this.goToPasswordChangerHandler.bind(this),
       Events.CLICK
     );
 
-    this.wrapper.append(button.getElement(), changePasswordButton);
+    const addShippingAddressButton = new ButtonCreator(
+      TextContent.ADD_SHIPPING_ADDRESS_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.addShippingAddressHandler.bind(this),
+      Events.CLICK
+    );
+    const addBillingAddressButton = new ButtonCreator(
+      TextContent.ADD_BILLING_ADDRESS_BUTTON,
+      Object.values(stylesRedactionButton),
+      this.addBillingAddressHandler.bind(this),
+      Events.CLICK
+    );
+
+    this.wrapper.append(
+      button.getElement(),
+      changePasswordButton,
+      addShippingAddressButton.getButton(),
+      addBillingAddressButton.getButton()
+    );
     const fields = this.createUserField();
     const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
     const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
@@ -151,12 +182,14 @@ export default class ProfileView extends DefaultView {
           userData.shippingAddresses = this.getShippingBillingAddresses(
             results.addresses,
             results.shippingAddressIds,
-            results.defaultShippingAddressId
+            results.defaultShippingAddressId,
+            'shipping'
           );
           userData.billingAddresses = this.getShippingBillingAddresses(
             results.addresses,
             results.billingAddressIds,
-            results.defaultBillingAddressId
+            results.defaultBillingAddressId,
+            'billing'
           );
 
           this.configView();
@@ -173,14 +206,20 @@ export default class ProfileView extends DefaultView {
   private getShippingBillingAddresses(
     allAddresses: Array<Address>,
     addressesGroup: string[] | undefined,
-    defaultId: string | undefined
+    defaultId: string | undefined,
+    group: string
   ) {
     const addresses: Array<Address> = [];
     if (addressesGroup !== undefined) {
       allAddresses.forEach((address) => {
         if (addressesGroup.includes(address.id!)) {
-          if (address.id === defaultId) {
+          if (address.id === defaultId && group === 'shipping') {
             address.isDefault = true;
+            address.isDefaultShipping = true;
+          }
+          if (address.id === defaultId && group === 'billing') {
+            address.isDefault = true;
+            address.isDefaultBilling = true;
           }
           addresses.push(address);
         }
@@ -203,7 +242,13 @@ export default class ProfileView extends DefaultView {
           values.push(value);
         }
       });
-      const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
+      const addressGroup = new AddressFieldsGroup(
+        values,
+        title,
+        address.isDefault,
+        address.isDefaultBilling,
+        address.isDefaultShipping
+      );
       addresses.push(addressGroup.getElement());
     });
 
@@ -249,7 +294,7 @@ export default class ProfileView extends DefaultView {
   //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
   // }
   private createButton(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
-    const button = new ButtonCreator(textContent, undefined, eventListener, event);
+    const button = new ButtonCreator(textContent, Object.values(stylesRedactionButton), eventListener, event);
     return button.getButton();
   }
 
@@ -294,5 +339,30 @@ export default class ProfileView extends DefaultView {
   private goToPasswordChangerHandler() {
     const passwordChanger = new PasswordChanger(this.wrapper);
     this.wrapper.append(passwordChanger.getPasswordChanger());
+  }
+
+  private addShippingAddressHandler() {
+    const addressCreator = new AddressCreator(this.wrapper, true);
+    this.wrapper.append(addressCreator.getElement());
+  }
+
+  private addBillingAddressHandler() {
+    const addressCreator = new AddressCreator(this.wrapper, false);
+    this.wrapper.append(addressCreator.getElement());
+  }
+
+  private showWarningMessage(textContent: string) {
+    const messageShower = new WarningMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showInfoMessage(textContent: string) {
+    const messageShower = new InfoMessage();
+    messageShower.showMessage(textContent);
+  }
+
+  private showErrorMessage(textContent: string) {
+    const messageShower = new ErrorMessage();
+    messageShower.showMessage(textContent);
   }
 }
