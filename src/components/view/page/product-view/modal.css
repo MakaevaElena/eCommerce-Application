@@ -25,16 +25,16 @@
   width: 40%;
 }
 
-/* @media screen and (max-width: 1500px) {
+@media screen and (max-width: 800px) {
   .product-modal {
-    width: 30%;
+    width: 80%;
   }
-} */
+}
 
 /* не подтянулась переменная transparentize($color-brand-primary, 0.2) */
 .product-modal__close-icon {
-  width: 5rem;
-  height: 5rem;
+  width: 3rem;
+  height: 3rem;
   border: 0.2rem solid rgba(166, 38, 38, 1);
   border-radius: 10rem;
   background-image: url('./img/free-icon-close.png');
@@ -70,6 +70,12 @@
 @media screen and (max-width: 1500px) {
   .product-modal__content {
     width: 31vw;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .product-modal__content {
+    width: 70%;
   }
 }
 
