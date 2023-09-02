@@ -22,8 +22,13 @@ import TextContents from '../../../registration-view/enum/text-contents';
 import { CallbackListener } from '../../../../../../utils/input/inputParams';
 import ButtonCreator from '../../../../../shared/button/button-creator';
 import stylesRedactionButton from '../styles/redaction-button-style.module.scss';
+import StatusCodes from '../../../../../../enum/status-codes';
+import EventName from '../../../../../../enum/event-name';
+import Observer from '../../../../../../observer/observer';
 
 export default class AddressFieldsGroup {
+  private observer: Observer;
+
   private addressGroup: HTMLDivElement;
 
   private streetField: UserField;
@@ -50,6 +55,10 @@ export default class AddressFieldsGroup {
 
   private isDefault: boolean | undefined;
 
+  private isDefaultBilling: boolean | undefined;
+
+  private isDefaultShipping: boolean | undefined;
+
   private makeBillingDefaultButton: HTMLButtonElement;
 
   private makeShippingDefaultButton: HTMLButtonElement;
@@ -64,14 +73,23 @@ export default class AddressFieldsGroup {
 
   private buttonWrap: HTMLDivElement;
 
-  constructor(values: Array<string>, title: string, isDefault: boolean | undefined) {
+  constructor(
+    values: Array<string>,
+    title: string,
+    isDefault: boolean | undefined,
+    isisDefaultBilling: boolean | undefined,
+    isisDefaultShipping: boolean | undefined
+  ) {
     this.deleteAddressButton = this.createDeleteButton();
     this.makeShippingDefaultButton = this.createMakeDefaultShippingButton();
     this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
     this.makeShippingButton = this.createMakeShippingButton();
     this.makeBillingButton = this.createMakeBillingButton();
     this.isDefault = isDefault;
+    this.isDefaultBilling = isisDefaultBilling;
+    this.isDefaultShipping = isisDefaultShipping;
     this.titleContent = title;
+    this.observer = Observer.getInstance();
 
     this.addressGroup = this.createAddressFieldGroupElement();
     this.values = values;
@@ -96,7 +114,7 @@ export default class AddressFieldsGroup {
     this.buttonWrap = this.configureButtons();
 
     this.configureView();
-    this.makeAddressDefault(isDefault);
+    this.makeAddressDefault(this.isDefaultShipping, this.isDefaultBilling, this.titleContent);
   }
 
   getElement() {
@@ -192,8 +210,16 @@ export default class AddressFieldsGroup {
     return title;
   }
 
-  private makeAddressDefault(isDefault: boolean | undefined) {
-    if (isDefault) {
+  private makeAddressDefault(
+    isDefaultShipping: boolean | undefined,
+    isDefaultBilling: boolean | undefined,
+    tittleContent: string
+  ) {
+    if (isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
+      this.addressGroup.prepend(subTittle);
+    }
+    if (isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
       const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS);
       this.addressGroup.prepend(subTittle);
     }
@@ -328,7 +354,24 @@ export default class AddressFieldsGroup {
   }
 
   private makeDefaultBillingHandler() {
-    console.log('default bill');
+    const api = new RegApi();
+    api
+      .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
+      .then((response) => {
+        api
+          .makeAddressBillingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
+          .then((response) => {
+            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+              this.observer.notify(EventName.ADDRESS_CHANGED);
+            }
+          })
+          .catch((error) => {
+            this.showErrorMessage(error);
+          });
+      })
+      .catch((error) => {
+        this.showErrorMessage(error);
+      });
   }
 
   private createDeleteButton() {
@@ -377,18 +420,26 @@ export default class AddressFieldsGroup {
     buttonWrap.classList.add(...Object.values(stylesButtonWrap));
     if (this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
       buttonWrap.append(this.makeBillingButton);
-      if (this.isDefault) {
-        buttonWrap.append(this.makeBillingDefaultButton);
-      } else {
-        buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
-      }
     } else {
       buttonWrap.append(this.makeShippingButton);
-      if (this.isDefault) {
-        buttonWrap.append(this.makeShippingDefaultButton);
-      } else {
-        buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
-      }
+    }
+    if (this.isDefaultBilling) {
+      buttonWrap.append(this.makeShippingDefaultButton);
+    }
+    if (this.isDefaultShipping) {
+      buttonWrap.append(this.makeBillingDefaultButton);
+    }
+
+    if (this.isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    }
+
+    if (this.isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    }
+
+    if (!this.isDefault) {
+      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
     }
     return buttonWrap;
   }

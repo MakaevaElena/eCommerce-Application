@@ -30,6 +30,7 @@ import AddressCreator from './address-creator/address-creator';
 import WarningMessage from '../../../message/warning-message';
 import InfoMessage from '../../../message/info-message';
 import ErrorMessage from '../../../message/error-message';
+import textContent from './enum/text-content';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -181,12 +182,14 @@ export default class ProfileView extends DefaultView {
           userData.shippingAddresses = this.getShippingBillingAddresses(
             results.addresses,
             results.shippingAddressIds,
-            results.defaultShippingAddressId
+            results.defaultShippingAddressId,
+            'shipping'
           );
           userData.billingAddresses = this.getShippingBillingAddresses(
             results.addresses,
             results.billingAddressIds,
-            results.defaultBillingAddressId
+            results.defaultBillingAddressId,
+            'billing'
           );
 
           this.configView();
@@ -203,14 +206,20 @@ export default class ProfileView extends DefaultView {
   private getShippingBillingAddresses(
     allAddresses: Array<Address>,
     addressesGroup: string[] | undefined,
-    defaultId: string | undefined
+    defaultId: string | undefined,
+    group: string
   ) {
     const addresses: Array<Address> = [];
     if (addressesGroup !== undefined) {
       allAddresses.forEach((address) => {
         if (addressesGroup.includes(address.id!)) {
-          if (address.id === defaultId) {
+          if (address.id === defaultId && group === 'shipping') {
             address.isDefault = true;
+            address.isDefaultShipping = true;
+          }
+          if (address.id === defaultId && group === 'billing') {
+            address.isDefault = true;
+            address.isDefaultBilling = true;
           }
           addresses.push(address);
         }
@@ -233,7 +242,13 @@ export default class ProfileView extends DefaultView {
           values.push(value);
         }
       });
-      const addressGroup = new AddressFieldsGroup(values, title, address.isDefault);
+      const addressGroup = new AddressFieldsGroup(
+        values,
+        title,
+        address.isDefault,
+        address.isDefaultBilling,
+        address.isDefaultShipping
+      );
       addresses.push(addressGroup.getElement());
     });
 
