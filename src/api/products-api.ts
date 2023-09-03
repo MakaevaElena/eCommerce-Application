@@ -7,8 +7,15 @@ type LoginData = {
   password: string;
 };
 
+export enum Template {
+  WHERE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key="%VALUE%")))))',
+  DEFAULT_WHERE = 'masterData(current(masterVariant(attributes(name>""))))',
+}
+
 export default class ProductApi {
   private clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: 'best-games' });
+
+  private MAX_PRODUCTS = 500;
 
   constructor(loginData?: LoginData) {
     if (loginData) {
@@ -21,6 +28,36 @@ export default class ProductApi {
   // можно пробовать подставлять в методы .get({ queryArgs: -  и как то фильтровать
   public getProducts() {
     return this.clientRoot.products().get().execute();
+  }
+
+  public getAllProducts() {
+    return this.clientRoot
+      .products()
+      .get({
+        queryArgs: {
+          limit: this.MAX_PRODUCTS,
+        },
+      })
+      .execute();
+  }
+
+  public getConditionalProducts(where?: string, sort?: string) {
+    console.log(`where: '${where}'`);
+    const whereCondition = where || Template.DEFAULT_WHERE;
+    console.log('whereCondition: ', whereCondition);
+    return this.clientRoot
+      .products()
+      .get({
+        queryArgs: {
+          limit: this.MAX_PRODUCTS,
+          // where: 'masterData(current(masterVariant(prices(country="US" and value(centAmount=5300)))))',
+          // where: 'masterData(current(masterVariant(attributes(name="genre" and value(key="action")))))',
+          // where: 'masterData(current(masterVariant(attributes(name="Platform" and value(key="PC")))))',
+          where: whereCondition,
+          // sort: ''
+        },
+      })
+      .execute();
   }
 
   // получить один товар по id

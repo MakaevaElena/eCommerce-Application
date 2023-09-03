@@ -8,13 +8,20 @@ import ProductCard from '../../../shared/product-card/product-card';
 import DefaultView from '../../default-view';
 import styleCss from './catalog-view.module.scss';
 import ErrorMessage from '../../../message/error-message';
+import Filter from './filter/filter';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class CatalogView extends DefaultView {
   private router: Router;
 
-  private wrapper: HTMLDivElement;
+  private cardsWrapper: HTMLDivElement;
 
   private productApi = new ProductApi();
+
+  private filter = new Filter();
+
+  private observer = Observer.getInstance();
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -26,19 +33,30 @@ export default class CatalogView extends DefaultView {
 
     this.router = router;
 
-    this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
+    this.observer.subscribe(EventName.SHOW_FILTER, this.showFilterPopup.bind(this));
+    this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
 
-    this.getCreator().addInnerElement(this.wrapper);
+    this.cardsWrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
+
+    this.getCreator().addInnerElement(this.cardsWrapper);
 
     this.configView();
   }
 
-  public setContent(element: InsertableElement) {
-    this.wrapper.replaceChildren('');
+  private showFilterPopup() {
+    console.log('Show filter popup!');
+  }
+
+  private recallProductCards() {
+    this.getConditionalProducts();
+  }
+
+  private setContent(element: InsertableElement) {
+    this.cardsWrapper.replaceChildren('');
     if (element instanceof ElementCreator) {
-      this.wrapper.append(element.getElement());
+      this.cardsWrapper.append(element.getElement());
     } else {
-      this.wrapper.append(element);
+      this.cardsWrapper.append(element);
     }
   }
 
@@ -47,8 +65,10 @@ export default class CatalogView extends DefaultView {
   }
 
   private createContent() {
-    this.wrapper.replaceChildren('');
-    this.getProducts();
+    const filterHeader = this.filter.getFilterHeaderElement();
+    this.getElement().append(filterHeader, this.cardsWrapper);
+    this.getConditionalProducts();
+    // this.getProducts();
   }
 
   private getProducts() {
@@ -61,11 +81,24 @@ export default class CatalogView extends DefaultView {
       .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
+  private getConditionalProducts() {
+    const where = this.filter.getWhereCondition();
+
+    this.productApi
+      .getConditionalProducts(where)
+      .then((response) => {
+        const products = response.body.results;
+        this.createProductCards(products);
+      })
+      .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
   private createProductCards(products: Product[]) {
+    this.cardsWrapper.replaceChildren('');
     products.forEach((product) => {
       if (product.key) {
         const card = new ProductCard(product, this.router);
-        this.wrapper.append(card.getElement());
+        this.cardsWrapper.append(card.getElement());
       }
     });
   }
