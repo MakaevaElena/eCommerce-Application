@@ -200,17 +200,25 @@ export default class ProductView extends DefaultView {
           textContent: `ATTRIBUTES:`,
         });
 
+        const developer = () => {
+          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'developer');
+          if (index !== undefined && index > -1) {
+            return response.body.masterVariant.attributes?.[index].value?.[0];
+          }
+          return '';
+        };
+
         const productDeveloper = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-developer'], styleCss.attributes],
 
-          textContent: `DEVELOPER: ${response.body.masterVariant.attributes?.[0].value[0]}`,
+          textContent: `DEVELOPER: ${developer()}`,
         });
 
         // eslint-disable-next-line consistent-return
         const playersQuantity = () => {
           const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'players_quantity');
-          if (index && index > -1) {
+          if (index !== undefined && index > -1) {
             return response.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
@@ -222,15 +230,23 @@ export default class ProductView extends DefaultView {
           textContent: `PLAYERS QUANTITY: ${playersQuantity()}`,
         });
 
+        const platform = () => {
+          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
+          if (index && index > -1) {
+            return response.body.masterVariant.attributes?.[index].value?.[0].key;
+          }
+          return '';
+        };
+
         const productPlatform = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-developer'], styleCss.attributes],
-          textContent: `PLATFORM: ${response.body.masterVariant.attributes?.[2].value[0].key}`,
+          textContent: `PLATFORM: ${platform()}`,
         });
 
         const genre = () => {
           const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
-          if (index && index > -1) {
+          if (index !== undefined && index > -1) {
             return response.body.masterVariant.attributes?.[index].value?.[0].key;
           }
           return '';
@@ -242,10 +258,18 @@ export default class ProductView extends DefaultView {
           textContent: `GENRE: ${genre()}`,
         });
 
+        const release = () => {
+          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'release');
+          if (index !== undefined && index > -1) {
+            return response.body.masterVariant.attributes?.[index].value?.[0];
+          }
+          return '';
+        };
+
         const productRelease = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['product-developer'], styleCss.attributes],
-          textContent: `RELEASE: ${response.body.masterVariant.attributes?.[4].value[0]}`,
+          textContent: `RELEASE: ${release()}`,
         });
 
         // const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
