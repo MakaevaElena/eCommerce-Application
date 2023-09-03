@@ -5,6 +5,7 @@ enum EventName {
   ADDRESS_CHANGED,
   SHOW_FILTER,
   UPDATE_CATALOG_CARDS,
+  UPDATE_FILTER_TAGS,
 }
 
 export default EventName;

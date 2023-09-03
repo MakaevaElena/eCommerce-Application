@@ -24,6 +24,5 @@ export default class FilterTag {
 
   private clickHandler() {
     this.callback();
-    this.element.remove();
   }
 }

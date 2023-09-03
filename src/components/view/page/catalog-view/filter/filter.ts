@@ -2,17 +2,10 @@ import ProductApi, { Template } from '../../../../../api/products-api';
 import EventName from '../../../../../enum/event-name';
 import Observer from '../../../../../observer/observer';
 import ErrorMessage from '../../../../message/error-message';
+import FilterAttribute from './enum';
 import FilterHeaderView from './filter-header/filter-header';
-
-export enum FilterAttribute {
-  GENGE = 'genre',
-  PLATFORM = 'Platform',
-  DEVELOPER = 'developer',
-}
-
-type FilterData = {
-  [key in FilterAttribute]: string[];
-};
+import FilterPopup from './filter-popup/filter-popup';
+import FilterData from './types';
 
 export default class Filter {
   private filterData: FilterData = {
@@ -22,12 +15,12 @@ export default class Filter {
   };
 
   private usedFilter: FilterData = {
-    genre: ['action'],
-    Platform: ['PC'],
+    genre: [],
+    Platform: [],
     developer: [],
   };
 
-  private productApi = new ProductApi();
+  private productApi: ProductApi;
 
   private filterHeader = new FilterHeaderView();
 
@@ -35,9 +28,12 @@ export default class Filter {
 
   private observer = Observer.getInstance();
 
-  constructor() {
+  constructor(productApi: ProductApi) {
+    this.productApi = productApi;
     this.getFilterData();
     this.createFilterTags();
+    this.observer.subscribe(EventName.SHOW_FILTER, this.showFilterPopup.bind(this));
+    this.observer.subscribe(EventName.UPDATE_FILTER_TAGS, this.createFilterTags.bind(this));
   }
 
   public getFilterData() {
@@ -79,8 +75,15 @@ export default class Filter {
     return headerElement;
   }
 
-  public createFilterTags() {
+  private showFilterPopup() {
+    const popup = new FilterPopup(this.filterData, this.usedFilter).getDialog();
+    document.body.prepend(popup);
+    popup.showModal();
+  }
+
+  private createFilterTags() {
     this.filterHeader.clearFilterTags();
+
     this.usedFilter.genre.forEach((filter) => {
       this.filterHeader.addFilterTag(
         FilterAttribute.GENGE,
@@ -110,20 +113,45 @@ export default class Filter {
       filters.splice(index);
     }
     this.observer.notify(EventName.UPDATE_CATALOG_CARDS);
+    this.observer.notify(EventName.UPDATE_FILTER_TAGS);
   }
 
   public getWhereCondition(): string {
     const wheres: string[] = [];
+    const values: string[] = [];
 
     this.usedFilter.genre.forEach((filter) => {
-      wheres.push(Template.WHERE_MASK.replace('%ATTRIBUTE%', FilterAttribute.GENGE).replace('%VALUE%', filter));
+      values.push(`"${filter}"`);
     });
+    if (values.length > 0) {
+      wheres.push(
+        Template.ATTRIBUTE_MASK.replace('%ATTRIBUTE%', FilterAttribute.GENGE).replace('%VALUE%', values.join(', '))
+      );
+    }
+
+    values.length = 0;
     this.usedFilter.Platform.forEach((filter) => {
-      wheres.push(Template.WHERE_MASK.replace('%ATTRIBUTE%', FilterAttribute.PLATFORM).replace('%VALUE%', filter));
+      values.push(`"${filter}"`);
     });
+    if (values.length > 0) {
+      wheres.push(
+        Template.ATTRIBUTE_MASK.replace('%ATTRIBUTE%', FilterAttribute.PLATFORM).replace('%VALUE%', values.join(', '))
+      );
+    }
+
+    values.length = 0;
     this.usedFilter.developer.forEach((filter) => {
-      wheres.push(Template.WHERE_MASK.replace('%ATTRIBUTE%', FilterAttribute.DEVELOPER).replace('%VALUE%', filter));
+      values.push(`"${filter}"`);
     });
+
+    if (values.length > 0) {
+      wheres.push(
+        Template.ATTRIBUTE_DEVELOPER_MASK.replace('%ATTRIBUTE%', FilterAttribute.DEVELOPER).replace(
+          '%VALUE%',
+          values.join(', ')
+        )
+      );
+    }
 
     return wheres.join(' and ');
   }

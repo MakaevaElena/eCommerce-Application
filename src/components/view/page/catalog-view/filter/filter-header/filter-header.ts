@@ -1,6 +1,6 @@
 import TagName from '../../../../../../enum/tag-name';
 import TagElement from '../../../../../../utils/create-tag-element';
-import { ElementParams, InsertableElement } from '../../../../../../utils/element-creator';
+import { ElementParams } from '../../../../../../utils/element-creator';
 import LinkButton from '../../../../../shared/link-button/link-button';
 import DefaultView from '../../../../default-view';
 import styleCss from './filter-header.module.scss';
@@ -25,6 +25,8 @@ export default class FilterHeaderView extends DefaultView {
     this.tagWrapper = this.createTagWrapper();
     this.observer = Observer.getInstance();
 
+    // this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.updateHeaderHandler.bind(this));
+
     this.configView();
   }
 
@@ -38,13 +40,7 @@ export default class FilterHeaderView extends DefaultView {
     return this.tagWrapper;
   }
 
-  public setContent(element: InsertableElement) {
-    this.getCreator().clearInnerContent();
-    this.getCreator().addInnerElement(element);
-  }
-
   public addFilterTag(filterAttribute: string, arrtibuteValue: string, callback: () => void) {
-    console.log('addFilterTag');
     const tag = new FilterTag(filterAttribute, arrtibuteValue, callback);
     this.tagWrapper.append(tag.getElement());
   }

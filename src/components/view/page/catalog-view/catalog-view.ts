@@ -19,7 +19,7 @@ export default class CatalogView extends DefaultView {
 
   private productApi = new ProductApi();
 
-  private filter = new Filter();
+  private filter: Filter;
 
   private observer = Observer.getInstance();
 
@@ -30,6 +30,8 @@ export default class CatalogView extends DefaultView {
       textContent: '',
     };
     super(params);
+
+    this.filter = new Filter(this.productApi);
 
     this.router = router;
 
