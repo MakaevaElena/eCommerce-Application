@@ -3,7 +3,6 @@
 .catalog-view {
   background: url('../../../../assets/images/catalog.jpg') no-repeat top center;
   background-size: cover;
-  // height: 80vh;
   width: 100%;
 
   .content-wrapper {
@@ -12,5 +11,9 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem;
+
+    @media (max-width: 550px) {
+      justify-content: center;
+    }
   }
 }

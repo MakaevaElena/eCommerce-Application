@@ -5,6 +5,8 @@ type Address = {
   postalCode?: string;
   streetName?: string;
   isDefault?: boolean;
+  isDefaultShipping?: boolean;
+  isDefaultBilling?: boolean;
 };
 
 export default Address;

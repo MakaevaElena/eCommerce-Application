@@ -142,4 +142,156 @@ export default class RegApi {
       })
       .execute();
   }
+
+  public addAddress(
+    customerID: string,
+    version: number,
+    street: string,
+    postal: string,
+    city: string,
+    country: string
+  ) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: customerID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'addAddress',
+              address: {
+                streetName: street,
+                postalCode: postal,
+                city: city,
+                country: country,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressShipping(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'addShippingAddressId',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressBilling(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'addBillingAddressId',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressBillingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'setDefaultBillingAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressShippingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'setDefaultShippingAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public changeAddress(
+    userID: string,
+    version: number,
+    addressId: string,
+    street: string,
+    postal: string,
+    city: string,
+    country: string
+  ) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'changeAddress',
+              addressId: addressId,
+              address: {
+                streetName: street,
+                postalCode: postal,
+                city: city,
+                country: country,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public deleteAdress(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: version,
+          actions: [
+            {
+              action: 'removeAddress',
+              addressId: addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }
