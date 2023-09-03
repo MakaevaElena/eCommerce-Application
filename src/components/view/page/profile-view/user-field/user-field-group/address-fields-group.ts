@@ -1,5 +1,6 @@
 import stylesButtonWrap from '../styles/button-wrap-style.module.scss';
 import stylesRedactionMode from '../styles/redaction-mode-style.module.scss';
+import stylesDescription from '../styles/description-country-style.module.scss';
 import TagName from '../../../../../../enum/tag-name';
 import styleGroupFields from '../styles/field-group.module.scss';
 import UserField from '../user-field';
@@ -18,13 +19,13 @@ import RegApi from '../../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../../../message/error-message';
 import WarningMessage from '../../../../../message/warning-message';
-import TextContents from '../../../registration-view/enum/text-contents';
 import { CallbackListener } from '../../../../../../utils/input/inputParams';
 import ButtonCreator from '../../../../../shared/button/button-creator';
 import stylesRedactionButton from '../styles/redaction-button-style.module.scss';
 import StatusCodes from '../../../../../../enum/status-codes';
 import EventName from '../../../../../../enum/event-name';
 import Observer from '../../../../../../observer/observer';
+import Address from '../../types/addresses/address';
 
 export default class AddressFieldsGroup {
   private observer: Observer;
@@ -39,10 +40,6 @@ export default class AddressFieldsGroup {
 
   private countryField: UserField;
 
-  private values: Array<string>;
-
-  private title: HTMLElement;
-
   private confirmButtons: Array<HTMLButtonElement>;
 
   private fields: Array<UserField>;
@@ -50,14 +47,6 @@ export default class AddressFieldsGroup {
   private inputsParams: InputParamsCreator;
 
   private countryOptions: CountryOptions;
-
-  private addressId: string;
-
-  private isDefault: boolean | undefined;
-
-  private isDefaultBilling: boolean | undefined;
-
-  private isDefaultShipping: boolean | undefined;
 
   private makeBillingDefaultButton: HTMLButtonElement;
 
@@ -69,36 +58,23 @@ export default class AddressFieldsGroup {
 
   private deleteAddressButton: HTMLButtonElement;
 
-  private titleContent: string;
-
   private buttonWrap: HTMLDivElement;
 
-  constructor(
-    values: Array<string>,
-    title: string,
-    isDefault: boolean | undefined,
-    isisDefaultBilling: boolean | undefined,
-    isisDefaultShipping: boolean | undefined
-  ) {
+  private values: Array<string>;
+
+  constructor(address: Address) {
     this.deleteAddressButton = this.createDeleteButton();
     this.makeShippingDefaultButton = this.createMakeDefaultShippingButton();
     this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
     this.makeShippingButton = this.createMakeShippingButton();
     this.makeBillingButton = this.createMakeBillingButton();
-    this.isDefault = isDefault;
-    this.isDefaultBilling = isisDefaultBilling;
-    this.isDefaultShipping = isisDefaultShipping;
-    this.titleContent = title;
     this.observer = Observer.getInstance();
 
     this.addressGroup = this.createAddressFieldGroupElement();
-    this.values = values;
-    this.addressId = values[0];
     this.countryOptions = new CountryOptions();
 
     this.inputsParams = new InputParamsCreator();
-
-    this.title = this.createTitle(title);
+    this.values = this.createValues(address);
     this.streetField = this.createStreetField();
     this.cityField = this.createCityField();
     this.postalField = this.createPostalField();
@@ -111,19 +87,18 @@ export default class AddressFieldsGroup {
     this.countryField.getElement().addEventListener(Events.CHANGE, this.validateCountryListHandler.bind(this));
     this.countryField.getElement().addEventListener('change', this.changeCountryHandler.bind(this));
 
-    this.buttonWrap = this.configureButtons();
+    this.buttonWrap = this.configureButtons(address);
 
-    this.configureView();
-    this.makeAddressDefault(this.isDefaultShipping, this.isDefaultBilling);
+    this.configureView(address);
   }
 
   getElement() {
     return this.addressGroup;
   }
 
-  private configureView() {
+  private configureView(address: Address) {
     this.addressGroup.append(
-      this.title,
+      this.createDescription(address),
       this.streetField.getElement(),
       this.cityField.getElement(),
       this.postalField.getElement(),
@@ -146,6 +121,10 @@ export default class AddressFieldsGroup {
     this.confirmButtons.forEach((button) => button.addEventListener(Events.CLICK, this.confirmHandler.bind(this)));
   }
 
+  private createValues(adress: Address): Array<string> {
+    return [adress.id!, adress.streetName!, adress.postalCode!, adress.city!, adress.country!];
+  }
+
   private createAddressFieldGroupElement(): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(styleGroupFields));
@@ -155,7 +134,7 @@ export default class AddressFieldsGroup {
   private createStreetField(): UserField {
     const value = this.values[CountryValues.STREET];
     const userFieldProps: UserFieldProps = {
-      id: 'this.userData.id',
+      id: this.values[CountryValues.ID],
       action: '',
       actionName: '',
       value,
@@ -168,7 +147,7 @@ export default class AddressFieldsGroup {
   private createCityField(): UserField {
     const value = this.values[CountryValues.CITY];
     const userFieldProps: UserFieldProps = {
-      id: 'this.userData.id',
+      id: this.values[CountryValues.ID],
       action: '',
       actionName: '',
       value,
@@ -181,7 +160,7 @@ export default class AddressFieldsGroup {
   private createPostalField(): UserField {
     const value = this.values[CountryValues.POSTAL];
     const userFieldProps: UserFieldProps = {
-      id: 'this.userData.id',
+      id: this.values[CountryValues.ID],
       action: '',
       actionName: '',
       value,
@@ -194,7 +173,7 @@ export default class AddressFieldsGroup {
   private createCountryField(): UserField {
     const value = this.countryOptions.getCountryByCode(this.values[CountryValues.COUNTRY]);
     const userFieldProps: UserFieldProps = {
-      id: 'this.userData.id',
+      id: this.values[CountryValues.ID],
       action: '',
       actionName: '',
       value,
@@ -204,21 +183,29 @@ export default class AddressFieldsGroup {
     return fieldCreator;
   }
 
+  private createDescription(address: Address): HTMLDivElement {
+    const description = document.createElement(TagName.DIV);
+    description.classList.add(...Object.values(stylesDescription));
+
+    if (address.isShining) {
+      description.append(this.createTitle(TextContent.TITLE_ADDRESS_SHIPPING));
+    }
+    if (address.isBilling) {
+      description.append(this.createTitle(TextContent.TITLE_ADDRESS_BILLING));
+    }
+    if (address.isDefaultShipping) {
+      description.append(this.createTitle(TextContent.DEFAULT_ADDRESS_SHIIPPING));
+    }
+    if (address.isDefaultBilling) {
+      description.append(this.createTitle(TextContent.DEFAULT_ADDRESS_BILLING));
+    }
+    return description;
+  }
+
   private createTitle(textContent: string) {
     const title = document.createElement('h3');
     title.textContent = textContent;
     return title;
-  }
-
-  private makeAddressDefault(isDefaultShipping: boolean | undefined, isDefaultBilling: boolean | undefined) {
-    if (isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
-      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_SHIIPPING);
-      this.addressGroup.prepend(subTittle);
-    }
-    if (isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
-      const subTittle = this.createTitle(TextContent.DEFAULT_ADDRESS_BILLING);
-      this.addressGroup.prepend(subTittle);
-    }
   }
 
   private changeCountryHandler(): void {
@@ -280,7 +267,7 @@ export default class AddressFieldsGroup {
             .changeAddress(
               response.body.results[0].id,
               response.body.results[0].version,
-              this.addressId,
+              this.values[CountryValues.ID],
               this.streetField.getInputElement().getInputValue(),
               this.postalField.getInputElement().getInputValue(),
               this.cityField.getInputElement().getInputValue(),
@@ -343,9 +330,13 @@ export default class AddressFieldsGroup {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .makeAddressShippingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
-          .then((response) => {
-            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+          .makeAddressShippingDefault(
+            response.body.results[0].id,
+            response.body.results[0].version,
+            this.values[CountryValues.ID]
+          )
+          .then((responseRes) => {
+            if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
@@ -372,9 +363,13 @@ export default class AddressFieldsGroup {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .makeAddressBillingDefault(response.body.results[0].id, response.body.results[0].version, this.addressId)
-          .then((response) => {
-            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+          .makeAddressBillingDefault(
+            response.body.results[0].id,
+            response.body.results[0].version,
+            this.values[CountryValues.ID]
+          )
+          .then((responseRes) => {
+            if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
@@ -401,9 +396,9 @@ export default class AddressFieldsGroup {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.addressId)
-          .then((response) => {
-            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+          .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.values[CountryValues.ID])
+          .then((responseRes) => {
+            if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
@@ -430,9 +425,13 @@ export default class AddressFieldsGroup {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .makeAddressShipping(response.body.results[0].id, response.body.results[0].version, this.addressId)
-          .then((response) => {
-            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+          .makeAddressShipping(
+            response.body.results[0].id,
+            response.body.results[0].version,
+            this.values[CountryValues.ID]
+          )
+          .then((responseRes) => {
+            if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
@@ -459,9 +458,13 @@ export default class AddressFieldsGroup {
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         api
-          .makeAddressBilling(response.body.results[0].id, response.body.results[0].version, this.addressId)
-          .then((response) => {
-            if (response.statusCode === StatusCodes.USER_VALUE_CHANGED) {
+          .makeAddressBilling(
+            response.body.results[0].id,
+            response.body.results[0].version,
+            this.values[CountryValues.ID]
+          )
+          .then((responseRes) => {
+            if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
               this.observer.notify(EventName.ADDRESS_CHANGED);
             }
           })
@@ -479,34 +482,33 @@ export default class AddressFieldsGroup {
     return button.getButton();
   }
 
-  private configureButtons(): HTMLDivElement {
+  private configureButtons(address: Address): HTMLDivElement {
     const buttonWrap = document.createElement(TagName.DIV);
     buttonWrap.classList.add(...Object.values(stylesButtonWrap));
-    if (this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
-      buttonWrap.append(this.makeBillingButton);
-    } else {
-      buttonWrap.append(this.makeShippingButton);
-    }
-    if (this.isDefaultBilling) {
-      buttonWrap.append(this.makeShippingDefaultButton);
-    }
-    if (this.isDefaultShipping) {
-      buttonWrap.append(this.makeBillingDefaultButton);
+    buttonWrap.append(
+      this.deleteAddressButton,
+      this.makeShippingButton,
+      this.makeBillingButton,
+      this.makeShippingDefaultButton,
+      this.makeBillingDefaultButton
+    );
+
+    if (address.isShining) {
+      buttonWrap.removeChild(this.makeShippingButton);
     }
 
-    if (this.isDefaultShipping && this.titleContent === TextContent.TITLE_ADDRESS_BILLING) {
-      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    if (address.isBilling) {
+      buttonWrap.removeChild(this.makeBillingButton);
     }
 
-    if (this.isDefaultBilling && this.titleContent === TextContent.TITLE_ADDRESS_SHIPPING) {
-      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    if (address.isDefaultShipping) {
+      buttonWrap.removeChild(this.makeShippingDefaultButton);
     }
 
-    if (!this.isDefault) {
-      buttonWrap.append(this.makeShippingDefaultButton, this.makeBillingDefaultButton);
+    if (address.isDefaultBilling) {
+      buttonWrap.removeChild(this.makeBillingDefaultButton);
     }
 
-    buttonWrap.append(this.deleteAddressButton);
     return buttonWrap;
   }
 }

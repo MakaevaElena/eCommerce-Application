@@ -9,6 +9,7 @@ type UserData = {
   dateOfBirth: string;
   shippingAddresses: Array<Address>;
   billingAddresses: Array<Address>;
+  addresses: Array<Address>;
 };
 
 export default UserData;

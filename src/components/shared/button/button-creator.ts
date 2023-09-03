@@ -2,7 +2,7 @@ import styleButton from './button-style.module.scss';
 import { CallbackListener } from '../../../utils/input/inputParams';
 import TagName from '../../../enum/tag-name';
 
-export default class buttonCreator {
+export default class ButtonCreator {
   private button: HTMLButtonElement;
 
   private textContent: string;

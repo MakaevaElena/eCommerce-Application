@@ -4,7 +4,6 @@ enum CountryValues {
   POSTAL,
   CITY,
   COUNTRY,
-  IS_DEFAULT,
 }
 
 export default CountryValues;

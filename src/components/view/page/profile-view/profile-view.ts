@@ -27,10 +27,8 @@ import ButtonCreator from '../../../shared/button/button-creator';
 import Events from '../../../../enum/events';
 import stylesRedactionButton from './user-field/styles/redaction-button-style.module.scss';
 import AddressCreator from './address-creator/address-creator';
-import WarningMessage from '../../../message/warning-message';
 import InfoMessage from '../../../message/info-message';
 import ErrorMessage from '../../../message/error-message';
-import textContent from './enum/text-content';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -135,9 +133,8 @@ export default class ProfileView extends DefaultView {
     );
     const fields = this.createUserField();
     const wrap = new TagElement().createTagElement('div', Object.values(styleWrap));
-    const addressShippingGroup = this.createAddressGroup(this.userData.shippingAddresses);
-    const addressBillingGroup = this.createAddressGroup(this.userData.billingAddresses);
-    wrap.append(fields, ...addressShippingGroup, ...addressBillingGroup);
+    const addressGroups = this.createAddressGroup(this.userData.addresses);
+    wrap.append(fields, ...addressGroups);
 
     this.wrapper.append(wrap);
   }
@@ -179,77 +176,71 @@ export default class ProfileView extends DefaultView {
             userData.dateOfBirth = results.dateOfBirth;
           }
 
-          userData.shippingAddresses = this.getShippingBillingAddresses(
+          userData.addresses = this.createAddresses(
             results.addresses,
             results.shippingAddressIds,
-            results.defaultShippingAddressId,
-            'shipping'
-          );
-          userData.billingAddresses = this.getShippingBillingAddresses(
-            results.addresses,
             results.billingAddressIds,
-            results.defaultBillingAddressId,
-            'billing'
+            results.defaultShippingAddressId,
+            results.defaultBillingAddressId
           );
 
-          this.configView();
           return userData;
         })
+        .then(() => this.configView())
         .catch((error) => {
-          console.log(error.message);
+          this.showErrorMessage(error.message);
         });
     }
 
     return userData;
   }
 
-  private getShippingBillingAddresses(
-    allAddresses: Array<Address>,
-    addressesGroup: string[] | undefined,
-    defaultId: string | undefined,
-    group: string
-  ) {
-    const addresses: Array<Address> = [];
-    if (addressesGroup !== undefined) {
-      allAddresses.forEach((address) => {
-        if (addressesGroup.includes(address.id!)) {
-          if (address.id === defaultId && group === 'shipping') {
-            address.isDefault = true;
-            address.isDefaultShipping = true;
-          }
-          if (address.id === defaultId && group === 'billing') {
-            address.isDefault = true;
-            address.isDefaultBilling = true;
-          }
-          addresses.push(address);
-        }
-      });
-    }
+  private createAddressGroup(addressArray: Array<Address>): Array<HTMLDivElement> {
+    const addresses: Array<HTMLDivElement> = [];
+    addressArray.forEach((address) => {
+      const addressGroup = new AddressFieldsGroup(address);
+      addresses.push(addressGroup.getElement());
+    });
+
     return addresses;
   }
 
-  private createAddressGroup(addressArray: Array<Address>): Array<HTMLDivElement> {
-    const addresses: Array<HTMLDivElement> = [];
-    let title = '';
-    title =
-      addressArray === this.userData.shippingAddresses
-        ? TextContent.TITLE_ADDRESS_SHIPPING
-        : TextContent.TITLE_ADDRESS_BILLING;
-    addressArray.forEach((address) => {
-      const values: Array<string> = [];
-      Object.values(address).forEach((value) => {
-        if (typeof value !== 'boolean') {
-          values.push(value);
+  private createAddresses(
+    allAddresses: Array<Address>,
+    shippingID: Array<string> | undefined,
+    billingId: Array<string> | undefined,
+    defaultShippingId: string | undefined,
+    defaultBillingId: string | undefined
+  ): Array<Address> {
+    const addresses: Array<Address> = [];
+    allAddresses.forEach((address) => {
+      if (typeof address.id !== 'undefined') {
+        if (typeof shippingID !== 'undefined') {
+          if (shippingID.includes(address.id)) {
+            address.isShining = true;
+          }
         }
-      });
-      const addressGroup = new AddressFieldsGroup(
-        values,
-        title,
-        address.isDefault,
-        address.isDefaultBilling,
-        address.isDefaultShipping
-      );
-      addresses.push(addressGroup.getElement());
+
+        if (typeof billingId !== 'undefined') {
+          if (billingId.includes(address.id!)) {
+            address.isBilling = true;
+          }
+        }
+
+        if (typeof defaultShippingId !== 'undefined') {
+          if (defaultShippingId === address.id!) {
+            address.isDefaultShipping = true;
+          }
+        }
+
+        if (typeof defaultBillingId !== 'undefined') {
+          if (defaultBillingId === address.id!) {
+            address.isDefaultBilling = true;
+          }
+        }
+      }
+
+      addresses.push(address);
     });
 
     return addresses;
@@ -289,10 +280,6 @@ export default class ProfileView extends DefaultView {
     ];
   }
 
-  // private createButtonsAddressesAdd() {
-  //   const buttonAddShippingAddress = this.createButton(TextContent.ADD_SHIPPING_ADDRESS_BUTTON);
-  //   const buttonAddBillingAddress = this.createButton(TextContent.ADD_BILLING_ADDRESS_BUTTON);
-  // }
   private createButton(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
     const button = new ButtonCreator(textContent, Object.values(stylesRedactionButton), eventListener, event);
     return button.getButton();
@@ -313,7 +300,10 @@ export default class ProfileView extends DefaultView {
           id: message,
           postalCode: message,
           streetName: message,
-          isDefault: false,
+          isDefaultShipping: false,
+          isDefaultBilling: false,
+          isShining: false,
+          isBilling: false,
         },
       ],
       billingAddresses: [
@@ -323,7 +313,23 @@ export default class ProfileView extends DefaultView {
           id: message,
           postalCode: message,
           streetName: message,
-          isDefault: false,
+          isDefaultShipping: false,
+          isDefaultBilling: false,
+          isShining: false,
+          isBilling: false,
+        },
+      ],
+      addresses: [
+        {
+          city: message,
+          country: message,
+          id: message,
+          postalCode: message,
+          streetName: message,
+          isDefaultShipping: false,
+          isDefaultBilling: false,
+          isShining: false,
+          isBilling: false,
         },
       ],
     };
@@ -349,11 +355,6 @@ export default class ProfileView extends DefaultView {
   private addBillingAddressHandler() {
     const addressCreator = new AddressCreator(this.wrapper, false);
     this.wrapper.append(addressCreator.getElement());
-  }
-
-  private showWarningMessage(textContent: string) {
-    const messageShower = new WarningMessage();
-    messageShower.showMessage(textContent);
   }
 
   private showInfoMessage(textContent: string) {
