@@ -11,15 +11,20 @@ import ErrorMessage from '../../../message/error-message';
 import Filter from './filter/filter';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import SortView from './sort/sort';
 
 export default class CatalogView extends DefaultView {
   private router: Router;
 
   private cardsWrapper: HTMLDivElement;
 
+  private controlsWrapper: HTMLDivElement;
+
   private productApi = new ProductApi();
 
   private filter: Filter;
+
+  private sorting: SortView;
 
   private observer = Observer.getInstance();
 
@@ -33,20 +38,19 @@ export default class CatalogView extends DefaultView {
 
     this.filter = new Filter(this.productApi);
 
+    this.sorting = new SortView();
+
     this.router = router;
 
-    this.observer.subscribe(EventName.SHOW_FILTER, this.showFilterPopup.bind(this));
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
+
+    this.controlsWrapper = new TagElement().createTagElement('div', [styleCss['controls-wrapper']]);
 
     this.cardsWrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.cardsWrapper);
 
     this.configView();
-  }
-
-  private showFilterPopup() {
-    console.log('Show filter popup!');
   }
 
   private recallProductCards() {
@@ -68,9 +72,12 @@ export default class CatalogView extends DefaultView {
 
   private createContent() {
     const filterHeader = this.filter.getFilterHeaderElement();
-    this.getElement().append(filterHeader, this.cardsWrapper);
+    const sortingElement = this.sorting.getElement();
+
+    this.controlsWrapper.append(filterHeader, sortingElement);
+    this.getElement().append(this.controlsWrapper, this.cardsWrapper);
+    // this.getElement().append(filterHeader, this.cardsWrapper);
     this.getConditionalProducts();
-    // this.getProducts();
   }
 
   private getProducts() {
