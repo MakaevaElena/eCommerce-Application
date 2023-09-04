@@ -4,15 +4,21 @@ import styleCss from './sort.module.scss';
 import { ElementParams } from '../../../../../utils/element-creator';
 import TagElement from '../../../../../utils/create-tag-element';
 import { SortOrderSymbol, SortOrderValue } from './enum';
+import Observer from '../../../../../observer/observer';
+import EventName from '../../../../../enum/event-name';
 
 export default class SortView extends DefaultView {
-  private sortCondition = '';
+  private sortCondition = SortOrderValue.NAME_ASC;
+
+  private observer = Observer.getInstance();
+
+  private sortList: HTMLSelectElement;
 
   private options = [
     { title: `Name ${SortOrderSymbol.ASC}`, value: SortOrderValue.NAME_ASC },
-    { title: `Name ${SortOrderSymbol.DESC}`, value: SortOrderValue.NAME_ASC },
-    { title: `Price ${SortOrderSymbol.ASC}`, value: SortOrderValue.NAME_ASC },
-    { title: `Price ${SortOrderSymbol.DESC}`, value: SortOrderValue.NAME_ASC },
+    { title: `Name ${SortOrderSymbol.DESC}`, value: SortOrderValue.NAME_DESC },
+    { title: `Price ${SortOrderSymbol.ASC}`, value: SortOrderValue.PRICE_ASC },
+    { title: `Price ${SortOrderSymbol.DESC}`, value: SortOrderValue.PRICE_DESC },
   ];
 
   constructor() {
@@ -22,21 +28,29 @@ export default class SortView extends DefaultView {
       textContent: '',
     };
     super(params);
+
+    this.sortList = this.createSortList();
+
     this.configView();
   }
 
   private configView() {
-    const list = this.createSortList();
+    this.sortList.addEventListener('change', this.sortHandler.bind(this));
 
-    this.getElement().append(list);
+    this.getElement().append(this.sortList);
   }
 
-  public getSortCondition() {
-    return this.sortCondition;
+  public getSortCondition(): SortOrderValue {
+    const selected: SortOrderValue = this.options[this.sortList.selectedIndex].value;
+    return selected;
+  }
+
+  private sortHandler() {
+    this.observer.notify(EventName.UPDATE_CATALOG_CARDS);
   }
 
   private createSortList() {
-    const creator = new TagElement()
+    const creator = new TagElement();
     const list = creator.createTagElement('select', [styleCss['sort-header__list']]);
 
     this.options.forEach((option) => {
@@ -45,8 +59,6 @@ export default class SortView extends DefaultView {
 
       list.append(element);
     });
-
-    // list.setAttribute('type', 'dropdown');
 
     return list;
   }

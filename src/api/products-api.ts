@@ -53,7 +53,6 @@ export default class ProductApi {
           limit: this.MAX_PRODUCTS,
           // where: 'masterData(current(masterVariant(prices(country="US" and value(centAmount=5300)))))',
           where: whereCondition,
-          // sort: ''
         },
       })
       .execute();

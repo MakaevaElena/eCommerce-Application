@@ -25,8 +25,6 @@ export default class FilterHeaderView extends DefaultView {
     this.tagWrapper = this.createTagWrapper();
     this.observer = Observer.getInstance();
 
-    // this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.updateHeaderHandler.bind(this));
-
     this.configView();
   }
 

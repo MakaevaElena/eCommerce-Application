@@ -58,7 +58,7 @@
 .product-card__title {
   display: flex;
   justify-content: center;
-  align-items: center;
+  overflow: hidden;
   height: 2.5rem;
   font-size: 1rem;
   font-weight: 700;
