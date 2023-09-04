@@ -1,4 +1,4 @@
-import { Product } from '@commercetools/platform-sdk';
+import { Product, ProductProjection } from '@commercetools/platform-sdk';
 import ProductApi from '../../../../api/products-api';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
@@ -12,15 +12,16 @@ import Filter from './filter/filter';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import SortView from './sort/sort';
+import SearchInput from '../../../shared/search-input/search-input';
+import SearchProductCard from '../../../shared/product-card/search-product-card';
+import WarningMessage from '../../../message/warning-message';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
 
   private readonly COUNTRY = 'US';
 
-  private readonly WATCH_DOG_COUNTER = 2;
-
-  private readonly ERROR_MESSAGE_ANONYM = 'The anonymousId';
+  private readonly NOT_FOUND = 'Products not found';
 
   private router: Router;
 
@@ -32,13 +33,13 @@ export default class CatalogView extends DefaultView {
 
   private filter: Filter;
 
+  private search: SearchInput;
+
   private sorting: SortView;
 
   private observer = Observer.getInstance();
 
   private sortMapping = [this.sortByNameAsc, this.sortByNameDesc, this.sortByPriceAsc, this.sortByPriceDesc];
-
-  private retryCounter = this.WATCH_DOG_COUNTER;
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -49,6 +50,8 @@ export default class CatalogView extends DefaultView {
     super(params);
 
     this.filter = new Filter(this.productApi);
+
+    this.search = new SearchInput(this.getSearchProducts.bind(this));
 
     this.sorting = new SortView();
 
@@ -66,6 +69,7 @@ export default class CatalogView extends DefaultView {
   }
 
   private recallProductCards() {
+    this.search.clear();
     this.getConditionalProducts();
   }
 
@@ -86,21 +90,31 @@ export default class CatalogView extends DefaultView {
     const filterHeader = this.filter.getFilterHeaderElement();
     const sortingElement = this.sorting.getElement();
 
-    this.controlsWrapper.append(filterHeader, sortingElement);
+    this.controlsWrapper.append(filterHeader, this.search.getElement(), sortingElement);
     this.getElement().append(this.controlsWrapper, this.cardsWrapper);
     this.getConditionalProducts();
-    this.productApi.getSearchProducts('A').then((responce) => console.log('Search responce: ', responce));
   }
 
-  // private getProducts() {
-  //   this.productApi
-  //     .getProducts()
-  //     .then((response) => {
-  //       const products = response.body.results;
-  //       this.createProductCards(products);
-  //     })
-  //     .catch((error) => new ErrorMessage().showMessage(error.message));
-  // }
+  private getSearchProducts() {
+    const searchString = this.search.getElement().value.trim();
+
+    if (!searchString) {
+      this.getConditionalProducts();
+    } else {
+      this.productApi
+        .getSearchProducts(searchString)
+        .then((response) => {
+          const productProjections = response.body.results;
+          if (productProjections.length) {
+            this.filter.clearFilters();
+            this.createSearchProductCards(productProjections);
+          } else {
+            new WarningMessage().showMessage(this.NOT_FOUND);
+          }
+        })
+        .catch((error) => new ErrorMessage().showMessage(error.message));
+    }
+  }
 
   private getConditionalProducts() {
     const where = this.filter.getWhereCondition();
@@ -108,21 +122,13 @@ export default class CatalogView extends DefaultView {
     this.productApi
       .getConditionalProducts(where)
       .then((response) => {
-        console.log('Retry before: ', this.retryCounter);
         const products = response.body.results;
         this.sortProducts(products);
         this.createProductCards(products);
-        this.retryCounter = this.WATCH_DOG_COUNTER;
       })
       .catch((error) => {
         if (error instanceof Error) {
           new ErrorMessage().showMessage(error.message);
-          this.retryCounter -= 1;
-          console.log('Retry error: ', this.retryCounter);
-          if (error.message.startsWith(this.ERROR_MESSAGE_ANONYM)) {
-            this.productApi = new ProductApi();
-            setTimeout(this.getConditionalProducts.bind(this), 1000);
-          }
         }
       });
   }
@@ -199,6 +205,16 @@ export default class CatalogView extends DefaultView {
     products.forEach((product) => {
       if (product.key) {
         const card = new ProductCard(product, this.router);
+        this.cardsWrapper.append(card.getElement());
+      }
+    });
+  }
+
+  private createSearchProductCards(products: ProductProjection[]) {
+    this.cardsWrapper.replaceChildren('');
+    products.forEach((product) => {
+      if (product.key) {
+        const card = new SearchProductCard(product, this.router);
         this.cardsWrapper.append(card.getElement());
       }
     });

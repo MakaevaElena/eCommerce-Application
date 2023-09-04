@@ -11,7 +11,6 @@ export enum Template {
   ATTRIBUTE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key in (%VALUE%))))))',
   ATTRIBUTE_DEVELOPER_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value in (%VALUE%)))))',
   WHERE_PRICE_MASK = 'masterData(current(masterVariant(prices(country="%COUNTY%" and value(centAmount>=%MIN_PRICE%) and value(centAmount<=%MAX_PRICE%)))))',
-  DEFAULT_WHERE = 'masterData(current(masterVariant(attributes(name>""))))',
 }
 
 export default class ProductApi {
@@ -44,7 +43,6 @@ export default class ProductApi {
   }
 
   public getConditionalProducts(where?: string) {
-    const whereCondition = where || Template.DEFAULT_WHERE;
     const args: {
       where?: string | string[];
       limit: number;
@@ -64,18 +62,30 @@ export default class ProductApi {
       .execute();
   }
 
-  public getSearchProducts(searched: string) {
+  public getSearchProducts(toSearch: string) {
     return this.clientRoot
       .productProjections()
       .search()
       .get({
         queryArgs: {
-          // filter: ['key'],
-          // facet: ['masterVariant.attributes'],
-          // filter: ['createdAt: "2023-08-06T04:59:14.959Z"'],
-          filter: [
-            'description: "Discover the true meaning of fear in Alien: Isolat…ucceed in your mission, but to simply stay alive."',
-          ],
+          'text.en': toSearch,
+          fuzzy: true,
+          facet: ['description.en'],
+          limit: this.MAX_PRODUCTS,
+        },
+      })
+      .execute();
+  }
+
+  public getProductProjections(toSearch: string) {
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
+        queryArgs: {
+          'text.en': toSearch,
+          fuzzy: true,
+          facet: ['description.en'],
           limit: this.MAX_PRODUCTS,
         },
       })
