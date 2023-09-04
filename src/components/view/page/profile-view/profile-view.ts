@@ -70,6 +70,7 @@ export default class ProfileView extends DefaultView {
     this.observer.subscribe(EventName.LOGIN, this.login.bind(this));
     this.observer.subscribe(EventName.LOGOUT, this.logoutListener.bind(this));
     this.observer.subscribe(EventName.ADDRESS_CHANGED, this.addressChangedHandler.bind(this));
+    this.observer.subscribe(EventName.ADDRESS_ADDED, this.addressAddHandler.bind(this));
   }
 
   public setContent(element: InsertableElement) {
@@ -86,6 +87,11 @@ export default class ProfileView extends DefaultView {
   }
 
   private addressChangedHandler() {
+    this.userData = this.request();
+    this.showInfoMessage(TextContent.CHANGE_ADRESS_OK);
+  }
+
+  private addressAddHandler() {
     this.userData = this.request();
     this.showInfoMessage(TextContent.ADD_ADRESS_OK);
   }
@@ -188,7 +194,11 @@ export default class ProfileView extends DefaultView {
         })
         .then(() => this.configView())
         .catch((error) => {
-          this.showErrorMessage(error.message);
+          if (error.message === 'The anonymousId is already in use.') {
+            this.userData = this.request();
+          } else {
+            this.showErrorMessage(error.message);
+          }
         });
     }
 

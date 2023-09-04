@@ -286,7 +286,11 @@ export default class AddressFieldsGroup {
           });
         })
         .catch((error) => {
-          this.showErrorMessage(error.message);
+          if (error.message === 'The anonymousId is already in use.') {
+            this.confirmHandler();
+          } else {
+            this.showErrorMessage(error.message);
+          }
         });
     }
   }
@@ -345,7 +349,11 @@ export default class AddressFieldsGroup {
           });
       })
       .catch((error) => {
-        this.showErrorMessage(error);
+        if (error.message === 'The anonymousId is already in use.') {
+          this.makeDefaulShippingtHandler();
+        } else {
+          this.showErrorMessage(error.message);
+        }
       });
   }
 
@@ -407,7 +415,11 @@ export default class AddressFieldsGroup {
           });
       })
       .catch((error) => {
-        this.showErrorMessage(error);
+        if (error.message === 'The anonymousId is already in use.') {
+          this.deleteAdressButtonHAndler();
+        } else {
+          this.showErrorMessage(error.message);
+        }
       });
   }
 
@@ -473,7 +485,11 @@ export default class AddressFieldsGroup {
           });
       })
       .catch((error) => {
-        this.showErrorMessage(error);
+        if (error.message === 'The anonymousId is already in use.') {
+          this.makeBillingHandler();
+        } else {
+          this.showErrorMessage(error.message);
+        }
       });
   }
 

@@ -296,7 +296,7 @@ export default class AddressCreator {
           })
           .then((result) => {
             if (result!.statusCode! === StatusCodes.USER_VALUE_CHANGED) {
-              this.observer.notify(EventName.ADDRESS_CHANGED);
+              this.observer.notify(EventName.ADDRESS_ADDED);
             }
           })
           .catch((error) => {
@@ -304,7 +304,11 @@ export default class AddressCreator {
           });
       })
       .catch((error) => {
-        this.showErrorMessage(error.message);
+        if (error.message === 'The anonymousId is already in use.') {
+          this.changeAdress();
+        } else {
+          this.showErrorMessage(error.message);
+        }
       });
   }
 
