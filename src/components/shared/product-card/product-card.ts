@@ -4,7 +4,6 @@ import Router from '../../router/router';
 import DefaultView from '../../view/default-view';
 import { ElementParams } from '../../../utils/element-creator';
 import TagName from '../../../enum/tag-name';
-import ProductApi from '../../../api/products-api';
 import TagElement from '../../../utils/create-tag-element';
 import { PagePath } from '../../router/pages';
 import Strings from './strings';
@@ -23,8 +22,6 @@ export default class ProductCard extends DefaultView {
 
   private router: Router;
 
-  private productApi: ProductApi;
-
   private product: Product;
 
   private creator = new TagElement();
@@ -39,7 +36,6 @@ export default class ProductCard extends DefaultView {
 
     this.product = product;
     this.router = router;
-    this.productApi = new ProductApi();
 
     this.configView();
   }
