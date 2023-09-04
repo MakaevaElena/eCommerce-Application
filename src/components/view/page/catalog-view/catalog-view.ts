@@ -11,17 +11,28 @@ import ErrorMessage from '../../../message/error-message';
 import Filter from './filter/filter';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import SortView from './sort/sort';
 
 export default class CatalogView extends DefaultView {
+  private readonly LANG = 'en-US';
+
+  private readonly COUNTRY = 'US';
+
   private router: Router;
 
   private cardsWrapper: HTMLDivElement;
+
+  private controlsWrapper: HTMLDivElement;
 
   private productApi = new ProductApi();
 
   private filter: Filter;
 
+  private sorting: SortView;
+
   private observer = Observer.getInstance();
+
+  private sortMapping = [this.sortByNameAsc, this.sortByNameDesc, this.sortByPriceAsc, this.sortByPriceDesc];
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -33,20 +44,19 @@ export default class CatalogView extends DefaultView {
 
     this.filter = new Filter(this.productApi);
 
+    this.sorting = new SortView();
+
     this.router = router;
 
-    this.observer.subscribe(EventName.SHOW_FILTER, this.showFilterPopup.bind(this));
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
+
+    this.controlsWrapper = new TagElement().createTagElement('div', [styleCss['controls-wrapper']]);
 
     this.cardsWrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
     this.getCreator().addInnerElement(this.cardsWrapper);
 
     this.configView();
-  }
-
-  private showFilterPopup() {
-    console.log('Show filter popup!');
   }
 
   private recallProductCards() {
@@ -68,9 +78,11 @@ export default class CatalogView extends DefaultView {
 
   private createContent() {
     const filterHeader = this.filter.getFilterHeaderElement();
-    this.getElement().append(filterHeader, this.cardsWrapper);
+    const sortingElement = this.sorting.getElement();
+
+    this.controlsWrapper.append(filterHeader, sortingElement);
+    this.getElement().append(this.controlsWrapper, this.cardsWrapper);
     this.getConditionalProducts();
-    // this.getProducts();
   }
 
   private getProducts() {
@@ -90,9 +102,77 @@ export default class CatalogView extends DefaultView {
       .getConditionalProducts(where)
       .then((response) => {
         const products = response.body.results;
+        this.sortProducts(products);
         this.createProductCards(products);
       })
       .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
+  private sortProducts(products: Product[]) {
+    const sortOrder = this.sorting.getSortCondition();
+    products.sort(this.sortMapping[sortOrder].bind(this));
+  }
+
+  private sortByNameAsc(product1: Product, product2: Product) {
+    const name1 = product1.masterData.current.name[this.LANG];
+    const name2 = product2.masterData.current.name[this.LANG];
+    if (name1 > name2) {
+      return 1;
+    }
+    if (name1 < name2) {
+      return -1;
+    }
+    return 0;
+  }
+
+  private sortByNameDesc(product1: Product, product2: Product) {
+    const name1 = product1.masterData.current.name[this.LANG];
+    const name2 = product2.masterData.current.name[this.LANG];
+    if (name1 > name2) {
+      return -1;
+    }
+    if (name1 < name2) {
+      return 1;
+    }
+    return 0;
+  }
+
+  private sortByPriceDesc(product1: Product, product2: Product) {
+    const price1 = this.getProductPrice(product1);
+
+    const price2 = this.getProductPrice(product2);
+
+    if (price1 > price2) {
+      return -1;
+    }
+    if (price1 < price2) {
+      return 1;
+    }
+    return 0;
+  }
+
+  private sortByPriceAsc(product1: Product, product2: Product) {
+    const price1 = this.getProductPrice(product1);
+
+    const price2 = this.getProductPrice(product2);
+
+    if (price1 > price2) {
+      return 1;
+    }
+    if (price1 < price2) {
+      return -1;
+    }
+    return 0;
+  }
+
+  private getProductPrice(product: Product): number {
+    const priceElement = product.masterData.current.masterVariant.prices?.find(
+      (price) => price.country === this.COUNTRY
+    );
+    const price = priceElement ? priceElement.value.centAmount : 0;
+    const discount = price ? priceElement?.discounted?.value.centAmount : 0;
+
+    return discount || price;
   }
 
   private createProductCards(products: Product[]) {

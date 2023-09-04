@@ -13,7 +13,6 @@ export default class FilterCheckbox implements IFilterInput {
 
   private callback: () => void;
 
-  // constructor(title: string, checked: boolean, callback: () => void) {
   constructor(checkboxLabel: string, filters: string[], callback: () => void = () => {}) {
     this.label = checkboxLabel;
     this.filters = filters;
@@ -38,15 +37,11 @@ export default class FilterCheckbox implements IFilterInput {
   public updateSource() {
     const index = this.filters.indexOf(this.label);
     if (this.checkbox.checked && index < 0) {
-      console.log(`Added ${this.label}`);
       this.filters.push(this.label);
     }
 
     if (!this.checkbox.checked && index >= 0) {
-      console.log(`Removed ${this.label}`);
       this.filters.splice(index);
     }
-
-    // this.callback();
   }
 }

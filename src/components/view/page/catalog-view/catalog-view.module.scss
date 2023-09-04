@@ -5,6 +5,11 @@
   background-size: cover;
   width: 100%;
 
+  .controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .content-wrapper {
     display: flex;
     flex-wrap: wrap;
