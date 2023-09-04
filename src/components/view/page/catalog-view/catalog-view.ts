@@ -18,6 +18,10 @@ export default class CatalogView extends DefaultView {
 
   private readonly COUNTRY = 'US';
 
+  private readonly WATCH_DOG_COUNTER = 2;
+
+  private readonly ERROR_MESSAGE_ANONYM = 'The anonymousId';
+
   private router: Router;
 
   private cardsWrapper: HTMLDivElement;
@@ -33,6 +37,8 @@ export default class CatalogView extends DefaultView {
   private observer = Observer.getInstance();
 
   private sortMapping = [this.sortByNameAsc, this.sortByNameDesc, this.sortByPriceAsc, this.sortByPriceDesc];
+
+  private retryCounter = this.WATCH_DOG_COUNTER;
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -83,17 +89,18 @@ export default class CatalogView extends DefaultView {
     this.controlsWrapper.append(filterHeader, sortingElement);
     this.getElement().append(this.controlsWrapper, this.cardsWrapper);
     this.getConditionalProducts();
+    this.productApi.getSearchProducts('A').then((responce) => console.log('Search responce: ', responce));
   }
 
-  private getProducts() {
-    this.productApi
-      .getProducts()
-      .then((response) => {
-        const products = response.body.results;
-        this.createProductCards(products);
-      })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
-  }
+  // private getProducts() {
+  //   this.productApi
+  //     .getProducts()
+  //     .then((response) => {
+  //       const products = response.body.results;
+  //       this.createProductCards(products);
+  //     })
+  //     .catch((error) => new ErrorMessage().showMessage(error.message));
+  // }
 
   private getConditionalProducts() {
     const where = this.filter.getWhereCondition();
@@ -101,11 +108,23 @@ export default class CatalogView extends DefaultView {
     this.productApi
       .getConditionalProducts(where)
       .then((response) => {
+        console.log('Retry before: ', this.retryCounter);
         const products = response.body.results;
         this.sortProducts(products);
         this.createProductCards(products);
+        this.retryCounter = this.WATCH_DOG_COUNTER;
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+          this.retryCounter -= 1;
+          console.log('Retry error: ', this.retryCounter);
+          if (error.message.startsWith(this.ERROR_MESSAGE_ANONYM)) {
+            this.productApi = new ProductApi();
+            setTimeout(this.getConditionalProducts.bind(this), 1000);
+          }
+        }
+      });
   }
 
   private sortProducts(products: Product[]) {

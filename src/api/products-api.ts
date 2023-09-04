@@ -45,14 +45,38 @@ export default class ProductApi {
 
   public getConditionalProducts(where?: string) {
     const whereCondition = where || Template.DEFAULT_WHERE;
+    const args: {
+      where?: string | string[];
+      limit: number;
+    } = {
+      limit: this.MAX_PRODUCTS,
+    };
+
+    if (where) {
+      args.where = where;
+    }
 
     return this.clientRoot
       .products()
       .get({
+        queryArgs: args,
+      })
+      .execute();
+  }
+
+  public getSearchProducts(searched: string) {
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
         queryArgs: {
+          // filter: ['key'],
+          // facet: ['masterVariant.attributes'],
+          // filter: ['createdAt: "2023-08-06T04:59:14.959Z"'],
+          filter: [
+            'description: "Discover the true meaning of fear in Alien: Isolat…ucceed in your mission, but to simply stay alive."',
+          ],
           limit: this.MAX_PRODUCTS,
-          // where: 'masterData(current(masterVariant(prices(country="US" and value(centAmount=5300)))))',
-          where: whereCondition,
         },
       })
       .execute();
