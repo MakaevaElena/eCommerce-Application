@@ -7,7 +7,7 @@ import stylePasswordWrap from '../user-field/styles/password-wrap-style.module.s
 import stylePasswordChanger from '../user-field/styles/password-chenger-style.module.scss';
 import { CallbackListener, InputParams } from '../../../../../utils/input/inputParams';
 import stylePasswordField from '../user-field/styles/password-fields-style.module.scss';
-import { InputLabels, InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
+import { InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
 import ButtonCreator from '../../../../shared/button/button-creator';
 import WarningMessage from '../../../../message/warning-message';
 import InfoMessage from '../../../../message/info-message';
@@ -250,17 +250,17 @@ export default class AddressCreator {
             }
           })
           .then((result) => {
-            if (this.isShiping) {
-              if (result !== undefined) {
+            if (result !== undefined) {
+              if (this.isShiping) {
                 api
                   .makeAddressShipping(response.body.results[0].id, result.version, result.id!)
-                  .then((response) => {
+                  .then((responseRes) => {
                     if (this.isDefault) {
                       api
                         .makeAddressShippingDefault(
-                          response.body.id,
-                          response.body.version,
-                          response.body.addresses[response.body.addresses.length - 1].id!
+                          responseRes.body.id,
+                          responseRes.body.version,
+                          responseRes.body.addresses[responseRes.body.addresses.length - 1].id!
                         )
                         .catch((error) => {
                           this.showErrorMessage(error);
@@ -270,18 +270,16 @@ export default class AddressCreator {
                   .catch((error) => {
                     this.showErrorMessage(error);
                   });
-              }
-            } else {
-              if (result !== undefined) {
+              } else {
                 api
                   .makeAddressBilling(response.body.results[0].id, result.version, result.id!)
-                  .then((response) => {
+                  .then((responseRes) => {
                     if (this.isDefault) {
                       api
                         .makeAddressBillingDefault(
-                          response.body.id,
-                          response.body.version,
-                          response.body.addresses[response.body.addresses.length - 1].id!
+                          responseRes.body.id,
+                          responseRes.body.version,
+                          responseRes.body.addresses[responseRes.body.addresses.length - 1].id!
                         )
                         .catch((error) => {
                           this.showErrorMessage(error);
@@ -293,6 +291,7 @@ export default class AddressCreator {
                   });
               }
             }
+
             return result;
           })
           .then((result) => {

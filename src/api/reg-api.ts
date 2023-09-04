@@ -113,10 +113,8 @@ export default class RegApi {
       .customers()
       .withId({ ID: customerID })
       .post({
-        // The CustomerUpdate is the object within the body
         body: {
-          // The version of a new Customer is 1. This value is incremented every time an update action is applied to the Customer. If the specified version does not match the current version, the request returns an error.
-          version: version,
+          version,
           actions: [
             {
               action,
@@ -135,9 +133,9 @@ export default class RegApi {
       .post({
         body: {
           id: customerID,
-          version: version,
+          version,
           currentPassword: oldPassword,
-          newPassword: newPassword,
+          newPassword,
         },
       })
       .execute();
@@ -156,15 +154,15 @@ export default class RegApi {
       .withId({ ID: customerID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'addAddress',
               address: {
                 streetName: street,
                 postalCode: postal,
-                city: city,
-                country: country,
+                city,
+                country,
               },
             },
           ],
@@ -179,11 +177,11 @@ export default class RegApi {
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'addShippingAddressId',
-              addressId: addressId,
+              addressId,
             },
           ],
         },
@@ -197,11 +195,11 @@ export default class RegApi {
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'addBillingAddressId',
-              addressId: addressId,
+              addressId,
             },
           ],
         },
@@ -215,11 +213,11 @@ export default class RegApi {
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'setDefaultBillingAddress',
-              addressId: addressId,
+              addressId,
             },
           ],
         },
@@ -233,11 +231,11 @@ export default class RegApi {
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'setDefaultShippingAddress',
-              addressId: addressId,
+              addressId,
             },
           ],
         },
@@ -259,16 +257,16 @@ export default class RegApi {
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version,
           actions: [
             {
               action: 'changeAddress',
-              addressId: addressId,
+              addressId,
               address: {
                 streetName: street,
                 postalCode: postal,
-                city: city,
-                country: country,
+                city,
+                country,
               },
             },
           ],
@@ -277,17 +275,17 @@ export default class RegApi {
       .execute();
   }
 
-  public deleteAdress(userID: string, version: number, addressId: string) {
+  public deleteAdress(userID: string, versionNum: number, addressID: string) {
     return this.clientRoot
       .customers()
       .withId({ ID: userID })
       .post({
         body: {
-          version: version,
+          version: versionNum,
           actions: [
             {
               action: 'removeAddress',
-              addressId: addressId,
+              addressId: addressID,
             },
           ],
         },
