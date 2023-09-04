@@ -52,10 +52,10 @@ export default class App {
   }
 
   private isLogged() {
-    localStorage.setItem(`isLogin`, 'false');
+    // localStorage.setItem(`isLogin`, 'false');
 
-    return false;
-    // return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
+    // return false;
+    return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
   }
 
   private setContent(pageName: string, view: DefaultView) {
