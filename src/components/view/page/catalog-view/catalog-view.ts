@@ -15,6 +15,7 @@ import SortView from './sort/sort';
 import SearchInput from '../../../shared/search-input/search-input';
 import SearchProductCard from '../../../shared/product-card/search-product-card';
 import WarningMessage from '../../../message/warning-message';
+import QueryParamType from '../../../../api/sdk/type';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -66,11 +67,17 @@ export default class CatalogView extends DefaultView {
     this.getCreator().addInnerElement(this.cardsWrapper);
 
     this.configView();
+
+    this.getCategories();
   }
 
   private recallProductCards() {
     this.search.clear();
     this.getConditionalProducts();
+  }
+
+  private getCategories() {
+    this.productApi.getCategories().then((response) => console.log(response));
   }
 
   private setContent(element: InsertableElement) {
@@ -96,6 +103,9 @@ export default class CatalogView extends DefaultView {
   }
 
   private getSearchProducts() {
+    // this.productApi.getProductsByCategory().then((result) => console.log('getProductsByCategory: ', result.body.results));
+    this.productApi.getCategories().then((result) => console.log('result: ', result));
+
     const searchString = this.search.getElement().value.trim();
 
     if (!searchString) {
@@ -116,13 +126,29 @@ export default class CatalogView extends DefaultView {
     }
   }
 
+  private getCategoryId(): string {
+    const id = 'ef9b4220-19e7-413a-8778-37e3ba0c0e4c';
+    return id;
+  }
+
   private getConditionalProducts() {
+    const params: QueryParamType = {};
+    const filters: string[] = [];
+
     const where = this.filter.getWhereCondition();
+    if (where) {
+      params.where = where;
+    }
+
+    if (filters.length) {
+      params.filter = filters.join(' and ');
+    }
 
     this.productApi
-      .getConditionalProducts(where)
+      .getConditionalProducts(params)
       .then((response) => {
         const products = response.body.results;
+
         this.sortProducts(products);
         this.createProductCards(products);
       })

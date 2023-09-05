@@ -1,6 +1,7 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { createAnonim } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
+import QueryParamType from './sdk/type';
 
 type LoginData = {
   email: string;
@@ -42,17 +43,13 @@ export default class ProductApi {
       .execute();
   }
 
-  public getConditionalProducts(where?: string) {
-    const args: {
-      where?: string | string[];
-      limit: number;
-    } = {
-      limit: this.MAX_PRODUCTS,
-    };
+  public getConditionalProducts(params: QueryParamType) {
+    const args = { ...params };
 
-    if (where) {
-      args.where = where;
+    if (!args?.limit) {
+      args.limit = this.MAX_PRODUCTS;
     }
+    console.log('args: ', args);
 
     return this.clientRoot
       .products()
@@ -62,6 +59,11 @@ export default class ProductApi {
       .execute();
   }
 
+  /**
+   * Return products, find out by description
+   * @param toSearch string
+   * @returns void
+   */
   public getSearchProducts(toSearch: string) {
     return this.clientRoot
       .productProjections()
@@ -77,16 +79,44 @@ export default class ProductApi {
       .execute();
   }
 
-  public getProductProjections(toSearch: string) {
+  public getProductsByCategory() {
+    const args = {
+      filter: [
+        'categories.id: "ef9b4220-19e7-413a-8778-37e3ba0c0e4c"',
+        // 'variants.scopedPrice.value.centAmount:range (* to 2100)', // to filter by price range
+        'variants.scopedPrice.discounted.value.centAmount:range (* to 2100)', // to filter by price range
+        // 'variants.price.centAmount: range(* to 10000)',
+      ],
+      limit: this.MAX_PRODUCTS,
+      fuzzy: false,
+      country: 'US', //--------------
+      priceCountry: 'US', //  needed to include add ScopePrice to resultset
+      priceCurrency: 'USD', //--------------
+      // 'variants.scopedPriceDiscounted': true,
+      sort: ['variants.scopedPrice.discounted.value.centAmount asc'],
+      // sort: ['variants.scopedPrice.value.centAmount asc'],
+
+      // sort: ['name.en desc'],
+    };
+
+    console.log('getProductsByCategory args: ', args);
+
     return this.clientRoot
       .productProjections()
       .search()
       .get({
+        queryArgs: args,
+      })
+      .execute();
+  }
+
+  public getCategories() {
+    // return this.clientRoot.categories().withKey({ key: 'action' }).get().execute();
+    return this.clientRoot
+      .categories()
+      .get({
         queryArgs: {
-          'text.en': toSearch,
-          fuzzy: true,
-          facet: ['description.en'],
-          limit: this.MAX_PRODUCTS,
+          expand: 'ancestors.id',
         },
       })
       .execute();
