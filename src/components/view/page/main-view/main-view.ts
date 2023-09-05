@@ -14,7 +14,6 @@ export default class MainView extends DefaultView {
     };
     super(params);
 
-    console.log(Guid.newGuid());
     this.configView();
   }
 
