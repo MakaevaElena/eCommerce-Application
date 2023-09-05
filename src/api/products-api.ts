@@ -11,7 +11,6 @@ export enum Template {
   ATTRIBUTE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key in (%VALUE%))))))',
   ATTRIBUTE_DEVELOPER_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value in (%VALUE%)))))',
   WHERE_PRICE_MASK = 'masterData(current(masterVariant(prices(country="%COUNTY%" and value(centAmount>=%MIN_PRICE%) and value(centAmount<=%MAX_PRICE%)))))',
-  DEFAULT_WHERE = 'masterData(current(masterVariant(attributes(name>""))))',
 }
 
 export default class ProductApi {
@@ -44,15 +43,50 @@ export default class ProductApi {
   }
 
   public getConditionalProducts(where?: string) {
-    const whereCondition = where || Template.DEFAULT_WHERE;
+    const args: {
+      where?: string | string[];
+      limit: number;
+    } = {
+      limit: this.MAX_PRODUCTS,
+    };
+
+    if (where) {
+      args.where = where;
+    }
 
     return this.clientRoot
       .products()
       .get({
+        queryArgs: args,
+      })
+      .execute();
+  }
+
+  public getSearchProducts(toSearch: string) {
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
         queryArgs: {
+          'text.en': toSearch,
+          fuzzy: true,
+          facet: ['description.en'],
           limit: this.MAX_PRODUCTS,
-          // where: 'masterData(current(masterVariant(prices(country="US" and value(centAmount=5300)))))',
-          where: whereCondition,
+        },
+      })
+      .execute();
+  }
+
+  public getProductProjections(toSearch: string) {
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
+        queryArgs: {
+          'text.en': toSearch,
+          fuzzy: true,
+          facet: ['description.en'],
+          limit: this.MAX_PRODUCTS,
         },
       })
       .execute();

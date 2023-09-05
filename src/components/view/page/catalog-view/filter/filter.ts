@@ -8,17 +8,9 @@ import FilterPopup from './filter-popup/filter-popup';
 import FilterData from './types';
 
 export default class Filter {
-  private filterData: FilterData = {
-    genre: [],
-    Platform: [],
-    developer: [],
-  };
+  private filterData: FilterData = this.getEmptyFilterArray();
 
-  private usedFilter: FilterData = {
-    genre: [],
-    Platform: [],
-    developer: [],
-  };
+  private usedFilter: FilterData = this.getEmptyFilterArray();
 
   private productApi: ProductApi;
 
@@ -73,6 +65,15 @@ export default class Filter {
   public getFilterHeaderElement() {
     const headerElement = this.filterHeader.getCreator().getElement();
     return headerElement;
+  }
+
+  private getEmptyFilterArray(): FilterData {
+    return { genre: [], Platform: [], developer: [] };
+  }
+
+  public clearFilters() {
+    this.usedFilter = this.getEmptyFilterArray();
+    this.createFilterTags();
   }
 
   private showFilterPopup() {

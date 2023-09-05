@@ -1,18 +1,12 @@
-@import '../../../../../style/abstract/variables/colors.scss';
+@import '../../../style/abstract/variables/colors.scss';
 
-.sort-header {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-
-.sort-header__list {
+.search-input {
   height: 3rem;
   min-width: 5rem;
+  margin: 1rem;
   font-family: 'Oswald', sans-serif;
   font-size: 1.5rem;
-  user-select: none;
-  color: $color-text-primary;
+  color: rgb(255, 255, 255);
   background-color: $color-brand-primary;
   outline: none;
 
@@ -23,6 +17,6 @@
   }
 }
 
-.sort-header__option {
-  color: $color-text-dark;
+.search-input__label {
+  font-size: 1.3rem;
 }
