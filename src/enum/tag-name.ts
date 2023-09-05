@@ -1,5 +1,6 @@
 enum TagName {
   A = 'a',
+  UL = 'ul',
   MAIN = 'main',
   DIV = 'div',
   BUTTON = 'button',

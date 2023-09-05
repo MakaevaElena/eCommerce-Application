@@ -117,6 +117,57 @@ export default class Filter {
     this.observer.notify(EventName.UPDATE_FILTER_TAGS);
   }
 
+  public getFilterCondition(): string[] {
+    const genreFilter = this.getFilterForEnumArrtibute(FilterAttribute.GENGE);
+    const genrePlatform = this.getFilterForEnumArrtibute(FilterAttribute.PLATFORM);
+    const genreDeveloper = this.getFilterForTextArrtibute(FilterAttribute.DEVELOPER);
+
+    const possibleFilters = Object.values(this.filterData).reduce((acc, value) => acc + value.length, 0);
+    const currentFilters = genreFilter.length + genrePlatform.length + genreDeveloper.length;
+
+    const filters: string[] = [];
+
+    return possibleFilters !== currentFilters
+      ? filters.concat(...genreFilter, ...genrePlatform, ...genreDeveloper)
+      : [];
+  }
+
+  private getFilterForTextArrtibute(attributeKey: FilterAttribute) {
+    const filters: string[] = [];
+    const values: string[] = [];
+
+    this.filterData[attributeKey].forEach((filter) => {
+      if (!this.usedFilter[attributeKey].includes(filter)) {
+        values.push(`"${filter}"`);
+      }
+    });
+
+    values.forEach((value) => {
+      const filter = Template.TEXT_ATTRIBUTE_MASK.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', value);
+      filters.push(filter);
+    });
+
+    return filters.slice();
+  }
+
+  private getFilterForEnumArrtibute(attributeKey: FilterAttribute) {
+    const filters: string[] = [];
+    const values: string[] = [];
+
+    this.filterData[attributeKey].forEach((filter) => {
+      if (!this.usedFilter[attributeKey].includes(filter)) {
+        values.push(`"${filter}"`);
+      }
+    });
+
+    values.forEach((value) => {
+      const filter = Template.ENUM_ATTRIBUTE_MASK.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', value);
+      filters.push(filter);
+    });
+
+    return filters.slice();
+  }
+
   public getWhereCondition(): string {
     const wheres: string[] = [];
     const values: string[] = [];

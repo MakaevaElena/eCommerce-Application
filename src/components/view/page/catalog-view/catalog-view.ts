@@ -24,6 +24,8 @@ export default class CatalogView extends DefaultView {
 
   private readonly NOT_FOUND = 'Products not found';
 
+  private readonly MAX_PRODUCTS = 500;
+
   private router: Router;
 
   private cardsWrapper: HTMLDivElement;
@@ -103,9 +105,6 @@ export default class CatalogView extends DefaultView {
   }
 
   private getSearchProducts() {
-    // this.productApi.getProductsByCategory().then((result) => console.log('getProductsByCategory: ', result.body.results));
-    this.productApi.getCategories().then((result) => console.log('result: ', result));
-
     const searchString = this.search.getElement().value.trim();
 
     if (!searchString) {
@@ -124,11 +123,6 @@ export default class CatalogView extends DefaultView {
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
     }
-  }
-
-  private getCategoryId(): string {
-    const id = 'ef9b4220-19e7-413a-8778-37e3ba0c0e4c';
-    return id;
   }
 
   private getConditionalProducts() {
@@ -159,9 +153,55 @@ export default class CatalogView extends DefaultView {
       });
   }
 
+  private getProducts() {
+    const params: QueryParamType = this.getQueryParams();
+
+    console.log('params: ', params);
+
+    this.productApi
+      .getProducts(params)
+      .then((response) => {
+        const products = response.body.results;
+
+        console.log('getProducts products: ', products);
+
+        if (products.length) {
+          this.createSearchProductCards(products);
+        } else {
+          new WarningMessage().showMessage(this.NOT_FOUND);
+        }
+      })
+      .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
   private sortProducts(products: Product[]) {
     const sortOrder = this.sorting.getSortCondition();
     products.sort(this.sortMapping[sortOrder].bind(this));
+  }
+
+  private getQueryParams(): QueryParamType {
+    const sortMapping = [
+      'name.en asc',
+      'name.en desc',
+      'variants.scopedPrice.discounted.value.centAmount asc',
+      'variants.scopedPrice.discounted.value.centAmount desc',
+    ];
+
+    const params: QueryParamType = {
+      limit: this.MAX_PRODUCTS,
+      fuzzy: false,
+      priceCountry: 'US',
+      priceCurrency: 'USD',
+      sort: sortMapping[this.sorting.getSortCondition()],
+    };
+
+    const filter = this.filter.getFilterCondition();
+    if (filter.length) {
+      params.filter = filter;
+    }
+    params.sort = sortMapping[this.sorting.getSortCondition()];
+
+    return params;
   }
 
   private sortByNameAsc(product1: Product, product2: Product) {

@@ -12,6 +12,9 @@ export enum Template {
   ATTRIBUTE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key in (%VALUE%))))))',
   ATTRIBUTE_DEVELOPER_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value in (%VALUE%)))))',
   WHERE_PRICE_MASK = 'masterData(current(masterVariant(prices(country="%COUNTY%" and value(centAmount>=%MIN_PRICE%) and value(centAmount<=%MAX_PRICE%)))))',
+
+  ENUM_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%.key:%VALUE%',
+  TEXT_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%:%VALUE%',
 }
 
 export default class ProductApi {
@@ -26,12 +29,6 @@ export default class ProductApi {
     }
   }
 
-  // получить все товары - это основной метод, но ниже есть еще способы получать товары.
-  // можно пробовать подставлять в методы .get({ queryArgs: -  и как то фильтровать
-  public getProducts() {
-    return this.clientRoot.products().get().execute();
-  }
-
   public getAllProducts() {
     return this.clientRoot
       .products()
@@ -43,13 +40,24 @@ export default class ProductApi {
       .execute();
   }
 
+  public getProducts(args: QueryParamType) {
+    console.log('getProducts args: ', args);
+
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
+        queryArgs: args,
+      })
+      .execute();
+  }
+
   public getConditionalProducts(params: QueryParamType) {
     const args = { ...params };
 
     if (!args?.limit) {
       args.limit = this.MAX_PRODUCTS;
     }
-    console.log('args: ', args);
 
     return this.clientRoot
       .products()
@@ -82,21 +90,24 @@ export default class ProductApi {
   public getProductsByCategory() {
     const args = {
       filter: [
-        'categories.id: "ef9b4220-19e7-413a-8778-37e3ba0c0e4c"',
-        // 'variants.scopedPrice.value.centAmount:range (* to 2100)', // to filter by price range
-        'variants.scopedPrice.discounted.value.centAmount:range (* to 2100)', // to filter by price range
-        // 'variants.price.centAmount: range(* to 10000)',
+        // 'variants.attributes.Platform.key:"PC"', // filter by attribute which is enum
+        // 'variants.attributes.genre.key:"horror"', // filter by attribute which is enum
+        // 'variants.attributes.{name}:"{value}"', // filter by attribute which is text
+        // 'categories.id: "ef9b4220-19e7-413a-8778-37e3ba0c0e4c"', // filter by category
+        'variants.scopedPrice.value.centAmount:range (* to 2100)', // to filter by price range
+        // 'variants.scopedPrice.discounted.value.centAmount:range (* to 2100)', // to filter by discount price range
       ],
       limit: this.MAX_PRODUCTS,
       fuzzy: false,
-      country: 'US', //--------------
-      priceCountry: 'US', //  needed to include add ScopePrice to resultset
-      priceCurrency: 'USD', //--------------
-      // 'variants.scopedPriceDiscounted': true,
-      sort: ['variants.scopedPrice.discounted.value.centAmount asc'],
+
+      priceCountry: 'US', //  needed to include ScopePrice to resultset
+      priceCurrency: 'USD', //  needed to include ScopePrice to resultset
+
+      // sort: ['variants.scopedPrice.discounted.value.centAmount asc'],
       // sort: ['variants.scopedPrice.value.centAmount asc'],
 
       // sort: ['name.en desc'],
+      // sort: ['name.en asc'],
     };
 
     console.log('getProductsByCategory args: ', args);
