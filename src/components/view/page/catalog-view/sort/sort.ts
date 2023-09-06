@@ -15,10 +15,18 @@ export default class SortView extends DefaultView {
   private sortList: HTMLSelectElement;
 
   private options = [
-    { title: `Name ${SortOrderSymbol.ASC}`, value: SortOrderValue.NAME_ASC },
-    { title: `Name ${SortOrderSymbol.DESC}`, value: SortOrderValue.NAME_DESC },
-    { title: `Price ${SortOrderSymbol.ASC}`, value: SortOrderValue.PRICE_ASC },
-    { title: `Price ${SortOrderSymbol.DESC}`, value: SortOrderValue.PRICE_DESC },
+    { title: `Name ${SortOrderSymbol.ASC}`, value: SortOrderValue.NAME_ASC, sortOrder: 'name.en asc' },
+    { title: `Name ${SortOrderSymbol.DESC}`, value: SortOrderValue.NAME_DESC, sortOrder: 'name.en desc' },
+    {
+      title: `Price ${SortOrderSymbol.ASC}`,
+      value: SortOrderValue.PRICE_ASC,
+      sortOrder: 'variants.scopedPrice.currentValue.centAmount asc',
+    },
+    {
+      title: `Price ${SortOrderSymbol.DESC}`,
+      value: SortOrderValue.PRICE_DESC,
+      sortOrder: 'variants.scopedPrice.currentValue.centAmount desc',
+    },
   ];
 
   constructor() {
@@ -40,8 +48,8 @@ export default class SortView extends DefaultView {
     this.getElement().append(this.sortList);
   }
 
-  public getSortCondition(): SortOrderValue {
-    const selected: SortOrderValue = this.options[this.sortList.selectedIndex].value;
+  public getSortCondition(): string {
+    const selected = this.options[this.sortList.selectedIndex].sortOrder;
     return selected;
   }
 

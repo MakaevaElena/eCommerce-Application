@@ -41,48 +41,14 @@ export default class ProductApi {
   }
 
   public getProducts(args: QueryParamType) {
-    console.log('getProducts args: ', args);
+    const params = { ...args };
+    // params.filter = 'variants.scopedPrice.value.centAmount:range (* to 2100)';
 
     return this.clientRoot
       .productProjections()
       .search()
       .get({
-        queryArgs: args,
-      })
-      .execute();
-  }
-
-  public getConditionalProducts(params: QueryParamType) {
-    const args = { ...params };
-
-    if (!args?.limit) {
-      args.limit = this.MAX_PRODUCTS;
-    }
-
-    return this.clientRoot
-      .products()
-      .get({
-        queryArgs: args,
-      })
-      .execute();
-  }
-
-  /**
-   * Return products, find out by description
-   * @param toSearch string
-   * @returns void
-   */
-  public getSearchProducts(toSearch: string) {
-    return this.clientRoot
-      .productProjections()
-      .search()
-      .get({
-        queryArgs: {
-          'text.en': toSearch,
-          fuzzy: true,
-          facet: ['description.en'],
-          limit: this.MAX_PRODUCTS,
-        },
+        queryArgs: params,
       })
       .execute();
   }
@@ -90,27 +56,26 @@ export default class ProductApi {
   public getProductsByCategory() {
     const args = {
       filter: [
-        // 'variants.attributes.Platform.key:"PC"', // filter by attribute which is enum
+        'variants.attributes.Platform.key:"PC"', // filter by attribute which is enum
+        'variants.attributes.genre.key:"action","horror"', // filter by attribute which is enum
         // 'variants.attributes.genre.key:"horror"', // filter by attribute which is enum
         // 'variants.attributes.{name}:"{value}"', // filter by attribute which is text
         // 'categories.id: "ef9b4220-19e7-413a-8778-37e3ba0c0e4c"', // filter by category
-        'variants.scopedPrice.value.centAmount:range (* to 2100)', // to filter by price range
-        // 'variants.scopedPrice.discounted.value.centAmount:range (* to 2100)', // to filter by discount price range
       ],
       limit: this.MAX_PRODUCTS,
       fuzzy: false,
 
+      markMatchingVariants: true,
       priceCountry: 'US', //  needed to include ScopePrice to resultset
       priceCurrency: 'USD', //  needed to include ScopePrice to resultset
 
+      // sort: ['variants.scopedPrice.currentValue.centAmount asc'],
       // sort: ['variants.scopedPrice.discounted.value.centAmount asc'],
       // sort: ['variants.scopedPrice.value.centAmount asc'],
 
       // sort: ['name.en desc'],
       // sort: ['name.en asc'],
     };
-
-    console.log('getProductsByCategory args: ', args);
 
     return this.clientRoot
       .productProjections()

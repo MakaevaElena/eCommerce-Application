@@ -16,8 +16,6 @@ export default class Filter {
 
   private filterHeader = new FilterHeaderView();
 
-  private initiated = false;
-
   private observer = Observer.getInstance();
 
   constructor(productApi: ProductApi) {
@@ -28,6 +26,9 @@ export default class Filter {
     this.observer.subscribe(EventName.UPDATE_FILTER_TAGS, this.createFilterTags.bind(this));
   }
 
+  /**
+   * Get basic data to setup Filter
+   */
   public getFilterData() {
     this.productApi
       .getAllProducts()
@@ -52,14 +53,8 @@ export default class Filter {
         this.filterData.genre = Array.from(new Set(this.filterData.genre));
         this.filterData.Platform = Array.from(new Set(this.filterData.Platform));
         this.filterData.developer = Array.from(new Set(this.filterData.developer));
-
-        this.initiated = true;
       })
       .catch((error) => new ErrorMessage().showMessage(error.message));
-  }
-
-  public isInit() {
-    return this.initiated;
   }
 
   public getFilterHeaderElement() {
@@ -111,100 +106,40 @@ export default class Filter {
   private deleteFilter(filters: string[], filterValue: string) {
     const index = filters.indexOf(filterValue);
     if (index >= 0) {
-      filters.splice(index);
+      filters.splice(index, 1);
     }
     this.observer.notify(EventName.UPDATE_CATALOG_CARDS);
     this.observer.notify(EventName.UPDATE_FILTER_TAGS);
   }
 
   public getFilterCondition(): string[] {
-    const genreFilter = this.getFilterForEnumArrtibute(FilterAttribute.GENGE);
-    const genrePlatform = this.getFilterForEnumArrtibute(FilterAttribute.PLATFORM);
-    const genreDeveloper = this.getFilterForTextArrtibute(FilterAttribute.DEVELOPER);
-
-    const possibleFilters = Object.values(this.filterData).reduce((acc, value) => acc + value.length, 0);
-    const currentFilters = genreFilter.length + genrePlatform.length + genreDeveloper.length;
+    const genreFilter = this.getFilterForArrtibute(Template.ENUM_ATTRIBUTE_MASK, FilterAttribute.GENGE);
+    const genrePlatform = this.getFilterForArrtibute(Template.ENUM_ATTRIBUTE_MASK, FilterAttribute.PLATFORM);
+    const genreDeveloper = this.getFilterForArrtibute(Template.TEXT_ATTRIBUTE_MASK, FilterAttribute.DEVELOPER);
 
     const filters: string[] = [];
 
-    return possibleFilters !== currentFilters
-      ? filters.concat(...genreFilter, ...genrePlatform, ...genreDeveloper)
-      : [];
-  }
-
-  private getFilterForTextArrtibute(attributeKey: FilterAttribute) {
-    const filters: string[] = [];
-    const values: string[] = [];
-
-    this.filterData[attributeKey].forEach((filter) => {
-      if (!this.usedFilter[attributeKey].includes(filter)) {
-        values.push(`"${filter}"`);
-      }
-    });
-
-    values.forEach((value) => {
-      const filter = Template.TEXT_ATTRIBUTE_MASK.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', value);
-      filters.push(filter);
-    });
-
-    return filters.slice();
-  }
-
-  private getFilterForEnumArrtibute(attributeKey: FilterAttribute) {
-    const filters: string[] = [];
-    const values: string[] = [];
-
-    this.filterData[attributeKey].forEach((filter) => {
-      if (!this.usedFilter[attributeKey].includes(filter)) {
-        values.push(`"${filter}"`);
-      }
-    });
-
-    values.forEach((value) => {
-      const filter = Template.ENUM_ATTRIBUTE_MASK.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', value);
-      filters.push(filter);
-    });
-
-    return filters.slice();
-  }
-
-  public getWhereCondition(): string {
-    const wheres: string[] = [];
-    const values: string[] = [];
-
-    this.usedFilter.genre.forEach((filter) => {
-      values.push(`"${filter}"`);
-    });
-    if (values.length > 0) {
-      wheres.push(
-        Template.ATTRIBUTE_MASK.replace('%ATTRIBUTE%', FilterAttribute.GENGE).replace('%VALUE%', values.join(', '))
-      );
+    if (genreFilter) {
+      filters.push(genreFilter);
+    }
+    if (genrePlatform) {
+      filters.push(genrePlatform);
+    }
+    if (genreDeveloper) {
+      filters.push(genreDeveloper);
     }
 
-    values.length = 0;
-    this.usedFilter.Platform.forEach((filter) => {
-      values.push(`"${filter}"`);
-    });
-    if (values.length > 0) {
-      wheres.push(
-        Template.ATTRIBUTE_MASK.replace('%ATTRIBUTE%', FilterAttribute.PLATFORM).replace('%VALUE%', values.join(', '))
-      );
-    }
+    return filters;
+  }
 
-    values.length = 0;
-    this.usedFilter.developer.forEach((filter) => {
-      values.push(`"${filter}"`);
-    });
+  private getFilterForArrtibute(template: string, attributeKey: FilterAttribute): string {
+    const values: string[] = [];
 
-    if (values.length > 0) {
-      wheres.push(
-        Template.ATTRIBUTE_DEVELOPER_MASK.replace('%ATTRIBUTE%', FilterAttribute.DEVELOPER).replace(
-          '%VALUE%',
-          values.join(', ')
-        )
-      );
-    }
+    this.usedFilter[attributeKey].forEach((filter) => values.push(`"${filter}"`));
 
-    return wheres.join(' and ');
+    const filter =
+      values.length > 0 ? template.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', values.join(',')) : '';
+
+    return filter;
   }
 }
