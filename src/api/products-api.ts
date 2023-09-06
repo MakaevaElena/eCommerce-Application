@@ -9,12 +9,9 @@ type LoginData = {
 };
 
 export enum Template {
-  ATTRIBUTE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key in (%VALUE%))))))',
-  ATTRIBUTE_DEVELOPER_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value in (%VALUE%)))))',
-  WHERE_PRICE_MASK = 'masterData(current(masterVariant(prices(country="%COUNTY%" and value(centAmount>=%MIN_PRICE%) and value(centAmount<=%MAX_PRICE%)))))',
-
   ENUM_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%.key:%VALUE%',
   TEXT_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%:%VALUE%',
+  PRICE_FILTER_MASK = 'variants.scopedPrice.currentValue.centAmount:range (%MIN% to %MAX%)',
 }
 
 export default class ProductApi {
@@ -42,46 +39,13 @@ export default class ProductApi {
 
   public getProducts(args: QueryParamType) {
     const params = { ...args };
-    // params.filter = 'variants.scopedPrice.value.centAmount:range (* to 2100)';
+    // params.filter = 'variants.scopedPrice.currentValue.centAmount:range (* to 2100)';
 
     return this.clientRoot
       .productProjections()
       .search()
       .get({
         queryArgs: params,
-      })
-      .execute();
-  }
-
-  public getProductsByCategory() {
-    const args = {
-      filter: [
-        'variants.attributes.Platform.key:"PC"', // filter by attribute which is enum
-        'variants.attributes.genre.key:"action","horror"', // filter by attribute which is enum
-        // 'variants.attributes.genre.key:"horror"', // filter by attribute which is enum
-        // 'variants.attributes.{name}:"{value}"', // filter by attribute which is text
-        // 'categories.id: "ef9b4220-19e7-413a-8778-37e3ba0c0e4c"', // filter by category
-      ],
-      limit: this.MAX_PRODUCTS,
-      fuzzy: false,
-
-      markMatchingVariants: true,
-      priceCountry: 'US', //  needed to include ScopePrice to resultset
-      priceCurrency: 'USD', //  needed to include ScopePrice to resultset
-
-      // sort: ['variants.scopedPrice.currentValue.centAmount asc'],
-      // sort: ['variants.scopedPrice.discounted.value.centAmount asc'],
-      // sort: ['variants.scopedPrice.value.centAmount asc'],
-
-      // sort: ['name.en desc'],
-      // sort: ['name.en asc'],
-    };
-
-    return this.clientRoot
-      .productProjections()
-      .search()
-      .get({
-        queryArgs: args,
       })
       .execute();
   }

@@ -5,7 +5,7 @@ import LinkButton from '../../../../../shared/link-button/link-button';
 import FilterAttribute from '../enum';
 import FilterCheckbox from '../filter-checkbox/filter-checkbox';
 import { IFilterInput } from '../interface/filter-input';
-import FilterData from '../types';
+import { FilterData, PriceFilterGroup } from '../types';
 import styleCss from './filter-popup.module.scss';
 
 enum KeyCodes {
@@ -17,25 +17,30 @@ enum KeyCodes {
 export default class FilterPopup {
   private filterInputs: IFilterInput[] = [];
 
-  private BUTTON_APPLY_TEXT = 'Apply';
+  private readonly BUTTON_APPLY_TEXT = 'Apply';
 
-  private TITLE = 'Filter';
+  private readonly PRICE_FILTER_TITLE = 'price';
+
+  private POPUP_TITLE = 'Filter';
 
   private tagCreator = new TagElement();
 
   private element: HTMLDialogElement;
 
-  private usedFilter: FilterData;
+  private filterUsed: FilterData;
 
   private filterData: FilterData;
 
+  private priceGroup: PriceFilterGroup;
+
   private observer = Observer.getInstance();
 
-  constructor(filterData: FilterData, usedFilter: FilterData) {
+  constructor(filterData: FilterData, filterUsed: FilterData, filterPriceData: PriceFilterGroup) {
     this.element = this.tagCreator.createTagElement('dialog', [styleCss['filter-popup']]);
 
-    this.usedFilter = usedFilter;
+    this.filterUsed = filterUsed;
     this.filterData = filterData;
+    this.priceGroup = filterPriceData;
     this.configView();
     this.configClosing();
   }
@@ -46,9 +51,10 @@ export default class FilterPopup {
 
   private configView() {
     const wrapper = this.tagCreator.createTagElement('div', [styleCss['filter-popup__wrapper']]);
-    const title = this.tagCreator.createTagElement('span', [styleCss['filter-popup__title']], this.TITLE);
+    const title = this.tagCreator.createTagElement('span', [styleCss['filter-popup__title']], this.POPUP_TITLE);
     wrapper.append(title);
 
+    wrapper.append(this.createGroupPrice());
     wrapper.append(this.createGroupGenre());
     wrapper.append(this.createGroupPlatform());
     wrapper.append(this.createGroupDeveloper());
@@ -65,6 +71,8 @@ export default class FilterPopup {
   private createCloseButton() {
     const closeButton = this.tagCreator.createTagElement('a', [styleCss['filter-popup__close-icon']]);
     closeButton.addEventListener('click', () => this.getDialog().remove());
+    closeButton.setAttribute('tabindex', '1');
+    closeButton.setAttribute('autofocus', '');
 
     return closeButton;
   }
@@ -92,7 +100,7 @@ export default class FilterPopup {
     group.append(legend);
 
     this.filterData[FilterAttribute.DEVELOPER].forEach((item) => {
-      const checkbox = new FilterCheckbox(item, this.usedFilter[FilterAttribute.DEVELOPER]);
+      const checkbox = new FilterCheckbox(item, this.filterUsed[FilterAttribute.DEVELOPER]);
       this.filterInputs.push(checkbox);
       group.append(checkbox.getElement());
     });
@@ -110,10 +118,26 @@ export default class FilterPopup {
     group.append(legend);
 
     this.filterData[FilterAttribute.PLATFORM].forEach((item) => {
-      const checkbox = new FilterCheckbox(item, this.usedFilter[FilterAttribute.PLATFORM]);
+      const checkbox = new FilterCheckbox(item, this.filterUsed[FilterAttribute.PLATFORM]);
       this.filterInputs.push(checkbox);
       group.append(checkbox.getElement());
     });
+
+    return group;
+  }
+
+  private createGroupPrice(): HTMLFieldSetElement {
+    const group = this.tagCreator.createTagElement('fieldset', [styleCss['filter-popup__group']]);
+    const legend = this.tagCreator.createTagElement(
+      'legend',
+      [styleCss['filter-popup__group-legend']],
+      this.PRICE_FILTER_TITLE
+    );
+
+    const priceWrapper = this.tagCreator.createTagElement('div', [styleCss['filter-popup__price-wrapper']]);
+    priceWrapper.append(this.priceGroup.minPrice.getElement(), this.priceGroup.maxPrice.getElement());
+
+    group.append(legend, priceWrapper);
 
     return group;
   }
@@ -128,7 +152,7 @@ export default class FilterPopup {
     group.append(legend);
 
     this.filterData[FilterAttribute.GENGE].forEach((item) => {
-      const checkbox = new FilterCheckbox(item, this.usedFilter[FilterAttribute.GENGE]);
+      const checkbox = new FilterCheckbox(item, this.filterUsed[FilterAttribute.GENGE]);
       this.filterInputs.push(checkbox);
       group.append(checkbox.getElement());
     });

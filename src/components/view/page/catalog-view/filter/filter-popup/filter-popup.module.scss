@@ -31,6 +31,16 @@
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
   margin-bottom: 1rem;
+
+  padding-block-start: 0.35em;
+  padding-inline-start: 0.35em;
+  padding-inline-end: 0.35em;
+  padding-block-end: 0.35em;
+}
+
+.filter-popup__price-wrapper {
+  display: flex;
+  gap: 1rem;
 }
 
 .filter-popup__group-legend {
@@ -41,6 +51,7 @@
 .filter-popup__close-icon {
   width: 2.5rem;
   height: 2.5rem;
+  outline: none;
   border: 0.2rem solid $color-text-discount;
   border-radius: 10rem;
   background-image: url(../../../../../../assets/images/icon-close.png);

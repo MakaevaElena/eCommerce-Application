@@ -2,15 +2,26 @@ import ProductApi, { Template } from '../../../../../api/products-api';
 import EventName from '../../../../../enum/event-name';
 import Observer from '../../../../../observer/observer';
 import ErrorMessage from '../../../../message/error-message';
+import NumberInput from '../../../../shared/number-input/number-input';
 import FilterAttribute from './enum';
 import FilterHeaderView from './filter-header/filter-header';
 import FilterPopup from './filter-popup/filter-popup';
-import FilterData from './types';
+import { FilterData, PriceFilterGroup } from './types';
 
 export default class Filter {
+  private readonly WRONG_PRICE_RANGE = `Price filter didn't applied.\n Wrong price range: %MIN% to %MAX%`;
+
+  private readonly MIN_PRICE_TITLE = 'min';
+
+  private readonly MAX_PRICE_TITLE = 'max';
+
+  private readonly CURRENCY_FACTOR = 100;
+
   private filterData: FilterData = this.getEmptyFilterArray();
 
-  private usedFilter: FilterData = this.getEmptyFilterArray();
+  private filterUsed: FilterData = this.getEmptyFilterArray();
+
+  private filterPriceData: PriceFilterGroup = this.getEmptyPriceData();
 
   private productApi: ProductApi;
 
@@ -62,17 +73,22 @@ export default class Filter {
     return headerElement;
   }
 
+  private getEmptyPriceData(): PriceFilterGroup {
+    return { minPrice: new NumberInput(this.MIN_PRICE_TITLE, ''), maxPrice: new NumberInput(this.MAX_PRICE_TITLE, '') };
+  }
+
   private getEmptyFilterArray(): FilterData {
     return { genre: [], Platform: [], developer: [] };
   }
 
   public clearFilters() {
-    this.usedFilter = this.getEmptyFilterArray();
+    this.filterUsed = this.getEmptyFilterArray();
+    this.filterPriceData = this.getEmptyPriceData();
     this.createFilterTags();
   }
 
   private showFilterPopup() {
-    const popup = new FilterPopup(this.filterData, this.usedFilter).getDialog();
+    const popup = new FilterPopup(this.filterData, this.filterUsed, this.filterPriceData).getDialog();
     document.body.prepend(popup);
     popup.showModal();
   }
@@ -80,30 +96,30 @@ export default class Filter {
   private createFilterTags() {
     this.filterHeader.clearFilterTags();
 
-    this.usedFilter.genre.forEach((filter) => {
+    this.filterUsed.genre.forEach((filter) => {
       this.filterHeader.addFilterTag(
         FilterAttribute.GENGE,
         filter,
-        this.deleteFilter.bind(this, this.usedFilter.genre, filter)
+        this.deleteFilterTag.bind(this, this.filterUsed.genre, filter)
       );
     });
-    this.usedFilter.Platform.forEach((filter) => {
+    this.filterUsed.Platform.forEach((filter) => {
       this.filterHeader.addFilterTag(
         FilterAttribute.PLATFORM,
         filter,
-        this.deleteFilter.bind(this, this.usedFilter.Platform, filter)
+        this.deleteFilterTag.bind(this, this.filterUsed.Platform, filter)
       );
     });
-    this.usedFilter.developer.forEach((filter) => {
+    this.filterUsed.developer.forEach((filter) => {
       this.filterHeader.addFilterTag(
         FilterAttribute.DEVELOPER,
         filter,
-        this.deleteFilter.bind(this, this.usedFilter.developer, filter)
+        this.deleteFilterTag.bind(this, this.filterUsed.developer, filter)
       );
     });
   }
 
-  private deleteFilter(filters: string[], filterValue: string) {
+  private deleteFilterTag(filters: string[], filterValue: string) {
     const index = filters.indexOf(filterValue);
     if (index >= 0) {
       filters.splice(index, 1);
@@ -114,28 +130,40 @@ export default class Filter {
 
   public getFilterCondition(): string[] {
     const genreFilter = this.getFilterForArrtibute(Template.ENUM_ATTRIBUTE_MASK, FilterAttribute.GENGE);
-    const genrePlatform = this.getFilterForArrtibute(Template.ENUM_ATTRIBUTE_MASK, FilterAttribute.PLATFORM);
-    const genreDeveloper = this.getFilterForArrtibute(Template.TEXT_ATTRIBUTE_MASK, FilterAttribute.DEVELOPER);
+    const platformFilter = this.getFilterForArrtibute(Template.ENUM_ATTRIBUTE_MASK, FilterAttribute.PLATFORM);
+    const developerFilter = this.getFilterForArrtibute(Template.TEXT_ATTRIBUTE_MASK, FilterAttribute.DEVELOPER);
+    const priceFilter = this.getFilterForPrice(Template.PRICE_FILTER_MASK);
 
-    const filters: string[] = [];
+    const filters: string[] = [genreFilter, platformFilter, developerFilter, priceFilter];
 
-    if (genreFilter) {
-      filters.push(genreFilter);
+    return filters.filter((filter) => filter);
+  }
+
+  private getFilterForPrice(template: string): string {
+    const minPrice = this.filterPriceData.minPrice.value || '0';
+    const maxPrice = this.filterPriceData.maxPrice.value || '0';
+
+    if (+minPrice > +maxPrice || +minPrice < 0 || +maxPrice < 0) {
+      new ErrorMessage().showMessage(this.WRONG_PRICE_RANGE.replace('%MIN%', minPrice).replace('%MAX%', maxPrice));
+      return '';
     }
-    if (genrePlatform) {
-      filters.push(genrePlatform);
-    }
-    if (genreDeveloper) {
-      filters.push(genreDeveloper);
+    if (+minPrice === 0 && +maxPrice === 0) {
+      return '';
     }
 
-    return filters;
+    this.filterPriceData.minPrice.value = minPrice;
+
+    const filter = template
+      .replace('%MIN%', (+minPrice * this.CURRENCY_FACTOR).toString())
+      .replace('%MAX%', (+maxPrice * this.CURRENCY_FACTOR).toString());
+
+    return filter;
   }
 
   private getFilterForArrtibute(template: string, attributeKey: FilterAttribute): string {
     const values: string[] = [];
 
-    this.usedFilter[attributeKey].forEach((filter) => values.push(`"${filter}"`));
+    this.filterUsed[attributeKey].forEach((filter) => values.push(`"${filter}"`));
 
     const filter =
       values.length > 0 ? template.replace('%ATTRIBUTE%', attributeKey).replace('%VALUE%', values.join(',')) : '';
