@@ -5,6 +5,7 @@ const PagePath = {
   CATALOG: 'catalog',
   PRODUCT: 'product',
   PROFILE: 'profile',
+  CART: 'cart',
   NOT_FOUND: '404',
   EMPTY: '',
 };
@@ -16,6 +17,7 @@ const LinkName = {
   LOGOUT: 'Log Out',
   REGISTRATION: 'Sign In',
   PROFILE: 'User',
+  CART: 'Cart',
 };
 
 const ITEM_ID = '{id}';

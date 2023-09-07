@@ -174,6 +174,19 @@ export default class App {
           }
         },
       },
+      {
+        path: `${PagePath.CART}`,
+        callback: async () => {
+          const CartView = (await import('../view/page/cart-view/cart-view')).default;
+          const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
+            ? this.viewStorage.get(PagePath.CART)
+            : new CartView(this.router);
+          if (view instanceof CartView) {
+            this.viewStorage.set(PagePath.CART, view);
+            this.setContent(PagePath.CART, view);
+          }
+        },
+      },
     ];
   }
 }
