@@ -231,9 +231,20 @@ export default class ProductView extends DefaultView {
         });
 
         const platform = () => {
+          let result = '';
           const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
           if (index && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0].key;
+            // return response.body.masterVariant.attributes?.[index].value?.[0].key;
+            response.body.masterVariant.attributes?.[index].value?.forEach(
+              (el: { [x: string]: string; key: string }, i: number) => {
+                if (i === 0) {
+                  result += `${el.key} `;
+                } else {
+                  result += `/ ${el.key} `;
+                }
+              }
+            );
+            return result;
           }
           return '';
         };
@@ -271,10 +282,6 @@ export default class ProductView extends DefaultView {
           classNames: [styleCss['product-developer'], styleCss.attributes],
           textContent: `RELEASE: ${release()}`,
         });
-
-        // const productVideo = new CreateTagElement().createTagElement('span', [styleCss['product-video']], '');
-        // productVideo.setAttribute('data-href', `${response.body.masterVariant.attributes?.[5].value[0]}`);
-        // console.log(response.body.masterVariant.attributes?.[5].value[0]);
 
         const productDescription = new ElementCreator({
           tag: TagName.SPAN,
