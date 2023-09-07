@@ -1,4 +1,4 @@
-@import '../../../style/helper.scss';
+@import '../../../style/abstract/variables/colors.scss';
 
 .link-button {
   display: inline-flex;
@@ -43,7 +43,7 @@
 
 .link-button_disabled {
   color: $color-text-secondary;
-  border-color: $color-text-dark;
+  border: 1px solid $color-text-secondary;
   background: transparent;
   pointer-events: none;
 }

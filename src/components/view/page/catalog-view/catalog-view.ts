@@ -128,7 +128,6 @@ export default class CatalogView extends DefaultView {
       priceCountry: 'US',
       priceCurrency: 'USD',
       markMatchingVariants: true,
-      sort: this.sorting.getSortCondition(),
     };
 
     const filter = this.filter.getFilterCondition();

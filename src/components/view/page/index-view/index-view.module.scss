@@ -1,7 +1,8 @@
 .index-view {
   background: url('../../../../assets/images/index.jpg') no-repeat top center;
   background-size: cover;
-  height: 80vh;
+  background-attachment: fixed;
+  height: 100%;
   width: 100%;
 
   .content-wrapper {
