@@ -48,6 +48,7 @@ export default class HeaderView extends DefaultView {
     this.createSignInButton(this.buttonsWrapper);
     this.createLogoutButton(this.buttonsWrapper);
     this.createProfileButton(this.buttonsWrapper);
+    this.createCartButton(this.buttonsWrapper);
 
     this.getCreator().addInnerElement(this.buttonsWrapper);
   }
@@ -150,6 +151,17 @@ export default class HeaderView extends DefaultView {
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
     this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
+
+    parentElement.append(link.getElement());
+  }
+
+  private createCartButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const link = new LinkButton(LinkName.CART, () => {
+      this.router.setHref(PagePath.CART);
+    });
+
+    this.observer.subscribe(EventName.UPDATE_CART, () => {});
 
     parentElement.append(link.getElement());
   }

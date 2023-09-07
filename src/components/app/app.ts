@@ -164,13 +164,30 @@ export default class App {
       {
         path: `${PagePath.PROFILE}`,
         callback: async () => {
-          const ProductView = (await import('../view/page/profile-view/profile-view')).default;
+          if (this.isLogged()) {
+            const ProfileView = (await import('../view/page/profile-view/profile-view')).default;
+            const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
+              ? this.viewStorage.get(PagePath.PROFILE)
+              : new ProfileView(this.router);
+            if (view instanceof ProfileView) {
+              this.viewStorage.set(PagePath.PROFILE, view);
+              this.setContent(PagePath.PROFILE, view);
+            }
+          } else {
+            this.router.setHref(PagePath.LOGIN);
+          }
+        },
+      },
+      {
+        path: `${PagePath.CART}`,
+        callback: async () => {
+          const CartView = (await import('../view/page/cart-view/cart-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
-            ? this.viewStorage.get(PagePath.PROFILE)
-            : new ProductView(this.router);
-          if (view instanceof ProductView) {
-            this.viewStorage.set(PagePath.PROFILE, view);
-            this.setContent(PagePath.PROFILE, view);
+            ? this.viewStorage.get(PagePath.CART)
+            : new CartView(this.router);
+          if (view instanceof CartView) {
+            this.viewStorage.set(PagePath.CART, view);
+            this.setContent(PagePath.CART, view);
           }
         },
       },
