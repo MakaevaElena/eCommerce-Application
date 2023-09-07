@@ -26,4 +26,8 @@ export default class SearchInput {
   public clear() {
     this.element.value = '';
   }
+
+  public getSearchString() {
+    return this.element.value.trim();
+  }
 }

@@ -1,12 +1,12 @@
-import { Product, ProductVariant } from '@commercetools/platform-sdk';
+import { ProductProjection, ProductVariant } from '@commercetools/platform-sdk';
 import styleCss from './product-card.module.scss';
 import Router from '../../router/router';
-import DefaultView from '../../view/default-view';
 import { ElementParams } from '../../../utils/element-creator';
 import TagName from '../../../enum/tag-name';
 import TagElement from '../../../utils/create-tag-element';
 import { PagePath } from '../../router/pages';
 import Strings from './strings';
+import DefaultView from '../../view/default-view';
 
 type LocalPrices = {
   value: string;
@@ -22,11 +22,11 @@ export default class ProductCard extends DefaultView {
 
   private router: Router;
 
-  private product: Product;
+  private product: ProductProjection;
 
   private creator = new TagElement();
 
-  constructor(product: Product, router: Router) {
+  constructor(product: ProductProjection, router: Router) {
     const params: ElementParams = {
       tag: TagName.DIV,
       classNames: [styleCss['product-card'], styleCss['product-card__link']],
@@ -54,7 +54,7 @@ export default class ProductCard extends DefaultView {
   private createProductView() {
     const parent = this.getElement();
 
-    const { masterVariant } = this.product.masterData.current;
+    const { masterVariant } = this.product;
 
     const image = this.getImageElement(masterVariant);
     const wrapper = this.creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
@@ -87,15 +87,14 @@ export default class ProductCard extends DefaultView {
   }
 
   private getDescriptionElement() {
-    const descriptionText =
-      this.product.masterData.current.description?.[this.LANG] || Strings.Strings.EMPTY_TEXT[this.LANG];
+    const descriptionText = this.product.description?.[this.LANG] || Strings.Strings.EMPTY_TEXT[this.LANG];
     const description = this.creator.createTagElement('span', [styleCss['product-card__description']], descriptionText);
 
     return description;
   }
 
   private getTitleElement() {
-    const titleText = this.product.masterData.current.name[this.LANG] || Strings.Strings.NO_DATA[this.LANG];
+    const titleText = this.product.name[this.LANG] || Strings.Strings.NO_DATA[this.LANG];
     const title = this.creator.createTagElement('span', [styleCss['product-card__title']], titleText);
     return title;
   }

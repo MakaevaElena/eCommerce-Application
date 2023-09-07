@@ -1,6 +1,7 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { createAnonim } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
+import QueryParamType from './sdk/type';
 
 type LoginData = {
   email: string;
@@ -8,9 +9,9 @@ type LoginData = {
 };
 
 export enum Template {
-  ATTRIBUTE_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value(key in (%VALUE%))))))',
-  ATTRIBUTE_DEVELOPER_MASK = 'masterData(current(masterVariant(attributes(name="%ATTRIBUTE%" and value in (%VALUE%)))))',
-  WHERE_PRICE_MASK = 'masterData(current(masterVariant(prices(country="%COUNTY%" and value(centAmount>=%MIN_PRICE%) and value(centAmount<=%MAX_PRICE%)))))',
+  ENUM_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%.key:%VALUE%',
+  TEXT_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%:%VALUE%',
+  PRICE_FILTER_MASK = 'variants.scopedPrice.currentValue.centAmount:range (%MIN% to %MAX%)',
 }
 
 export default class ProductApi {
@@ -25,12 +26,6 @@ export default class ProductApi {
     }
   }
 
-  // получить все товары - это основной метод, но ниже есть еще способы получать товары.
-  // можно пробовать подставлять в методы .get({ queryArgs: -  и как то фильтровать
-  public getProducts() {
-    return this.clientRoot.products().get().execute();
-  }
-
   public getAllProducts() {
     return this.clientRoot
       .products()
@@ -42,51 +37,26 @@ export default class ProductApi {
       .execute();
   }
 
-  public getConditionalProducts(where?: string) {
-    const args: {
-      where?: string | string[];
-      limit: number;
-    } = {
-      limit: this.MAX_PRODUCTS,
-    };
+  public getProducts(args: QueryParamType) {
+    const params = { ...args };
+    // params.filter = 'variants.scopedPrice.currentValue.centAmount:range (* to 2100)';
 
-    if (where) {
-      args.where = where;
-    }
-
-    return this.clientRoot
-      .products()
-      .get({
-        queryArgs: args,
-      })
-      .execute();
-  }
-
-  public getSearchProducts(toSearch: string) {
     return this.clientRoot
       .productProjections()
       .search()
       .get({
-        queryArgs: {
-          'text.en': toSearch,
-          fuzzy: true,
-          facet: ['description.en'],
-          limit: this.MAX_PRODUCTS,
-        },
+        queryArgs: params,
       })
       .execute();
   }
 
-  public getProductProjections(toSearch: string) {
+  public getCategories() {
+    // return this.clientRoot.categories().withKey({ key: 'action' }).get().execute();
     return this.clientRoot
-      .productProjections()
-      .search()
+      .categories()
       .get({
         queryArgs: {
-          'text.en': toSearch,
-          fuzzy: true,
-          facet: ['description.en'],
-          limit: this.MAX_PRODUCTS,
+          expand: 'ancestors.id',
         },
       })
       .execute();

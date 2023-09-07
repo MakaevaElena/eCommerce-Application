@@ -1,0 +1,35 @@
+@import '../../../style/abstract/variables/colors.scss';
+
+.number-input {
+  min-height: 1.3rem;
+  width: 5rem;
+  margin: 0.5rem;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.3rem;
+  text-align: center;
+  color: rgb(255, 255, 255);
+  background-color: $color-brand-primary;
+  outline: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: transparentize($color-brand-primary, 0.1);
+    }
+  }
+}
+
+.number-input__label {
+  font-size: 1.3rem;
+}
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.number-input,
+.number-input:hover,
+.number-input:focus {
+  appearance: none;
+  -moz-appearance: textfield;
+}
