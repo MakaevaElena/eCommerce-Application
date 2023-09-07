@@ -164,13 +164,17 @@ export default class App {
       {
         path: `${PagePath.PROFILE}`,
         callback: async () => {
-          const ProductView = (await import('../view/page/profile-view/profile-view')).default;
-          const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
-            ? this.viewStorage.get(PagePath.PROFILE)
-            : new ProductView(this.router);
-          if (view instanceof ProductView) {
-            this.viewStorage.set(PagePath.PROFILE, view);
-            this.setContent(PagePath.PROFILE, view);
+          if (this.isLogged()) {
+            const ProfileView = (await import('../view/page/profile-view/profile-view')).default;
+            const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
+              ? this.viewStorage.get(PagePath.PROFILE)
+              : new ProfileView(this.router);
+            if (view instanceof ProfileView) {
+              this.viewStorage.set(PagePath.PROFILE, view);
+              this.setContent(PagePath.PROFILE, view);
+            }
+          } else {
+            this.router.setHref(PagePath.LOGIN);
           }
         },
       },
