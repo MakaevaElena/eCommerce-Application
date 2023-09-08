@@ -1,0 +1,61 @@
+@import '../../../../../style/abstract/variables/colors.scss';
+
+.cart-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
+  cursor: pointer;
+  position: relative;
+
+  &:active {
+    transform: translate(-2px, 2px);
+  }
+
+  .disabled {
+    color: $color-text-secondary;
+    border-color: $color-text-dark;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .hide {
+    display: none;
+  }
+}
+
+.cart-button__image {
+  height: 3rem;
+  width: 3rem;
+  background: url('../../../../../assets/images/cart.svg') no-repeat center 100%;
+  background-size: contain;
+
+  @media (hover: hover) {
+    &:hover,
+    &:active {
+      filter: invert(60%) sepia(49%) saturate(5237%) hue-rotate(87deg) brightness(122%) contrast(122%);
+    }
+  }
+}
+
+.cart-button__counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 1rem;
+  min-height: 1rem;
+  aspect-ratio: 1;
+  padding: 0.3rem;
+  border-radius: 50%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  user-select: none;
+  color: $color-text-dark;
+  background-color: $color-text-price;
+}

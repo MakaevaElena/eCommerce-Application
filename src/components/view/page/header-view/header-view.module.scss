@@ -1,5 +1,3 @@
-// @import '../../../styles/abstracts/variables.scss';
-
 .header-view {
   display: flex;
   justify-content: end;
@@ -20,4 +18,8 @@
 
 .show {
   display: block;
+}
+
+.button-about-us {
+  background: url('../../../../assets/images/about-us.svg');
 }

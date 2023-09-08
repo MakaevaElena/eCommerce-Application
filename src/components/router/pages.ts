@@ -6,6 +6,7 @@ const PagePath = {
   PRODUCT: 'product',
   PROFILE: 'profile',
   CART: 'cart',
+  ABOUT_US: 'about-us',
   NOT_FOUND: '404',
   EMPTY: '',
 };

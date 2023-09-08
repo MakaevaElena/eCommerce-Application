@@ -7,13 +7,15 @@ import DefaultView from '../../default-view';
 import styleCss from './header-view.module.scss';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import CartButton from './cart-button/cart-button';
+import ImageButton from '../../../shared/image-button/image-button';
 
 export default class HeaderView extends DefaultView {
   private router: Router;
 
   private observer: Observer;
 
-  private headerLinks: Map<string, LinkButton>;
+  private headerLinks: Map<string, LinkButton | ImageButton>;
 
   private buttonsWrapper: ElementCreator;
 
@@ -49,6 +51,7 @@ export default class HeaderView extends DefaultView {
     this.createLogoutButton(this.buttonsWrapper);
     this.createProfileButton(this.buttonsWrapper);
     this.createCartButton(this.buttonsWrapper);
+    this.createAbouUsButton(this.buttonsWrapper);
 
     this.getCreator().addInnerElement(this.buttonsWrapper);
   }
@@ -62,6 +65,20 @@ export default class HeaderView extends DefaultView {
     this.buttonsWrapper = new ElementCreator(params);
 
     return this.buttonsWrapper;
+  }
+
+  private createAbouUsButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.ABOUT_US;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new ImageButton(() => {
+        this.router.setHref(path);
+      });
+      link.getImageElement().classList.add(styleCss['button-about-us']);
+      this.headerLinks.set(path, link);
+      parentElement.append(link.getElement());
+    }
   }
 
   private createMainButton(parent: ElementCreator) {
@@ -147,6 +164,7 @@ export default class HeaderView extends DefaultView {
     const parentElement = parent.getElement();
     const link = new LinkButton(LinkName.PROFILE, () => {
       this.router.setHref(PagePath.PROFILE);
+      this.router.setHref('');
     });
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
@@ -157,11 +175,10 @@ export default class HeaderView extends DefaultView {
 
   private createCartButton(parent: ElementCreator) {
     const parentElement = parent.getElement();
-    const link = new LinkButton(LinkName.CART, () => {
+
+    const link = new CartButton(() => {
       this.router.setHref(PagePath.CART);
     });
-
-    this.observer.subscribe(EventName.UPDATE_CART, () => {});
 
     parentElement.append(link.getElement());
   }
