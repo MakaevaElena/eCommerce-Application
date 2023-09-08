@@ -26,7 +26,6 @@ export default class HeaderView extends DefaultView {
     super(params);
 
     this.observer = Observer.getInstance();
-    this.observer?.subscribe(EventName.LOGIN, this.updateHeader.bind(this));
 
     this.headerLinks = new Map();
 
@@ -43,8 +42,14 @@ export default class HeaderView extends DefaultView {
 
   private configView() {
     this.buttonsWrapper.clearInnerContent();
-    this.createLinkButtons(this.buttonsWrapper.getElement());
-    this.createLogoutButton(this.buttonsWrapper.getElement());
+    this.createMainButton(this.buttonsWrapper);
+    this.createCatalogButton(this.buttonsWrapper);
+    this.createLogInButton(this.buttonsWrapper);
+    this.createSignInButton(this.buttonsWrapper);
+    this.createLogoutButton(this.buttonsWrapper);
+    this.createProfileButton(this.buttonsWrapper);
+    this.createCartButton(this.buttonsWrapper);
+
     this.getCreator().addInnerElement(this.buttonsWrapper);
   }
 
@@ -59,35 +64,106 @@ export default class HeaderView extends DefaultView {
     return this.buttonsWrapper;
   }
 
-  private createLinkButtons(parentElement: HTMLElement) {
-    Object.keys(LinkName).forEach((key) => {
-      const path = PagePath[key as keyof typeof PagePath];
-      const title = LinkName[key as keyof typeof LinkName];
-      const route = this.getRoute(path);
-      if (route) {
-        const link = new LinkButton(title, () => this.router.navigate(path), this.headerLinks);
-
-        this.headerLinks.set(LinkName[key as keyof typeof LinkName], link);
-
-        parentElement.append(link.getElement());
-      }
-    });
+  private createMainButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.INDEX;
+    const title = LinkName.INDEX;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
+      parentElement.append(link.getElement());
+    }
   }
 
-  private createLogoutButton(parentElement: HTMLElement) {
-    const logoutButton = new LinkButton('Logout', () => this.router.navigate(''), this.headerLinks);
+  private createCatalogButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.CATALOG;
+    const title = LinkName.CATALOG;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
 
-    logoutButton.getElement().addEventListener('click', () => {
-      localStorage.setItem(`isLogin`, 'false');
+      parentElement.append(link.getElement());
+    }
+  }
+
+  private createLogInButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.LOGIN;
+    const title = LinkName.LOGIN;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
+
+      this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
+      this.observer.subscribe(EventName.LOGOUT, () => link.showButton());
+
+      parentElement.append(link.getElement());
+    }
+  }
+
+  private createSignInButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const path = PagePath.REGISTRATION;
+    const title = LinkName.REGISTRATION;
+    const route = this.getRoute(path);
+    if (route) {
+      const link = new LinkButton(title, () => {
+        this.router.setHref(path);
+      });
+      this.headerLinks.set(title, link);
+
+      this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
+      this.observer.subscribe(EventName.LOGOUT, () => link.showButton());
+
+      parentElement.append(link.getElement());
+    }
+  }
+
+  private createLogoutButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const link = new LinkButton(LinkName.LOGOUT, () => {
       this.observer.notify(EventName.LOGOUT);
-      this.updateHeader();
-      this.router.navigate(PagePath.INDEX);
+      localStorage.setItem(`isLogin`, 'false');
+      this.router.setHref('');
     });
 
-    if (localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false') {
-      logoutButton.getElement().classList.add(styleCss.hide);
-    }
-    parentElement.append(logoutButton.getElement());
+    this.observer.subscribe(EventName.LOGIN, () => link.showButton());
+    this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
+
+    parentElement.append(link.getElement());
+  }
+
+  private createProfileButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const link = new LinkButton(LinkName.PROFILE, () => {
+      this.router.setHref(PagePath.PROFILE);
+    });
+
+    this.observer.subscribe(EventName.LOGIN, () => link.showButton());
+    this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
+
+    parentElement.append(link.getElement());
+  }
+
+  private createCartButton(parent: ElementCreator) {
+    const parentElement = parent.getElement();
+    const link = new LinkButton(LinkName.CART, () => {
+      this.router.setHref(PagePath.CART);
+    });
+
+    this.observer.subscribe(EventName.UPDATE_CART, () => {});
+
+    parentElement.append(link.getElement());
   }
 
   private updateHeader() {

@@ -8,6 +8,8 @@ import EventName from '../../../../enum/event-name';
 
 import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import ErrorMessage from '../../../message/error-message';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
@@ -38,13 +40,13 @@ export default class LoginView extends DefaultView {
 
   private loginEmail = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.field],
+    classNames: [styleCss['login-form__field']],
     textContent: 'email',
   });
 
   private loginPassword = new ElementCreator({
     tag: TagName.INPUT,
-    classNames: [styleCss.field],
+    classNames: [styleCss['login-form__field']],
     textContent: 'password',
   });
 
@@ -116,7 +118,7 @@ export default class LoginView extends DefaultView {
 
     const showPasswordButton = new ElementCreator({
       tag: TagName.BUTTON,
-      classNames: [styleCss.button],
+      classNames: [styleCss.button, styleCss['login-form__show-password']],
       textContent: 'SHOW',
     });
 
@@ -216,7 +218,7 @@ export default class LoginView extends DefaultView {
           }
         } catch (error) {
           if (error instanceof Error) {
-            console.log(error.message); // TODO realize output message
+            new ErrorMessage().showMessage(error.message);
           }
         }
       }
@@ -226,6 +228,7 @@ export default class LoginView extends DefaultView {
         .then((response) => {
           if (response.body.customer) {
             window.localStorage.setItem(`isLogin`, 'true');
+            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
             this.observer.notify(EventName.LOGIN);
             this.router.navigate(PagePath.INDEX);
             this.userApi = new ClientApi({ email, password });
@@ -303,23 +306,4 @@ export default class LoginView extends DefaultView {
     this.passwordElement.reportValidity();
     return false;
   }
-
-  private createMessagePopup(message: string) {
-    const messagePopup = new ElementCreator({
-      tag: TagName.DIV,
-      classNames: [styleCss['login-form__popup']],
-      textContent: message,
-    });
-
-    this.getCreator().addInnerElement(messagePopup);
-
-    messagePopup.getElement().addEventListener('click', () => {
-      messagePopup.getElement().remove();
-    });
-  }
-}
-
-//
-export function getView(router: Router): LoginView {
-  return new LoginView(router);
 }

@@ -19,7 +19,7 @@ const baseConfig = {
         include: [path.resolve(__dirname, 'src')],
       },
       {
-        test: /\.css$/i,
+        test: /\.module.css$/i,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -33,7 +33,7 @@ const baseConfig = {
         ],
       },
       {
-        test: /\.s[ac]ss$/i,
+        test: /\.module.s[ac]ss$/i,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -46,6 +46,16 @@ const baseConfig = {
           },
           'sass-loader',
         ],
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+        exclude: /\.module.css$/i,
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+        exclude: /\.module.s[ac]ss$/i,
       },
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
@@ -74,6 +84,9 @@ const baseConfig = {
         {
           from: './src/assets/favicons',
           to: 'assets/favicons',
+        },
+        {
+          from: './src/public',
         },
       ],
     }),

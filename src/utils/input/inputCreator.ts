@@ -1,8 +1,8 @@
-import { CallbackListener, InputAttributes, InputParams } from './inputParams';
 import styles from './input-style.module.scss';
+import { CallbackListener, InputAttributes, InputParams } from './inputParams';
+import { InputTypes } from './input-values/input-values';
 import TagName from '../../enum/tag-name';
 import Events from '../../enum/events';
-import { InputTypes } from './input-values/input-values';
 import TextContents from '../../components/view/page/registration-view/enum/text-contents';
 
 export default class InputCreator {
@@ -16,7 +16,10 @@ export default class InputCreator {
 
   private title: string;
 
+  private label: HTMLLabelElement;
+
   constructor(params: InputParams) {
+    this.label = this.createLabel();
     this.inputElement = document.createElement('input');
     this.messageElement = document.createElement(TagName.SPAN);
     this.element = document.createElement(TagName.DIV);
@@ -43,8 +46,16 @@ export default class InputCreator {
     this.messageElement.textContent = '';
   }
 
+  removeMessageElement() {
+    this.element.removeChild(this.messageElement);
+  }
+
+  removeMessageElementFromLabel() {
+    this.label.removeChild(this.messageElement);
+  }
+
   appendMessage() {
-    this.element.append(this.messageElement);
+    this.label.append(this.messageElement);
   }
 
   setMessageError(message: string) {
@@ -71,6 +82,20 @@ export default class InputCreator {
     return this.inputElement;
   }
 
+  setLabel(labelValue: string): void {
+    this.label.textContent = labelValue;
+    this.label.append(this.inputElement);
+    this.element.append(this.label);
+  }
+
+  setDisabled() {
+    this.inputElement.disabled = true;
+  }
+
+  removeDisabled() {
+    this.inputElement.disabled = false;
+  }
+
   getTitle(): string {
     return this.getInput().title;
   }
@@ -82,6 +107,11 @@ export default class InputCreator {
 
   setPattern(title: string): void {
     this.inputElement.pattern = title;
+  }
+
+  private createLabel(): HTMLLabelElement {
+    const label = document.createElement('label');
+    return label;
   }
 
   private createElement(params: InputParams): void {

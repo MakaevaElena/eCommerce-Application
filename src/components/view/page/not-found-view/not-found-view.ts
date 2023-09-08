@@ -41,7 +41,3 @@ export default class NotFoundView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 }
-
-export function getView(router: Router): NotFoundView {
-  return new NotFoundView(router);
-}

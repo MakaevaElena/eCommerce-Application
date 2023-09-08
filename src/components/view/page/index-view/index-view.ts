@@ -33,24 +33,19 @@ export default class IndexView extends DefaultView {
   }
 
   private createLinks() {
-    const wrapper = new TagElement().createTagElement('div', [styleCss['links-wrapper']]);
-    const logInButton = this.createLogInButton();
-    const signInButton = this.createSignInButton();
-
-    wrapper.append(logInButton.getElement(), signInButton.getElement());
+    const wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
+    // const messageButton = this.createMessageButton();
+    // wrapper.append(messageButton.getElement());
     this.getCreator().addInnerElement(wrapper);
   }
 
-  private createLogInButton() {
-    const linkButton = new LinkButton(LinkName.LOGIN, () => {
-      if (localStorage.getItem('isLogin') === 'true') {
-        this.router.navigate(PagePath.INDEX);
-      } else {
-        this.router.navigate(PagePath.LOGIN);
-      }
-    });
-    return linkButton;
-  }
+  // private createMessageButton() {
+  //   const linkButton = new LinkButton('Messages', () => {
+  //     this.showMessage();
+  //   });
+
+  //   return linkButton;
+  // }
 
   private createSignInButton() {
     const linkButton = new LinkButton(LinkName.REGISTRATION, () => {
@@ -62,8 +57,4 @@ export default class IndexView extends DefaultView {
     });
     return linkButton;
   }
-}
-
-export function getView(router: Router): IndexView {
-  return new IndexView(router);
 }

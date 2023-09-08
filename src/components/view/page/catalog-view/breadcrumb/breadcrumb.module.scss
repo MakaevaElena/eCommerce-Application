@@ -1,0 +1,16 @@
+.breadcrumb {
+  padding: 10px 16px;
+  list-style: none;
+  background-color: #eee;
+}
+
+.breadcrumb__item {
+  display: inline;
+  font-size: 18px;
+}
+
+.breadcrumb__item + .breadcrumb__item:before {
+  padding: 8px;
+  color: black;
+  content: '/\00a0';
+}

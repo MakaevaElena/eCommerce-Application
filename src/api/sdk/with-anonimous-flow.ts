@@ -5,6 +5,7 @@ import {
   // type AuthMiddlewareOptions, // Required for auth
   type HttpMiddlewareOptions, // Required for sending HTTP requests
 } from '@commercetools/sdk-client-v2';
+import Guid from '../../utils/guid';
 
 export const CTP_PROJECT_KEY = 'best-games';
 export const CTP_CLIENT_SECRET = 'RKi7doGwQ75b4wfuLsPuahDT366uOhUY';
@@ -34,7 +35,7 @@ export const createAnonim = () => {
     credentials: {
       clientId: CTP_CLIENT_ID,
       clientSecret: CTP_CLIENT_SECRET,
-      anonymousId: `best-games-${Math.floor(Math.random() * 100000)}`, // a unique id
+      anonymousId: `best-games-${Guid.newGuid()}`, // a unique id
     },
     scopes: [`manage_project:${CTP_PROJECT_KEY}`],
   };
@@ -42,7 +43,7 @@ export const createAnonim = () => {
   // Configure httpMiddlewareOptions
   const httpMiddlewareOptions: HttpMiddlewareOptions = {
     host: CTP_API_URL || '',
-    fetch,
+    // fetch,
   };
 
   const anonimClient = new ClientBuilder()

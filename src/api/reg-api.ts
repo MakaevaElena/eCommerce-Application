@@ -96,4 +96,200 @@ export default class RegApi {
       .execute();
     return customer;
   }
+
+  public getCustomer(customerEmail: string) {
+    return this.clientRoot
+      .customers()
+      .get({
+        queryArgs: {
+          where: `email="${customerEmail}"`,
+        },
+      })
+      .execute();
+  }
+
+  public changeData(customerID: string, version: number, action: any, actionName: string, value: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: customerID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action,
+              [actionName]: value,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public changePassword(customerID: string, newPassword: string, oldPassword: string, version: number) {
+    return this.clientRoot
+      .customers()
+      .password()
+      .post({
+        body: {
+          id: customerID,
+          version,
+          currentPassword: oldPassword,
+          newPassword,
+        },
+      })
+      .execute();
+  }
+
+  public addAddress(
+    customerID: string,
+    version: number,
+    street: string,
+    postal: string,
+    city: string,
+    country: string
+  ) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: customerID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'addAddress',
+              address: {
+                streetName: street,
+                postalCode: postal,
+                city,
+                country,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressShipping(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'addShippingAddressId',
+              addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressBilling(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'addBillingAddressId',
+              addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressBillingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'setDefaultBillingAddress',
+              addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public makeAddressShippingDefault(userID: string, version: number, addressId: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'setDefaultShippingAddress',
+              addressId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public changeAddress(
+    userID: string,
+    version: number,
+    addressId: string,
+    street: string,
+    postal: string,
+    city: string,
+    country: string
+  ) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version,
+          actions: [
+            {
+              action: 'changeAddress',
+              addressId,
+              address: {
+                streetName: street,
+                postalCode: postal,
+                city,
+                country,
+              },
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public deleteAdress(userID: string, versionNum: number, addressID: string) {
+    return this.clientRoot
+      .customers()
+      .withId({ ID: userID })
+      .post({
+        body: {
+          version: versionNum,
+          actions: [
+            {
+              action: 'removeAddress',
+              addressId: addressID,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }

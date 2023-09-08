@@ -43,6 +43,7 @@
   font-size: 1rem;
   font-weight: 300;
   color: gray;
+  margin: 0.3rem;
 }
 
 .login-form {
@@ -50,51 +51,46 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: start;
-  height: 200px;
-  width: 400px;
+  height: 250px;
+  width: min(90%, 400px);
   margin: 1rem 0;
   background-color: transparentize($color-page-background-secondary, 0.8);
   @include border();
   padding: 1rem;
 
   &__show-password {
+    display: flex;
+    justify-content: center;
     width: 15%;
   }
 
-  &__popup {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 20px;
-    left: 30px;
-    height: 20%;
-    width: 20%;
-    border-radius: 3%;
-    border: 0.1px solid gray;
-    margin: 1rem 0;
-    padding: 1rem;
-    background-color: rgb(114, 114, 114);
-    color: white;
-    font-size: 2rem;
+  &__field {
+    font-family: 'Karla', sans-serif;
+    width: 92%;
+    padding: 0.5rem;
+    margin: 0.2rem;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    @include border();
   }
 
-  @media (max-width: 500px) {
-    width: 90%;
+  &__field:invalid {
+    border: 0.1px solid rgb(207, 90, 90);
   }
 }
 
 .password-block {
-  width: 90%;
+  width: 100%;
   display: flex;
-  gap: 10px;
+  gap: 1px;
 }
 
 .login-view .button {
   font-family: 'Karla', sans-serif;
-  width: 90%;
+  width: 99%;
   font-size: 0.7rem;
   padding: 0.5rem;
+  margin: 0.1rem;
   cursor: pointer;
   background-color: transparentize($color-brand-primary, 0.2);
 }
@@ -107,25 +103,25 @@
   width: 18%;
 }
 
-.field {
-  font-family: 'Karla', sans-serif;
-  width: 85%;
-  padding: 0.5rem;
-  border-radius: 3px;
-  @include border();
-}
+// .login-form__field {
+//   font-family: 'Karla', sans-serif;
+//   width: 85%;
+//   padding: 0.5rem;
+//   border-radius: 3px;
+//   @include border();
+// }
 
-.field:invalid {
-  border: 0.1px solid rgb(207, 90, 90);
-}
+// .field:invalid {
+//   border: 0.1px solid rgb(207, 90, 90);
+// }
 
-.field:valid {
-  border: 0.1px solid rgb(69, 150, 69);
-}
+// .field:valid {
+//   border: 0.1px solid rgb(69, 150, 69);
+// }
 
-.disabled {
-  background-color: gray;
-  color: #a8a8a8;
-  cursor: none;
-  pointer-events: none;
-}
+// .disabled {
+//   background-color: gray;
+//   color: #a8a8a8;
+//   cursor: none;
+//   pointer-events: none;
+// }

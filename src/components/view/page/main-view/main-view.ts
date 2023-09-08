@@ -8,15 +8,16 @@ export default class MainView extends DefaultView {
     const params: ElementParams = {
       tag: TagName.MAIN,
       classNames: Object.values(styleCss),
-      textContent: 'MainView',
+      textContent: '',
     };
     super(params);
 
-    // this.configView();
+    this.configView();
   }
 
   private configView() {
-    throw new Error(`configView() for ${this.getElement()} not implemented`);
+    // throw new Error(`configView() for ${this.getElement()} not implemented`);
+    // this.getAllProducts();
   }
 
   public setContent(element: InsertableElement) {
