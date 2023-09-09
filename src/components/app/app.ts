@@ -191,6 +191,19 @@ export default class App {
           }
         },
       },
+      {
+        path: `${PagePath.ABOUT_US}`,
+        callback: async () => {
+          const AboutUsView = (await import('../view/page/about-us-view/about-us-view')).default;
+          const view: DefaultView | undefined = this.viewStorage.has(PagePath.ABOUT_US)
+            ? this.viewStorage.get(PagePath.ABOUT_US)
+            : new AboutUsView(this.router);
+          if (view instanceof AboutUsView) {
+            this.viewStorage.set(PagePath.ABOUT_US, view);
+            this.setContent(PagePath.ABOUT_US, view);
+          }
+        },
+      },
     ];
   }
 }
