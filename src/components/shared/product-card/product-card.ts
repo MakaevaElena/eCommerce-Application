@@ -53,10 +53,10 @@ export default class ProductCard extends DefaultView {
 
   public setProductInCart(value: boolean) {
     if (value) {
-      this.buttonAddToCart.classList.remove(styleCss['card-button_hide']);
+      this.buttonAddToCart.classList.remove(styleCss['card-button_disabled']);
       this.buttonRemoveFromCart.classList.add(styleCss['card-button_hide']);
     } else {
-      this.buttonAddToCart.classList.add(styleCss['card-button_hide']);
+      this.buttonAddToCart.classList.add(styleCss['card-button_disabled']);
       this.buttonRemoveFromCart.classList.remove(styleCss['card-button_hide']);
     }
   }
@@ -94,9 +94,9 @@ export default class ProductCard extends DefaultView {
     const { masterVariant } = this.product;
 
     const image = this.getImageElement(masterVariant);
-    const cartControls = this.getCartControls();
+    // const cartControls = this.getCartControls();
     const wrapper = this.creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
-    parent.append(image, cartControls, wrapper);
+    parent.append(image, this.buttonRemoveFromCart, this.buttonAddToCart, wrapper);
 
     const title = this.getTitleElement();
     const description = this.getDescriptionElement();
@@ -104,12 +104,12 @@ export default class ProductCard extends DefaultView {
     wrapper.append(title, description, prices);
   }
 
-  private getCartControls() {
-    const wrapper = this.creator.createTagElement('div', [styleCss['product-card__cart-controls-wrapper']]);
-    wrapper.append(this.buttonRemoveFromCart, this.buttonAddToCart);
+  // private getCartControls() {
+  //   const wrapper = this.creator.createTagElement('div', [styleCss['product-card__cart-controls-wrapper']]);
+  //   wrapper.append(this.buttonRemoveFromCart, this.buttonAddToCart);
 
-    return wrapper;
-  }
+  //   return wrapper;
+  // }
 
   private getPricesElement(masterVariant: ProductVariant) {
     const pricesWrapper = this.creator.createTagElement('span', [styleCss['product-card__prices-wrapper']]);
