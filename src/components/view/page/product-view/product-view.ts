@@ -374,7 +374,7 @@ export default class ProductView extends DefaultView {
         .createCart()
         .then((response) => {
           localStorage.setItem('anonimCartID', `${response.body.id}`);
-          console.log('createCart response', response);
+          // console.log('createCart response', response);
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
     }
