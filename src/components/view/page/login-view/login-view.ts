@@ -232,7 +232,7 @@ export default class LoginView extends DefaultView {
             this.observer.notify(EventName.LOGIN);
             this.router.navigate(PagePath.INDEX);
             this.userApi = new ClientApi({ email, password });
-            this.userApi.returnCustomerById(response.body.customer.id);
+            this.userApi.getCustomerByID(response.body.customer.id);
           }
         })
         .catch(() => {

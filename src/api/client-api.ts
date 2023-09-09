@@ -41,7 +41,7 @@ export default class ClientApi {
       .execute();
   }
 
-  public returnCustomerByID(customerID: string) {
+  public getCustomerByID(customerID: string) {
     return this.clientRoot
       .customers()
       .get({
@@ -52,16 +52,16 @@ export default class ClientApi {
       .execute();
   }
 
-  public returnCustomerById(id: string) {
-    return this.clientRoot
-      .customers()
-      .get({
-        queryArgs: {
-          where: `id="${id}"`,
-        },
-      })
-      .execute();
-  }
+  // public getCustomerById(id: string) {
+  //   return this.clientRoot
+  //     .customers()
+  //     .get({
+  //       queryArgs: {
+  //         where: `id="${id}"`,
+  //       },
+  //     })
+  //     .execute();
+  // }
 
   public getCustomer({ email, password }: { email: string; password: string }) {
     return this.clientRoot
