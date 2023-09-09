@@ -21,11 +21,11 @@ export default class CartView extends DefaultView {
     textContent: '',
   });
 
-  private itemOrderSumm = new ElementCreator({
-    tag: TagName.DIV,
-    classNames: [styleCss['item-block__order-summ']],
-    textContent: ``,
-  });
+  // private itemOrderSumm = new ElementCreator({
+  //   tag: TagName.DIV,
+  //   classNames: [styleCss['item-block__order-summ']],
+  //   textContent: ``,
+  // });
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -101,6 +101,12 @@ export default class CartView extends DefaultView {
         this.router.navigate(routePath);
       });
 
+      const itemOrderSumm = new ElementCreator({
+        tag: TagName.DIV,
+        classNames: [styleCss['item-block__order-summ']],
+        textContent: ``,
+      });
+
       const itemQuantity = new ElementCreator({
         tag: TagName.DIV,
         classNames: [styleCss['item-block__quantity'], styleCss['cart-cell']],
@@ -125,7 +131,7 @@ export default class CartView extends DefaultView {
           }
           return '';
         };
-        this.itemOrderSumm.getElement().textContent = `${getSum()}`;
+        itemOrderSumm.getElement().textContent = `${getSum()}`;
       });
 
       const getPrice = () => {
@@ -143,7 +149,7 @@ export default class CartView extends DefaultView {
         textContent: ``,
       });
 
-      this.itemOrderSumm.getElement().textContent = `${getPrice()}`;
+      itemOrderSumm.getElement().textContent = `${getPrice()}`;
 
       const itemRemoveButton = new ElementCreator({
         tag: TagName.DIV,
@@ -158,7 +164,7 @@ export default class CartView extends DefaultView {
       itemBlock.addInnerElement(itemInfoBlock);
       itemQuantity.addInnerElement(itemQuantityInput);
       itemBlock.addInnerElement(itemQuantity);
-      itemOrderValue.addInnerElement(this.itemOrderSumm);
+      itemOrderValue.addInnerElement(itemOrderSumm);
       itemOrderValue.addInnerElement(itemRemoveButton);
       itemBlock.addInnerElement(itemOrderValue);
       this.cartSection.addInnerElement(itemBlock.getElement());
