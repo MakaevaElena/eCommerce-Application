@@ -47,7 +47,17 @@ export default class CartView extends DefaultView {
 
   private configView() {
     this.createCartHeader();
-    this.createCartItem('Prey');
+    const anonimCartID = localStorage.getItem('anonimCartID');
+    if (anonimCartID)
+      this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then((response) =>
+          response.body.lineItems.forEach((item) => {
+            console.log('item.key', item.productKey);
+            if (item.productKey) this.createCartItem(item.productKey);
+          })
+        )
+        .catch();
   }
 
   private createCartItem(itemKey: string) {

@@ -53,9 +53,6 @@ export default class ProductView extends DefaultView {
     this.observer = Observer.getInstance();
     this.anonimApi = new ClientApi();
 
-    // this.productKey = window.location.hash;
-    // this.getProducts();
-
     this.router = router;
 
     this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
@@ -110,7 +107,7 @@ export default class ProductView extends DefaultView {
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then((response) => {
-        console.log('product', response);
+        // console.log('product', response);
 
         this.getCategory(response);
 
@@ -305,8 +302,8 @@ export default class ProductView extends DefaultView {
         }
 
         productInfo.addInnerElement(productDescription);
-        // productInfo.addInnerElement(addToCard);
-        productInfo.addInnerElement(this.createToCartButton().getElement());
+        if (response.body.masterVariant.sku)
+          productInfo.addInnerElement(this.createToCartButton(response.body.masterVariant?.sku).getElement());
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -340,22 +337,6 @@ export default class ProductView extends DefaultView {
       });
   }
 
-  private getProducts() {
-    this.anonimApi
-      .getProducts()
-      // .then((response) => console.log(response))
-      .catch((error) => {
-        this.createMessagePopup('error.message');
-        throw new Error(error.message);
-      });
-  }
-
-  private getProductByKey(key: string) {
-    this.anonimApi.productProjectionResponseKEY(key).then((response) => {
-      console.log('product', response);
-    });
-  }
-
   private createMessagePopup(message: string) {
     const messagePopup = new ElementCreator({
       tag: TagName.DIV,
@@ -378,11 +359,37 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  private createToCartButton() {
+  private createToCartButton(sku: string) {
     const button = new LinkButton('Add to cart', () => {
-      this.router.navigate(PagePath.EMPTY);
+      this.addToCart(sku);
     });
+
     return button;
+  }
+
+  private addToCart(sku: string) {
+    // const userId = localStorage.getItem('anonymousId');
+    if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
+      this.anonimApi
+        .createCart()
+        .then((response) => {
+          localStorage.setItem('anonimCartID', `${response.body.id}`);
+          console.log('createCart response', response);
+        })
+        .catch((error) => new ErrorMessage().showMessage(error.message));
+    }
+
+    const cartID = localStorage.getItem('anonimCartID');
+
+    if (cartID !== null) {
+      this.addItemToCart(cartID, sku);
+    }
+  }
+
+  private addItemToCart(cartId: string, sku: string) {
+    this.anonimApi.getCartByCartID(cartId).then((response) => {
+      this.anonimApi.addItemToCartByID(cartId, response.body.version, sku);
+    });
   }
 
   public createSwiperWrapper(images: Array<string>) {
