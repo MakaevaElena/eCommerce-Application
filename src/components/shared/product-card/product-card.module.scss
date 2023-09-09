@@ -2,6 +2,7 @@
 @import '../../../style/abstract/mixins/border-mixin.scss';
 
 .product-card {
+  position: relative;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
@@ -46,9 +47,52 @@
   align-self: flex-start;
 }
 
-.product-card__content-wrapper {
-  padding: 0 5px;
-  align-self: flex-start;
+.product-card__cart-controls-wrapper {
+  // position: absolute;
+  // width: 100%;
+  // display: flex;
+  // justify-content: space-between;
+  // top: 0;
+
+  .card-button {
+    position: absolute;
+    top: 0;
+    width: 3rem;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: $color-page-background;
+    transition:
+      transform 0.3s,
+      opacity 0.3s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    &.button-remove {
+      left: 0;
+      background:
+        url('../../../assets/images/cart.svg') center / contain no-repeat,
+        $color-text-discount;
+      background-size: 2.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+
+    &.button-add {
+      right: 0;
+      background:
+        url('../../../assets/images/cart.svg') center / contain no-repeat,
+        $color-text-price;
+      background-size: 2.5rem;
+      border-bottom-left-radius: 0.5rem;
+    }
+
+    &_hide {
+      display: none;
+    }
+  }
 }
 
 .product-card__content-wrapper {
@@ -129,7 +173,6 @@
 }
 
 .product-card__discount {
-  // font-size: 1.2rem;
   font-size: 2rem;
   text-align: center;
   color: $color-text-discount;

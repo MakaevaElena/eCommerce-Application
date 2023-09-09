@@ -26,6 +26,10 @@ export default class ProductCard extends DefaultView {
 
   private creator = new TagElement();
 
+  private buttonAddToCart: HTMLElement;
+
+  private buttonRemoveFromCart: HTMLElement;
+
   constructor(product: ProductProjection, router: Router) {
     const params: ElementParams = {
       tag: TagName.DIV,
@@ -37,7 +41,40 @@ export default class ProductCard extends DefaultView {
     this.product = product;
     this.router = router;
 
+    this.buttonAddToCart = this.createButtonAddToCart();
+    this.buttonRemoveFromCart = this.createButtonRemoveFromCart();
+
     this.configView();
+  }
+
+  public getProduct() {
+    return this.product;
+  }
+
+  public setProductInCart(value: boolean) {
+    if (value) {
+      this.buttonAddToCart.classList.remove(styleCss['card-button_hide']);
+      this.buttonRemoveFromCart.classList.add(styleCss['card-button_hide']);
+    } else {
+      this.buttonAddToCart.classList.add(styleCss['card-button_hide']);
+      this.buttonRemoveFromCart.classList.remove(styleCss['card-button_hide']);
+    }
+  }
+
+  private createButtonAddToCart() {
+    this.buttonAddToCart = this.creator.createTagElement('div', [styleCss['card-button'], styleCss['button-add']], '+');
+
+    return this.buttonAddToCart;
+  }
+
+  private createButtonRemoveFromCart() {
+    this.buttonRemoveFromCart = this.creator.createTagElement(
+      'div',
+      [styleCss['card-button'], styleCss['button-remove']],
+      '-'
+    );
+
+    return this.buttonRemoveFromCart;
   }
 
   private configView() {
@@ -57,13 +94,21 @@ export default class ProductCard extends DefaultView {
     const { masterVariant } = this.product;
 
     const image = this.getImageElement(masterVariant);
+    const cartControls = this.getCartControls();
     const wrapper = this.creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
-    parent.append(image, wrapper);
+    parent.append(image, cartControls, wrapper);
 
     const title = this.getTitleElement();
     const description = this.getDescriptionElement();
     const prices = this.getPricesElement(masterVariant);
     wrapper.append(title, description, prices);
+  }
+
+  private getCartControls() {
+    const wrapper = this.creator.createTagElement('div', [styleCss['product-card__cart-controls-wrapper']]);
+    wrapper.append(this.buttonRemoveFromCart, this.buttonAddToCart);
+
+    return wrapper;
   }
 
   private getPricesElement(masterVariant: ProductVariant) {
