@@ -1,6 +1,7 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { createAnonim } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
+import Guid from '../utils/guid';
 
 type LoginData = {
   email: string;
@@ -41,12 +42,12 @@ export default class ClientApi {
       .execute();
   }
 
-  public returnCustomerById(id: string) {
+  public getCustomerByID(customerID: string) {
     return this.clientRoot
       .customers()
       .get({
         queryArgs: {
-          where: `id="${id}"`,
+          where: `id="${customerID}"`,
         },
       })
       .execute();
@@ -76,24 +77,6 @@ export default class ClientApi {
     const userClient = createUser(email, password);
     this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
     return this.clientRoot;
-  }
-
-  public createCart = (customerId: string) => {
-    return this.clientRoot
-      .carts()
-      .post({
-        body: {
-          key: `cart-key-${Math.floor(Math.random() * 100000)}`,
-          currency: 'RUB',
-          country: 'RU',
-          customerId,
-        },
-      })
-      .execute();
-  };
-
-  public getCartByCustomerId(id: string) {
-    return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
 
   public getCategory(id: string) {
@@ -175,4 +158,61 @@ export default class ClientApi {
       })
       .execute();
   }
+
+  // CART
+
+  // /{projectKey}/carts/customer-id={customerId}
+  public getCartByCustomerId(id: string) {
+    return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
+  }
+
+  public getCartByCartID(cartId: string) {
+    return this.clientRoot.carts().withId({ ID: cartId }).get().execute();
+  }
+
+  public createCart() {
+    return this.clientRoot
+      .carts()
+      .post({
+        body: {
+          key: `cart-key-${Guid.newGuid()}`,
+          currency: 'USD',
+          country: 'US',
+          // customerId,
+        },
+      })
+      .execute();
+  }
+
+  // public createCart(customerId: string) {
+  //   return this.clientRoot
+  //     .carts()
+  //     .post({
+  //       body: {
+  //         key: `cart-key-${Math.floor(Math.random() * 100000)}`,
+  //         currency: 'USD',
+  //         country: 'US',
+  //         customerId,
+  //       },
+  //     })
+  //     .execute();
+  // }
+
+  public addItemToCartByID = (cartID: string, cartVersion: number, productSku: string) => {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'addLineItem',
+              sku: productSku,
+            },
+          ],
+        },
+      })
+      .execute();
+  };
 }

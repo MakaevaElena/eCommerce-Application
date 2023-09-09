@@ -29,13 +29,17 @@ type AnonymousAuthMiddlewareOptions = {
 };
 
 export const createAnonim = () => {
+  const anonymousId = `best-games-${Guid.newGuid().slice(0, 10)}`; // a unique id
+
+  localStorage.setItem('anonymousId', anonymousId);
+
   const options: AnonymousAuthMiddlewareOptions = {
     host: CTP_AUTH_URL,
     projectKey: CTP_PROJECT_KEY,
     credentials: {
       clientId: CTP_CLIENT_ID,
       clientSecret: CTP_CLIENT_SECRET,
-      anonymousId: `best-games-${Guid.newGuid()}`, // a unique id
+      anonymousId, // a unique id
     },
     scopes: [`manage_project:${CTP_PROJECT_KEY}`],
   };

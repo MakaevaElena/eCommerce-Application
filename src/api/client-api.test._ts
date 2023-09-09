@@ -10,7 +10,7 @@ describe('Test Client API', () => {
     const responseByEmail = await api.checkCustomerExist(ApiMock.email);
     expect(responseByEmail).toHaveProperty('statusCode');
 
-    const responseById = await api.returnCustomerById(ApiMock.customerId);
+    const responseById = await api.getCustomerByID(ApiMock.customerId);
     expect(responseById).toHaveProperty('statusCode');
 
     const signInResult = await api.getCustomer({ email: ApiMock.email, password: ApiMock.pass });

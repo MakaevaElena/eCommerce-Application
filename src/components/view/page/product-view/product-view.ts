@@ -53,9 +53,6 @@ export default class ProductView extends DefaultView {
     this.observer = Observer.getInstance();
     this.anonimApi = new ClientApi();
 
-    // this.productKey = window.location.hash;
-    // this.getProducts();
-
     this.router = router;
 
     this.wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
@@ -109,8 +106,8 @@ export default class ProductView extends DefaultView {
     const imagesUrls: string[] = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
-      .then((response) => {
-        console.log('product', response);
+      .then(async (response) => {
+        // console.log('product', response);
 
         this.getCategory(response);
 
@@ -305,8 +302,10 @@ export default class ProductView extends DefaultView {
         }
 
         productInfo.addInnerElement(productDescription);
-        // productInfo.addInnerElement(addToCard);
-        productInfo.addInnerElement(this.createToCartButton().getElement());
+        if (response.body.masterVariant.sku)
+          productInfo.addInnerElement(
+            (await this.createToCartButton(response.body.masterVariant?.sku, key)).getElement()
+          );
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -340,22 +339,6 @@ export default class ProductView extends DefaultView {
       });
   }
 
-  private getProducts() {
-    this.anonimApi
-      .getProducts()
-      // .then((response) => console.log(response))
-      .catch((error) => {
-        this.createMessagePopup('error.message');
-        throw new Error(error.message);
-      });
-  }
-
-  private getProductByKey(key: string) {
-    this.anonimApi.productProjectionResponseKEY(key).then((response) => {
-      console.log('product', response);
-    });
-  }
-
   private createMessagePopup(message: string) {
     const messagePopup = new ElementCreator({
       tag: TagName.DIV,
@@ -378,11 +361,53 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  private createToCartButton() {
-    const button = new LinkButton('Add to cart', () => {
-      this.router.navigate(PagePath.EMPTY);
+  private async createToCartButton(sku: string, key: string) {
+    let button = new LinkButton('Add to cart', () => {
+      this.addToCart(sku);
     });
+
+    const anonimCartID = localStorage.getItem('anonimCartID');
+    if (anonimCartID)
+      await this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then((response) => {
+          if (response.body.lineItems.some((item) => item.productKey === key)) {
+            button = new LinkButton('Remove from cart', () => {
+              this.removeFromCart(sku);
+            });
+          }
+        })
+        .catch((error) => new ErrorMessage().showMessage(error.message));
+
     return button;
+  }
+
+  private addToCart(sku: string) {
+    // const userId = localStorage.getItem('anonymousId');
+    if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
+      this.anonimApi
+        .createCart()
+        .then((response) => {
+          localStorage.setItem('anonimCartID', `${response.body.id}`);
+        })
+        .catch((error) => new ErrorMessage().showMessage(error.message));
+    }
+
+    const cartID = localStorage.getItem('anonimCartID');
+
+    if (cartID !== null) {
+      this.addItemToCart(cartID, sku);
+    }
+  }
+
+  private addItemToCart(cartId: string, sku: string) {
+    this.anonimApi.getCartByCartID(cartId).then((response) => {
+      this.anonimApi.addItemToCartByID(cartId, response.body.version, sku);
+    });
+  }
+
+  private removeFromCart(sku: string) {
+    console.log('removeFromCart', sku);
   }
 
   public createSwiperWrapper(images: Array<string>) {
