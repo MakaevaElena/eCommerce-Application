@@ -98,7 +98,7 @@ export default class CartView extends DefaultView {
 
       itemMoreDetails.getElement().addEventListener('click', () => {
         const routePath = `${PagePath.CATALOG}/${itemKey}`;
-        this.router.navigate(routePath);
+        this.router.setHref(routePath);
       });
 
       const itemOrderSumm = new ElementCreator({

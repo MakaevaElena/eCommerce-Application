@@ -8,9 +8,10 @@
   align-items: center;
 
   background: url('../../../../assets/images/cart-view.jpg') no-repeat top center;
+  background-attachment: fixed;
   background-size: cover;
   width: 100%;
-  height: 80vh;
+  height: 100%;
   font-family: 'Karla', sans-serif;
   @include border();
 

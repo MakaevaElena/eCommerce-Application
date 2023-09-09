@@ -1,6 +1,7 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { createAnonim } from './sdk/with-anonimous-flow';
 import { createUser } from './sdk/with-password-flow';
+import Guid from '../utils/guid';
 
 type LoginData = {
   email: string;
@@ -51,17 +52,6 @@ export default class ClientApi {
       })
       .execute();
   }
-
-  // public getCustomerById(id: string) {
-  //   return this.clientRoot
-  //     .customers()
-  //     .get({
-  //       queryArgs: {
-  //         where: `id="${id}"`,
-  //       },
-  //     })
-  //     .execute();
-  // }
 
   public getCustomer({ email, password }: { email: string; password: string }) {
     return this.clientRoot
@@ -185,7 +175,7 @@ export default class ClientApi {
       .carts()
       .post({
         body: {
-          key: `cart-key-${Math.floor(Math.random() * 100000)}`,
+          key: `cart-key-${Guid.newGuid()}`,
           currency: 'USD',
           country: 'US',
           // customerId,
