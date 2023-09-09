@@ -106,7 +106,7 @@ export default class ProductView extends DefaultView {
     const imagesUrls: string[] = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
-      .then((response) => {
+      .then(async (response) => {
         // console.log('product', response);
 
         this.getCategory(response);
@@ -303,7 +303,9 @@ export default class ProductView extends DefaultView {
 
         productInfo.addInnerElement(productDescription);
         if (response.body.masterVariant.sku)
-          productInfo.addInnerElement(this.createToCartButton(response.body.masterVariant?.sku).getElement());
+          productInfo.addInnerElement(
+            (await this.createToCartButton(response.body.masterVariant?.sku, key)).getElement()
+          );
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -359,10 +361,23 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  private createToCartButton(sku: string) {
-    const button = new LinkButton('Add to cart', () => {
+  private async createToCartButton(sku: string, key: string) {
+    let button = new LinkButton('Add to cart', () => {
       this.addToCart(sku);
     });
+
+    const anonimCartID = localStorage.getItem('anonimCartID');
+    if (anonimCartID)
+      await this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then((response) => {
+          if (response.body.lineItems.some((item) => item.productKey === key)) {
+            button = new LinkButton('Remove from cart', () => {
+              this.removeFromCart(sku);
+            });
+          }
+        })
+        .catch((error) => new ErrorMessage().showMessage(error.message));
 
     return button;
   }
@@ -374,7 +389,6 @@ export default class ProductView extends DefaultView {
         .createCart()
         .then((response) => {
           localStorage.setItem('anonimCartID', `${response.body.id}`);
-          // console.log('createCart response', response);
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
     }
@@ -390,6 +404,10 @@ export default class ProductView extends DefaultView {
     this.anonimApi.getCartByCartID(cartId).then((response) => {
       this.anonimApi.addItemToCartByID(cartId, response.body.version, sku);
     });
+  }
+
+  private removeFromCart(sku: string) {
+    console.log('removeFromCart', sku);
   }
 
   public createSwiperWrapper(images: Array<string>) {
