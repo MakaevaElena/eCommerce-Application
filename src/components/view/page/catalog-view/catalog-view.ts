@@ -23,13 +23,17 @@ export default class CatalogView extends DefaultView {
 
   private readonly NOT_FOUND = 'Products not found';
 
+  private readonly MESSAGE_CUSTOMER_ID_NOT_FOUND = 'Customer ID not found';
+
   private router: Router;
+
+  private productApi: ProductApi;
 
   private cardsWrapper: HTMLDivElement;
 
-  private controlsWrapper: HTMLDivElement;
+  private cards: ProductCard[] = [];
 
-  private productApi = new ProductApi();
+  private controlsWrapper: HTMLDivElement;
 
   private filter: Filter;
 
@@ -47,6 +51,8 @@ export default class CatalogView extends DefaultView {
     };
     super(params);
 
+    this.productApi = new ProductApi();
+
     this.filter = new Filter(this.productApi);
 
     this.search = new SearchInput(this.getSearchProducts.bind(this));
@@ -56,6 +62,7 @@ export default class CatalogView extends DefaultView {
     this.router = router;
 
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
+    this.observer.subscribe(EventName.UPDATE_CART, this.checkProductsInCart.bind(this));
 
     this.controlsWrapper = new TagElement().createTagElement('div', [styleCss['controls-wrapper']]);
 
@@ -66,13 +73,39 @@ export default class CatalogView extends DefaultView {
     this.configView();
   }
 
+  /**
+   * Set visibility cards' button Add to/Remove from cart
+   */
+  private checkProductsInCart() {
+    this.cards.forEach((card) => {
+      card.setProductInCart(Math.random() > 0.5);
+    });
+    // const customerId = localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    // if (!customerId) {
+    //   new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
+    //   return;
+    // }
+    // this.clientApi
+    //   // .getCartByCustomerId(customerId)
+    //   .getCustomerByID(customerId)
+    //   .then((response) => {
+    //     console.log('response: ', response);
+    // TODO get products in cart
+    // const productsInCart: ProductProjection[] = response.body. ??;
+    // this.cards.forEach((card) => {
+    //   card.setProductInCart(productsInCart.includes(card.id));
+    // });
+    // })
+    // .catch((error) => {
+    //   if (error instanceof Error) {
+    //     new ErrorMessage().showMessage(error.message);
+    //   }
+    // });
+  }
+
   private recallProductCards() {
     this.search.clear();
     this.getProducts();
-  }
-
-  private getCategories() {
-    this.productApi.getCategories().then((response) => response);
   }
 
   private configView() {
@@ -156,11 +189,14 @@ export default class CatalogView extends DefaultView {
 
   private createProductCards(products: ProductProjection[]) {
     this.cardsWrapper.replaceChildren('');
+    this.cards.length = 0;
     products.forEach((product) => {
       if (product.key) {
         const card = new ProductCard(product, this.router);
+        this.cards.push(card);
         this.cardsWrapper.append(card.getElement());
       }
     });
+    this.checkProductsInCart();
   }
 }

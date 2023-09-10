@@ -37,8 +37,8 @@ export default class ProductApi {
       .execute();
   }
 
-  public getProducts(args: QueryParamType) {
-    const params = { ...args };
+  public getProducts(args?: QueryParamType) {
+    const params = args ? { ...args } : {};
     // params.filter = 'variants.scopedPrice.currentValue.centAmount:range (* to 2100)';
 
     return this.clientRoot

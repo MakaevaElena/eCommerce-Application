@@ -42,11 +42,11 @@ export default class Filter {
    */
   public getFilterData() {
     this.productApi
-      .getAllProducts()
+      .getProducts()
       .then((response) => {
         const { results } = response.body;
         results.forEach((result) => {
-          const { attributes } = result.masterData.current.masterVariant;
+          const { attributes } = result.masterVariant;
           if (attributes) {
             attributes.forEach((attr) => {
               if (attr.name === FilterAttribute.GENGE) {
