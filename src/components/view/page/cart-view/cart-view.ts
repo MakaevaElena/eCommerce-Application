@@ -38,11 +38,14 @@ export default class CartView extends DefaultView {
 
     this.anonimApi = new ClientApi();
 
+    // this.observer.subscribe(EventName.UPDATE_CART, this.checkProductsInCart.bind(this));
+
     this.getCreator().addInnerElement(this.wrapper);
     this.configView();
   }
 
   private configView() {
+    // this.wrapper.textContent = '';
     this.createCartHeader();
     const anonimCartID = localStorage.getItem('anonimCartID');
     if (anonimCartID)
@@ -55,7 +58,7 @@ export default class CartView extends DefaultView {
             if (item.productKey) this.createCartItem(item.productKey);
           });
         })
-        .catch();
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
   private createCartItem(itemKey: string) {
@@ -162,7 +165,6 @@ export default class CartView extends DefaultView {
       itemBlock.addInnerElement(itemImage);
       itemInfoBlock.addInnerElement(itemName);
       itemInfoBlock.addInnerElement(itemMoreDetails);
-      // itemInfoBlock.addInnerElement(itemDetails);
       itemBlock.addInnerElement(itemInfoBlock);
       itemQuantity.addInnerElement(itemQuantityInput);
       itemBlock.addInnerElement(itemQuantity);
@@ -218,27 +220,24 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
+  // todo карточка перерисовается не каждый раз.
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
-    // if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
-    //   this.anonimApi
-    //     .createCart()
-    //     .then((cartResponse) => {
-    //       localStorage.setItem('anonimCartID', `${cartResponse.body.id}`);
-    //     })
-    //     .catch((error) => new ErrorMessage().showMessage(error.message));
-    // }
-
     const anonimCartID = localStorage.getItem('anonimCartID');
     console.log('anonimCartID', anonimCartID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
+        .then(async (cartResponse) => {
+          this.cartSection.getElement().textContent = '';
+          await this.configView();
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          console.log(item[0].id);
-          this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
+          // console.log('item', item);
+          if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
         })
         .then(() => new InfoMessage().showMessage('Item removed from cart'))
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
   }
 }

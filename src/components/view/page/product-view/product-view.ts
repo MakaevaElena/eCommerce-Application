@@ -316,7 +316,10 @@ export default class ProductView extends DefaultView {
         this.wrapper.append(section.getElement());
         // this.wrapper.append(productVideo);
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
   }
 
   private showModal(images: Array<string>) {
@@ -370,16 +373,21 @@ export default class ProductView extends DefaultView {
     if (anonimCartID)
       await this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
-          const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          console.log('item', item[0].id);
+        .then(async (cartResponse) => {
+          const item = await cartResponse.body.lineItems.filter(
+            (lineItem) => lineItem.productKey === response.body.key
+          );
+          // console.log('item', item);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', () => {
               this.removeFromCart(anonimCartID, item[0].id);
             });
           }
         })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
 
     return button;
   }
@@ -394,7 +402,10 @@ export default class ProductView extends DefaultView {
         }
       })
       .then(() => new InfoMessage().showMessage('Item removed from cart'))
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
   }
 
   private addToCart(response: ClientResponse<ProductProjection>) {
@@ -405,7 +416,10 @@ export default class ProductView extends DefaultView {
         .then((cartResponse) => {
           localStorage.setItem('anonimCartID', `${cartResponse.body.id}`);
         })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
     }
 
     const cartID = localStorage.getItem('anonimCartID');
@@ -423,7 +437,10 @@ export default class ProductView extends DefaultView {
           this.anonimApi.addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
       })
       .then(() => new InfoMessage().showMessage('Item added to cart'))
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
   }
 
   public createSwiperWrapper(images: Array<string>) {

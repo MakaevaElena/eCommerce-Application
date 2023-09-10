@@ -202,7 +202,7 @@ export default class ClientApi {
       .execute();
   };
 
-  public changeQuantityByKey(cartID: string, cartVersion: number, lineItemId: string, quantity: number) {
+  public changeQuantityByLineID(cartID: string, cartVersion: number, lineItemId: string, quantity: number) {
     return this.clientRoot
       .carts()
       .withId({ ID: cartID })
@@ -241,4 +241,23 @@ export default class ClientApi {
       })
       .execute();
   }
+
+  public updateCartWithDiscount(cartID: string, cartVersion: number, discountCode: string) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'addDiscountCode',
+              code: discountCode,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }
+// https://docs.commercetools.com/api/projects/carts#update-actions
