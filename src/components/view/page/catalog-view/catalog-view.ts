@@ -62,7 +62,7 @@ export default class CatalogView extends DefaultView {
 
     this.filter = new Filter(this.productApi);
 
-    this.search = new SearchInput(this.getSearchProducts.bind(this));
+    this.search = new SearchInput(this.dispatchSearch.bind(this));
 
     this.sorting = new SortView();
 
@@ -75,7 +75,7 @@ export default class CatalogView extends DefaultView {
       currentPage: 0,
     };
 
-    this.pagination = new Pagination(this.paginationConfig, this.getProducts.bind(this));
+    this.pagination = new Pagination(this.paginationConfig, this.dispatchDataQuery.bind(this));
     this.initPagination();
 
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
@@ -88,6 +88,19 @@ export default class CatalogView extends DefaultView {
     this.getElement().append(this.cardsWrapper);
 
     this.configView();
+  }
+
+  private dispatchDataQuery() {
+    if (this.search.getSearchString()) {
+      this.getSearchProducts();
+    } else {
+      this.getProducts();
+    }
+  }
+
+  private dispatchSearch() {
+    this.pagination.initConfig(this.paginationConfig);
+    this.getSearchProducts();
   }
 
   private initPagination() {
@@ -152,9 +165,16 @@ export default class CatalogView extends DefaultView {
       this.getProducts();
     } else {
       const params = this.getSearchQueryParams(searchString);
+      params.limit = this.paginationConfig.limit;
+      params.offset = this.paginationConfig.offset;
+
       this.productApi
         .getProducts(params)
         .then((response) => {
+          if (this.paginationConfig.total !== response.body?.total || 0) {
+            this.paginationConfig.total = response.body?.total || 0;
+            this.pagination.setupButtons();
+          }
           const products = response.body.results;
           if (products.length) {
             this.filter.clearFilters();
