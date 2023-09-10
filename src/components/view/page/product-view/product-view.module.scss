@@ -59,6 +59,11 @@
     font-size: 2rem;
     font-family: 'Karla', sans-serif;
   }
+
+  &__disabled {
+    pointer-events: none;
+    opacity: 0.2;
+  }
 }
 
 @media screen and (max-width: 1500px) {

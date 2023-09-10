@@ -4,7 +4,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
 
   background: url('../../../../assets/images/cart-view.jpg') no-repeat top center;
@@ -23,7 +23,7 @@
     gap: 1rem;
     padding: 1rem;
     width: 98%;
-    height: 80vh;
+    // height: 80vh;
   }
 
   @media screen and (max-width: 800px) {
@@ -106,6 +106,7 @@
   background-color: black;
   border-radius: 5px;
   margin-top: 1rem;
+  padding: 0.5rem;
 
   &__image {
     flex: 0 1 25%;
@@ -125,18 +126,26 @@
   }
 
   &__name {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: transparentize($color-brand-primary, 0.2);
   }
 
-  &__details {
+  &__details,
+  &__remove-button {
     color: transparentize($color-brand-primary, 0.2);
     border-bottom: 1px solid transparentize($color-brand-primary, 0.2);
     cursor: pointer;
   }
 
-  &__details:hover {
+  &__details:hover,
+  &__remove-button:hover {
     color: transparentize($color-brand-primary, 0.1);
+    border-bottom: 1px solid transparentize($color-brand-primary, 0.1);
+  }
+
+  &__details:active,
+  &__remove-button:active {
+    color: transparentize($color-brand-primary, 0.3);
     border-bottom: 1px solid transparentize($color-brand-primary, 0.1);
   }
 

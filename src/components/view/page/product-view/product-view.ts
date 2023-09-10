@@ -24,6 +24,8 @@ import ErrorMessage from '../../../message/error-message';
 import ProductModal from './product-modal';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import InfoMessage from '../../../message/info-message';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class ProductView extends DefaultView {
   private observer: Observer;
@@ -106,10 +108,10 @@ export default class ProductView extends DefaultView {
     const imagesUrls: string[] = [];
     return this.anonimApi
       .productProjectionResponseKEY(key)
-      .then(async (response) => {
-        // console.log('product', response);
+      .then(async (productResponse) => {
+        console.log('product', productResponse);
 
-        this.getCategory(response);
+        this.getCategory(productResponse);
 
         const section = new ElementCreator({
           tag: TagName.SECTION,
@@ -141,8 +143,8 @@ export default class ProductView extends DefaultView {
           textContent: '',
         });
 
-        if (response.body.masterVariant.images) {
-          response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
+        if (productResponse.body.masterVariant.images) {
+          productResponse.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
         }
 
         const productInfo = new ElementCreator({
@@ -154,17 +156,17 @@ export default class ProductView extends DefaultView {
         const productName = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-name']],
-          textContent: `${response.body.name.en}`,
+          textContent: `${productResponse.body.name.en}`,
         });
 
         // this.category = `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`;
         // eslint-disable-next-line consistent-return
 
         const price = () => {
-          if (response.body.masterVariant.prices?.[1].value) {
-            return `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
+          if (productResponse.body.masterVariant.prices?.[1].value) {
+            return `PRICE: ${(Number(productResponse.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
               2
-            )} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
+            )} ${productResponse.body.masterVariant.prices?.[1].value?.currencyCode}`;
           }
           return '';
         };
@@ -176,11 +178,11 @@ export default class ProductView extends DefaultView {
         });
 
         function discountPrice() {
-          if (response.body.masterVariant.prices?.[1].discounted?.value) {
+          if (productResponse.body.masterVariant.prices?.[1].discounted?.value) {
             productPrice.getElement().classList.add(styleCss.crossed);
             return `DISCOUNT PRICE: ${(
-              Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
-            ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`;
+              Number(productResponse.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
+            ).toFixed(2)} ${productResponse.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`;
           }
           return '';
         }
@@ -198,9 +200,9 @@ export default class ProductView extends DefaultView {
         });
 
         const developer = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'developer');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'developer');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
@@ -214,9 +216,11 @@ export default class ProductView extends DefaultView {
 
         // eslint-disable-next-line consistent-return
         const playersQuantity = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'players_quantity');
+          const index = productResponse.body.masterVariant.attributes?.findIndex(
+            (el) => el.name === 'players_quantity'
+          );
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
@@ -229,10 +233,9 @@ export default class ProductView extends DefaultView {
 
         const platform = () => {
           let result = '';
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
           if (index && index > -1) {
-            // return response.body.masterVariant.attributes?.[index].value?.[0].key;
-            response.body.masterVariant.attributes?.[index].value?.forEach(
+            productResponse.body.masterVariant.attributes?.[index].value?.forEach(
               (el: { [x: string]: string; key: string }, i: number) => {
                 if (i === 0) {
                   result += `${el.key} `;
@@ -253,9 +256,9 @@ export default class ProductView extends DefaultView {
         });
 
         const genre = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0].key;
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0].key;
           }
           return '';
         };
@@ -267,9 +270,9 @@ export default class ProductView extends DefaultView {
         });
 
         const release = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'release');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'release');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
@@ -283,7 +286,7 @@ export default class ProductView extends DefaultView {
         const productDescription = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-description']],
-          textContent: `DESCRIPTION: ${response.body.description?.en}`,
+          textContent: `DESCRIPTION: ${productResponse.body.description?.en}`,
         });
 
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
@@ -297,26 +300,28 @@ export default class ProductView extends DefaultView {
         productInfo.addInnerElement(this.productCategory);
         productInfo.addInnerElement(productPrice);
 
-        if (response.body.masterVariant.prices?.[1].discounted?.value) {
+        if (productResponse.body.masterVariant.prices?.[1].discounted?.value) {
           productInfo.addInnerElement(productDiscountPrice);
         }
 
         productInfo.addInnerElement(productDescription);
-        if (response.body.masterVariant.sku)
-          productInfo.addInnerElement(
-            (await this.createToCartButton(response.body.masterVariant?.sku, key)).getElement()
-          );
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
         productAttributes.addInnerElement(productPlatform);
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
+        if (productResponse.body.masterVariant.sku)
+          productInfo.addInnerElement(
+            (await this.createToCartButton(productResponse, productInfo.getElement())).getElement()
+          );
         this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
-        // this.wrapper.append(productVideo);
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
   }
 
   private showModal(images: Array<string>) {
@@ -361,53 +366,122 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  private async createToCartButton(sku: string, key: string) {
-    let button = new LinkButton('Add to cart', () => {
-      this.addToCart(sku);
+  // todo
+  private async createToCartButton(response: ClientResponse<ProductProjection>, productInfo: HTMLElement) {
+    let button = new LinkButton('Add to cart', async () => {
+      await this.addToCart(response);
+      button.getElement().remove();
+      productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
     });
 
-    const anonimCartID = localStorage.getItem('anonimCartID');
+    // await this.changeButton(button, response);
+
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((response) => {
-          if (response.body.lineItems.some((item) => item.productKey === key)) {
-            button = new LinkButton('Remove from cart', () => {
-              this.removeFromCart(sku);
+        .then(async (cartResponse) => {
+          const item = await cartResponse.body.lineItems.filter(
+            (lineItem) => lineItem.productKey === response.body.key
+          );
+          // console.log('item', item);
+          if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
+            button = new LinkButton('Remove from cart', async () => {
+              await this.removeFromCart(anonimCartID, item[0].id);
+              button.getElement().remove();
+              productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
             });
           }
         })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
 
+    // button.getElement().classList.remove(styleCss['product-view__disabled']);
     return button;
   }
 
-  private addToCart(sku: string) {
+  // todo Не работает
+  private async changeButton(
+    button: LinkButton,
+    response: ClientResponse<ProductProjection>,
+    productInfo: HTMLElement
+  ) {
+    let newButton = button;
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (anonimCartID)
+      await this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then(async (cartResponse) => {
+          const item = await cartResponse.body.lineItems.filter(
+            (lineItem) => lineItem.productKey === response.body.key
+          );
+          if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
+            newButton = new LinkButton('Remove from cart', () => {
+              this.removeFromCart(anonimCartID, item[0].id);
+              button.getElement().remove();
+              this.createToCartButton(response, productInfo);
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
+
+    return newButton;
+  }
+
+  private removeFromCart(cartID: string, lineItemId: string) {
+    this.anonimApi
+      .getCartByCartID(cartID)
+      .then((cartResponse) => {
+        if (lineItemId) {
+          console.log('response.body.key', lineItemId);
+          this.anonimApi.removeLineItem(cartID, cartResponse.body.version, lineItemId);
+        }
+      })
+      .then(() => new InfoMessage().showMessage('Item removed from cart'))
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
+  }
+
+  private addToCart(response: ClientResponse<ProductProjection>) {
     // const userId = localStorage.getItem('anonymousId');
-    if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
+    if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.anonimApi
         .createCart()
-        .then((response) => {
-          localStorage.setItem('anonimCartID', `${response.body.id}`);
+        .then((cartResponse) => {
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
     }
 
-    const cartID = localStorage.getItem('anonimCartID');
+    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (cartID !== null) {
-      this.addItemToCart(cartID, sku);
+      this.addItemToCart(cartID, response);
     }
   }
 
-  private addItemToCart(cartId: string, sku: string) {
-    this.anonimApi.getCartByCartID(cartId).then((response) => {
-      this.anonimApi.addItemToCartByID(cartId, response.body.version, sku);
-    });
-  }
-
-  private removeFromCart(sku: string) {
-    console.log('removeFromCart', sku);
+  private addItemToCart(cartID: string, response: ClientResponse<ProductProjection>) {
+    this.anonimApi
+      .getCartByCartID(cartID)
+      .then((cartResponse) => {
+        if (response.body.masterVariant?.sku)
+          this.anonimApi.addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
+      })
+      .then(() => new InfoMessage().showMessage('Item added to cart'))
+      .catch((error) => {
+        console.log(error);
+        new ErrorMessage().showMessage(error.message);
+      });
   }
 
   public createSwiperWrapper(images: Array<string>) {

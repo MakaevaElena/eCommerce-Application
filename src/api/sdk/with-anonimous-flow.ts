@@ -6,6 +6,7 @@ import {
   type HttpMiddlewareOptions, // Required for sending HTTP requests
 } from '@commercetools/sdk-client-v2';
 import Guid from '../../utils/guid';
+import LocalStorageKeys from '../../enum/local-storage-keys';
 
 export const CTP_PROJECT_KEY = 'best-games';
 export const CTP_CLIENT_SECRET = 'RKi7doGwQ75b4wfuLsPuahDT366uOhUY';
@@ -31,7 +32,7 @@ type AnonymousAuthMiddlewareOptions = {
 export const createAnonim = () => {
   const anonymousId = `best-games-${Guid.newGuid().slice(0, 10)}`; // a unique id
 
-  localStorage.setItem('anonymousId', anonymousId);
+  localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, anonymousId);
 
   const options: AnonymousAuthMiddlewareOptions = {
     host: CTP_AUTH_URL,

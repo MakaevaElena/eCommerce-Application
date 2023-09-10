@@ -184,20 +184,6 @@ export default class ClientApi {
       .execute();
   }
 
-  // public createCart(customerId: string) {
-  //   return this.clientRoot
-  //     .carts()
-  //     .post({
-  //       body: {
-  //         key: `cart-key-${Math.floor(Math.random() * 100000)}`,
-  //         currency: 'USD',
-  //         country: 'US',
-  //         customerId,
-  //       },
-  //     })
-  //     .execute();
-  // }
-
   public addItemToCartByID = (cartID: string, cartVersion: number, productSku: string) => {
     return this.clientRoot
       .carts()
@@ -215,4 +201,63 @@ export default class ClientApi {
       })
       .execute();
   };
+
+  public changeQuantityByLineID(cartID: string, cartVersion: number, lineItemId: string, quantity: number) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'changeLineItemQuantity',
+              // lineItemId: id,
+              lineItemId,
+              quantity,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public removeLineItem(cartID: string, cartVersion: number, lineItemId: string) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'removeLineItem',
+              lineItemId,
+              // lineItemKey: key,
+              // quantity,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public updateCartWithDiscount(cartID: string, cartVersion: number, discountCode: string) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'addDiscountCode',
+              code: discountCode,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
 }
+// https://docs.commercetools.com/api/projects/carts#update-actions
