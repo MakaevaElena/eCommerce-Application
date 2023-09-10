@@ -25,6 +25,7 @@ import ProductModal from './product-modal';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import InfoMessage from '../../../message/info-message';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class ProductView extends DefaultView {
   private observer: Observer;
@@ -304,19 +305,18 @@ export default class ProductView extends DefaultView {
         }
 
         productInfo.addInnerElement(productDescription);
-        if (productResponse.body.masterVariant.sku)
-          productInfo.addInnerElement(
-            (await this.createToCartButton(productResponse, productInfo.getElement())).getElement()
-          );
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
         productAttributes.addInnerElement(productPlatform);
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
+        if (productResponse.body.masterVariant.sku)
+          productInfo.addInnerElement(
+            (await this.createToCartButton(productResponse, productInfo.getElement())).getElement()
+          );
         this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
-        // this.wrapper.append(productVideo);
       })
       .catch((error) => {
         console.log(error);
@@ -376,7 +376,7 @@ export default class ProductView extends DefaultView {
 
     // await this.changeButton(button, response);
 
-    const anonimCartID = localStorage.getItem('anonimCartID');
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.anonimApi
         .getCartByCartID(anonimCartID)
@@ -409,7 +409,7 @@ export default class ProductView extends DefaultView {
     productInfo: HTMLElement
   ) {
     let newButton = button;
-    const anonimCartID = localStorage.getItem('anonimCartID');
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.anonimApi
         .getCartByCartID(anonimCartID)
@@ -451,11 +451,11 @@ export default class ProductView extends DefaultView {
 
   private addToCart(response: ClientResponse<ProductProjection>) {
     // const userId = localStorage.getItem('anonymousId');
-    if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
+    if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.anonimApi
         .createCart()
         .then((cartResponse) => {
-          localStorage.setItem('anonimCartID', `${cartResponse.body.id}`);
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
         .catch((error) => {
           console.log(error);
@@ -463,7 +463,7 @@ export default class ProductView extends DefaultView {
         });
     }
 
-    const cartID = localStorage.getItem('anonimCartID');
+    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (cartID !== null) {
       this.addItemToCart(cartID, response);

@@ -9,7 +9,6 @@ import ClientApi from '../../../../api/client-api';
 import { PagePath } from '../../../router/pages';
 import ErrorMessage from '../../../message/error-message';
 import InfoMessage from '../../../message/info-message';
-// import ErrorMessage from '../../../message/error-message';
 
 export default class CartView extends DefaultView {
   private router: Router;
@@ -38,14 +37,11 @@ export default class CartView extends DefaultView {
 
     this.anonimApi = new ClientApi();
 
-    // this.observer.subscribe(EventName.UPDATE_CART, this.checkProductsInCart.bind(this));
-
     this.getCreator().addInnerElement(this.wrapper);
     this.configView();
   }
 
   private configView() {
-    // this.wrapper.textContent = '';
     this.createCartHeader();
     const anonimCartID = localStorage.getItem('anonimCartID');
     if (anonimCartID)
@@ -221,7 +217,6 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
-  // todo карточка перерисовается не каждый раз.
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
     const anonimCartID = localStorage.getItem('anonimCartID');
     console.log('anonimCartID', anonimCartID);
