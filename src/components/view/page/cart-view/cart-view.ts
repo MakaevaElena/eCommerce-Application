@@ -7,6 +7,9 @@ import DefaultView from '../../default-view';
 import styleCss from './cart-view.module.scss';
 import ClientApi from '../../../../api/client-api';
 import { PagePath } from '../../../router/pages';
+import ErrorMessage from '../../../message/error-message';
+import InfoMessage from '../../../message/info-message';
+// import ErrorMessage from '../../../message/error-message';
 
 export default class CartView extends DefaultView {
   private router: Router;
@@ -20,12 +23,6 @@ export default class CartView extends DefaultView {
     classNames: [styleCss['cart-section']],
     textContent: '',
   });
-
-  // private itemOrderSumm = new ElementCreator({
-  //   tag: TagName.DIV,
-  //   classNames: [styleCss['item-block__order-summ']],
-  //   textContent: ``,
-  // });
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -51,12 +48,13 @@ export default class CartView extends DefaultView {
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((response) =>
-          response.body.lineItems.forEach((item) => {
-            console.log('item.key', item.productKey);
+        .then((cartResponse) => {
+          console.log('cartResponse', cartResponse);
+          cartResponse.body.lineItems.forEach((item) => {
+            // console.log('item.key', item.productKey);
             if (item.productKey) this.createCartItem(item.productKey);
-          })
-        )
+          });
+        })
         .catch();
   }
 
@@ -152,9 +150,13 @@ export default class CartView extends DefaultView {
       itemOrderSumm.getElement().textContent = `${getPrice()}`;
 
       const itemRemoveButton = new ElementCreator({
-        tag: TagName.DIV,
+        tag: TagName.SPAN,
         classNames: [styleCss['item-block__remove-button']],
-        textContent: 'itemRemoveButton',
+        textContent: `Remove Item`,
+      });
+
+      itemRemoveButton.getElement().addEventListener('click', () => {
+        this.removeItemFromCart(response);
       });
 
       itemBlock.addInnerElement(itemImage);
@@ -211,16 +213,32 @@ export default class CartView extends DefaultView {
     this.wrapper.append(this.cartSection.getElement());
   }
 
-  // private createMoreDetailsButton(key: string) {
-  //   const routePath = `${PagePath.CATALOG}/${key}`;
-  //   const button = new LinkButton('More details', () => {
-  //     this.router.setHref(routePath);
-  //   });
-  //   return button;
-  // }
-
   public setContent(element: InsertableElement) {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
+  }
+
+  private removeItemFromCart(response: ClientResponse<ProductProjection>) {
+    // if (!localStorage.getItem('isLogin') && !localStorage.getItem('anonimCartID')) {
+    //   this.anonimApi
+    //     .createCart()
+    //     .then((cartResponse) => {
+    //       localStorage.setItem('anonimCartID', `${cartResponse.body.id}`);
+    //     })
+    //     .catch((error) => new ErrorMessage().showMessage(error.message));
+    // }
+
+    const anonimCartID = localStorage.getItem('anonimCartID');
+    console.log('anonimCartID', anonimCartID);
+    if (anonimCartID)
+      this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then((cartResponse) => {
+          const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
+          console.log(item[0].id);
+          this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
+        })
+        .then(() => new InfoMessage().showMessage('Item removed from cart'))
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 }
