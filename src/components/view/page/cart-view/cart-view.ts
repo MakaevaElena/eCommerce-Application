@@ -160,6 +160,7 @@ export default class CartView extends DefaultView {
 
       itemRemoveButton.getElement().addEventListener('click', () => {
         this.removeItemFromCart(response);
+        this.cartSection.getElement().removeChild(itemBlock.getElement());
       });
 
       itemBlock.addInnerElement(itemImage);
@@ -228,10 +229,9 @@ export default class CartView extends DefaultView {
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          this.cartSection.getElement().textContent = '';
-          await this.configView();
+          // this.cartSection.getElement().textContent = '';
+          // await this.configView();
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          // console.log('item', item);
           if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
         })
         .then(() => new InfoMessage().showMessage('Item removed from cart'))

@@ -367,6 +367,7 @@ export default class ProductView extends DefaultView {
   private async createToCartButton(response: ClientResponse<ProductProjection>) {
     let button = new LinkButton('Add to cart', () => {
       this.addToCart(response);
+      button.getElement().classList.add(styleCss['product-view__disabled']);
     });
 
     const anonimCartID = localStorage.getItem('anonimCartID');
@@ -381,6 +382,7 @@ export default class ProductView extends DefaultView {
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', () => {
               this.removeFromCart(anonimCartID, item[0].id);
+              button.getElement().classList.add(styleCss['product-view__disabled']);
             });
           }
         })
@@ -389,6 +391,7 @@ export default class ProductView extends DefaultView {
           new ErrorMessage().showMessage(error.message);
         });
 
+    button.getElement().classList.remove(styleCss['product-view__disabled']);
     return button;
   }
 
