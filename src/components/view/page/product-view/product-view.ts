@@ -305,7 +305,9 @@ export default class ProductView extends DefaultView {
 
         productInfo.addInnerElement(productDescription);
         if (productResponse.body.masterVariant.sku)
-          productInfo.addInnerElement((await this.createToCartButton(productResponse)).getElement());
+          productInfo.addInnerElement(
+            (await this.createToCartButton(productResponse, productInfo.getElement())).getElement()
+          );
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
@@ -364,11 +366,15 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  private async createToCartButton(response: ClientResponse<ProductProjection>) {
-    let button = new LinkButton('Add to cart', () => {
-      this.addToCart(response);
-      button.getElement().classList.add(styleCss['product-view__disabled']);
+  // todo
+  private async createToCartButton(response: ClientResponse<ProductProjection>, productInfo: HTMLElement) {
+    let button = new LinkButton('Add to cart', async () => {
+      await this.addToCart(response);
+      button.getElement().remove();
+      productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
     });
+
+    // await this.changeButton(button, response);
 
     const anonimCartID = localStorage.getItem('anonimCartID');
     if (anonimCartID)
@@ -380,9 +386,10 @@ export default class ProductView extends DefaultView {
           );
           // console.log('item', item);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
-            button = new LinkButton('Remove from cart', () => {
-              this.removeFromCart(anonimCartID, item[0].id);
-              button.getElement().classList.add(styleCss['product-view__disabled']);
+            button = new LinkButton('Remove from cart', async () => {
+              await this.removeFromCart(anonimCartID, item[0].id);
+              button.getElement().remove();
+              productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
             });
           }
         })
@@ -391,8 +398,39 @@ export default class ProductView extends DefaultView {
           new ErrorMessage().showMessage(error.message);
         });
 
-    button.getElement().classList.remove(styleCss['product-view__disabled']);
+    // button.getElement().classList.remove(styleCss['product-view__disabled']);
     return button;
+  }
+
+  // todo Не работает
+  private async changeButton(
+    button: LinkButton,
+    response: ClientResponse<ProductProjection>,
+    productInfo: HTMLElement
+  ) {
+    let newButton = button;
+    const anonimCartID = localStorage.getItem('anonimCartID');
+    if (anonimCartID)
+      await this.anonimApi
+        .getCartByCartID(anonimCartID)
+        .then(async (cartResponse) => {
+          const item = await cartResponse.body.lineItems.filter(
+            (lineItem) => lineItem.productKey === response.body.key
+          );
+          if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
+            newButton = new LinkButton('Remove from cart', () => {
+              this.removeFromCart(anonimCartID, item[0].id);
+              button.getElement().remove();
+              this.createToCartButton(response, productInfo);
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          new ErrorMessage().showMessage(error.message);
+        });
+
+    return newButton;
   }
 
   private removeFromCart(cartID: string, lineItemId: string) {
