@@ -9,7 +9,7 @@ export default class ImageButton extends DefaultView {
 
   private counter: HTMLElement;
 
-  constructor(callback?: () => void) {
+  constructor(callback?: () => void, style?: string) {
     const elementParams: ElementParams = {
       tag: TagName.A,
       textContent: '',
@@ -26,7 +26,19 @@ export default class ImageButton extends DefaultView {
 
     this.image = this.createImageElement();
 
+    if (style) {
+      this.setImage(style);
+    }
+
     this.configView();
+  }
+
+  public disableButton() {
+    this.getElement().classList.add(styleCss['image-button_disabled']);
+  }
+
+  public enableButton() {
+    this.getElement().classList.remove(styleCss['image-button_disabled']);
   }
 
   public hideButton() {
@@ -51,6 +63,10 @@ export default class ImageButton extends DefaultView {
     return this.image;
   }
 
+  public setImage(style: string) {
+    this.image.classList.add(style);
+  }
+
   private configView() {
     this.setCounterValue();
 
@@ -67,9 +83,5 @@ export default class ImageButton extends DefaultView {
     this.counter = new TagElement().createTagElement('div', [styleCss['image-button__counter']]);
 
     return this.counter;
-  }
-
-  private disableButton() {
-    this.getElement().classList.add(styleCss.disabled);
   }
 }

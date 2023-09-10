@@ -47,8 +47,12 @@ export default class LinkButton extends DefaultView {
     this.getElement().classList.add(styleCss.hide);
   }
 
-  private disableButton() {
+  public disableButton() {
     this.getElement().classList.add(styleCss['link-button_disabled']);
+  }
+
+  public enableButton() {
+    this.getElement().classList.remove(styleCss['link-button_disabled']);
   }
 
   public showButton() {
