@@ -149,7 +149,6 @@ export default class ProductCard extends DefaultView {
     const url = masterVariant.images ? masterVariant.images[0].url : this.URL_NO_IMAGE;
     const image = this.creator.createTagElement('img', [styleCss['product-card__image']]);
     image.setAttribute('src', url);
-    image.addEventListener('pointerover', this.showSliderPopup.bind(this));
 
     return image;
   }

@@ -4,13 +4,12 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+import './swiper.scss';
 import TagElement from '../../../../utils/create-tag-element';
-import './slider-popup.scss';
+import styleCss from './slider-popup.module.scss';
 
 export default class SliderPopup {
   private element: HTMLElement;
-
-  private swiper: Swiper;
 
   private sliderWrapper: HTMLElement;
 
@@ -27,7 +26,7 @@ export default class SliderPopup {
   constructor(imagesUrl: string[]) {
     this.imagesUrl = imagesUrl.slice();
 
-    this.element = this.creator.createTagElement('div', ['slider-popup__container']);
+    this.element = this.creator.createTagElement('div', [styleCss['slider-popup__container']]);
 
     const swiper = this.creator.createTagElement('div', ['swiper']);
     this.sliderWrapper = this.creator.createTagElement('div', ['swiper-wrapper']);
@@ -39,25 +38,38 @@ export default class SliderPopup {
 
     this.element.append(swiper);
 
-    this.makeSlides();
+    this.addSlides();
 
-    this.swiper = this.initSwiper();
+    this.configClose();
   }
 
   public getElement() {
     return this.element;
   }
 
-  private makeSlides() {
-    this.imagesUrl.forEach((url) => {
-      const image = this.creator.createTagElement('img', ['slider-popup__image']);
-      this.sliderWrapper.append(image);
+  private configClose() {
+    this.element.addEventListener('click', () => this.element.remove());
+    this.sliderWrapper.addEventListener('pointerleave', () => this.element.remove());
+  }
+
+  private addSlides() {
+    this.imagesUrl.forEach((url, index, arr) => {
+      const imageWrapper = this.creator.createTagElement('div', ['swiper-slide']);
+      const image = this.creator.createTagElement('img', [styleCss['slider-popup__image']]);
       image.setAttribute('src', url);
+      imageWrapper.append(image);
+      this.sliderWrapper.append(imageWrapper);
+
+      // Initialize Swiper after creating DOM
+      if (index === arr.length - 1) {
+        image.addEventListener('load', this.initSwiper.bind(this));
+      }
     });
   }
 
   private initSwiper() {
-    this.swiper = new Swiper('.slider-popup__container', {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const swiper = new Swiper('.swiper', {
       modules: [Navigation, Pagination],
       speed: 500,
       direction: 'horizontal',
@@ -72,8 +84,5 @@ export default class SliderPopup {
       },
       keyboard: true,
     });
-
-    console.log('this.swiper: ', this.swiper);
-    return this.swiper;
   }
 }
