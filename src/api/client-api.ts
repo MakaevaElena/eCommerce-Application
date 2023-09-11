@@ -259,5 +259,9 @@ export default class ClientApi {
       })
       .execute();
   }
+
+  public getActiveCart() {
+    return this.clientRoot.me().activeCart().get().execute();
+  }
 }
 // https://docs.commercetools.com/api/projects/carts#update-actions

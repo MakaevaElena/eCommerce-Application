@@ -1,4 +1,3 @@
-// import { ClientResponse, ProductProjection } from '@commercetools/platform-sdk';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -6,10 +5,10 @@ import Router from '../../../router/router';
 import DefaultView from '../../default-view';
 import styleCss from './cart-view.module.scss';
 import ClientApi from '../../../../api/client-api';
-// import { PagePath } from '../../../router/pages';
 import ErrorMessage from '../../../message/error-message';
-// import InfoMessage from '../../../message/info-message';
+// eslint-disable-next-line import/no-named-as-default
 import CartItem from './cart-item';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class CartView extends DefaultView {
   private router: Router;
@@ -48,15 +47,16 @@ export default class CartView extends DefaultView {
 
   private configView() {
     this.createCartHeader();
-    const anonimCartID = localStorage.getItem('anonimCartID');
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {
-          // console.log('cartResponse', cartResponse);
           cartResponse.body.lineItems.forEach((item) => {
-            // console.log('item.key', item.productKey);
-            if (item.productKey) this.cartItem.createCartItem(item.productKey);
+            const lineItemData = cartResponse.body.lineItems.filter(
+              (lineItem) => lineItem.productKey === item.productKey
+            );
+            if (item.productKey) this.cartItem.createCartItem(item.productKey, lineItemData);
           });
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
@@ -106,23 +106,4 @@ export default class CartView extends DefaultView {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
   }
-
-  // private removeItemFromCart(response: ClientResponse<ProductProjection>) {
-  //   const anonimCartID = localStorage.getItem('anonimCartID');
-  //   console.log('anonimCartID', anonimCartID);
-  //   if (anonimCartID)
-  //     this.anonimApi
-  //       .getCartByCartID(anonimCartID)
-  //       .then(async (cartResponse) => {
-  //         // this.cartSection.getElement().textContent = '';
-  //         // await this.configView();
-  //         const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-  //         if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
-  //       })
-  //       .then(() => new InfoMessage().showMessage('Item removed from cart'))
-  //       .catch((error) => {
-  //         console.log(error);
-  //         new ErrorMessage().showMessage(error.message);
-  //       });
-  // }
 }
