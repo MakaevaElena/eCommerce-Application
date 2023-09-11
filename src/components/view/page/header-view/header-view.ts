@@ -83,7 +83,7 @@ export default class HeaderView extends DefaultView {
     const link = new ImageButton(() => {
       this.router.setHref(path);
     });
-    link.getImageElement().classList.add(styleCss['button-about-us']);
+    link.setImage(styleCss['button-about-us']);
     this.headerLinks.set(path, link);
 
     return link;
@@ -95,7 +95,7 @@ export default class HeaderView extends DefaultView {
     const link = new ImageButton(() => {
       this.router.setHref(PagePath.CART);
     });
-    link.getImageElement().classList.add(styleCss['button-cart']);
+    link.setImage(styleCss['button-cart']);
 
     this.headerLinks.set(path, link);
 

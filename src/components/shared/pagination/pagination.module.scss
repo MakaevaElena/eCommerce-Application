@@ -1,0 +1,15 @@
+@import '../../../style/abstract/variables/colors.scss';
+
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination__button-prev {
+  background-image: url('../../../assets/images/arrow-left.svg');
+}
+
+.pagination__button-next {
+  background-image: url('../../../assets/images/arrow-left.svg');
+  transform: rotate(180deg);
+}

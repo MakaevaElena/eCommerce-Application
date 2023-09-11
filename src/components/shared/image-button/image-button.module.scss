@@ -13,16 +13,14 @@
     transform: translate(-2px, 2px);
   }
 
-  .disabled {
-    color: $color-text-secondary;
-    border-color: $color-text-dark;
-    background: transparent;
-    pointer-events: none;
-  }
-
   .hide {
     display: none;
   }
+}
+
+.image-button_disabled {
+  filter: invert(78%) sepia(0%) saturate(1530%) hue-rotate(230deg) brightness(93%) contrast(87%);
+  pointer-events: none;
 }
 
 .image-button__image {
