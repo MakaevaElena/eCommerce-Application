@@ -5,6 +5,7 @@ import Router from '../../../router/router';
 import DefaultView from '../../default-view';
 import styleCss from './styles/about-us-view.module.scss';
 import Title from './title/title';
+import RSLogo from './RS_logo/RS-logo';
 
 export default class AboutUsView extends DefaultView {
   private router: Router;
@@ -34,9 +35,10 @@ export default class AboutUsView extends DefaultView {
   private createLinks() {
     const wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
+    const logo = new RSLogo();
     const title = new Title();
 
-    wrapper.append(title.getElement());
+    wrapper.append(logo.getElement(), title.getElement());
     this.getCreator().addInnerElement(wrapper);
   }
 
