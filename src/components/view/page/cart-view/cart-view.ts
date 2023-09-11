@@ -40,7 +40,7 @@ export default class CartView extends DefaultView {
 
     this.anonimApi = new ClientApi();
 
-    this.cartItem = new CartItem(router, this.cartSection);
+    this.cartItem = new CartItem(router, this.cartSection, this.anonimApi);
 
     this.getCreator().addInnerElement(this.wrapper);
     this.configView();
@@ -61,121 +61,6 @@ export default class CartView extends DefaultView {
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
   }
-
-  // private createCartItem(itemKey: string) {
-  //   this.anonimApi.productProjectionResponseKEY(itemKey).then((response: ClientResponse<ProductProjection>) => {
-  //     const item = response.body.masterVariant;
-
-  //     const itemBlock = new ElementCreator({
-  //       tag: TagName.SECTION,
-  //       classNames: [styleCss['item-block']],
-  //       textContent: '',
-  //     });
-
-  //     const itemImage = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__image'], styleCss['cart-cell']],
-  //       textContent: '',
-  //     });
-
-  //     if (item.images) itemImage.getElement().style.backgroundImage = `url(${item.images?.[0].url})`;
-
-  //     const itemInfoBlock = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__info-block'], styleCss['cart-cell']],
-  //       textContent: '',
-  //     });
-
-  //     const itemName = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__name']],
-  //       textContent: `${response.body.name.en}`,
-  //     });
-
-  //     const itemMoreDetails = new ElementCreator({
-  //       tag: TagName.SPAN,
-  //       classNames: [styleCss['item-block__details']],
-  //       textContent: `More details`,
-  //     });
-
-  //     itemMoreDetails.getElement().addEventListener('click', () => {
-  //       const routePath = `${PagePath.CATALOG}/${itemKey}`;
-  //       this.router.setHref(routePath);
-  //     });
-
-  //     const itemOrderSumm = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__order-summ']],
-  //       textContent: ``,
-  //     });
-
-  //     const itemQuantity = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__quantity'], styleCss['cart-cell']],
-  //       textContent: '',
-  //     });
-
-  //     const itemQuantityInput = new TagElement().createTagElement('input', [
-  //       styleCss['item-block__quantity-input'],
-  //       styleCss['cart-cell'],
-  //     ]);
-
-  //     itemQuantityInput.setAttribute('type', 'number');
-  //     itemQuantityInput.setAttribute('min', '1');
-  //     itemQuantityInput.setAttribute('value', '1');
-  //     itemQuantityInput.addEventListener('change', () => {
-  //       const getSum = () => {
-  //         if (response.body.masterVariant.prices?.[1].value) {
-  //           return `PRICE: ${(
-  //             (Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100) *
-  //             Number(itemQuantityInput.value)
-  //           ).toFixed(2)} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
-  //         }
-  //         return '';
-  //       };
-  //       itemOrderSumm.getElement().textContent = `${getSum()}`;
-  //     });
-
-  //     const getPrice = () => {
-  //       if (response.body.masterVariant.prices?.[1].value) {
-  //         return `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
-  //           2
-  //         )} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
-  //       }
-  //       return '';
-  //     };
-
-  //     const itemOrderValue = new ElementCreator({
-  //       tag: TagName.DIV,
-  //       classNames: [styleCss['item-block__order-value'], styleCss['cart-cell']],
-  //       textContent: ``,
-  //     });
-
-  //     itemOrderSumm.getElement().textContent = `${getPrice()}`;
-
-  //     const itemRemoveButton = new ElementCreator({
-  //       tag: TagName.SPAN,
-  //       classNames: [styleCss['item-block__remove-button']],
-  //       textContent: `Remove Item`,
-  //     });
-
-  //     itemRemoveButton.getElement().addEventListener('click', () => {
-  //       this.removeItemFromCart(response);
-  //       this.cartSection.getElement().removeChild(itemBlock.getElement());
-  //     });
-
-  //     itemBlock.addInnerElement(itemImage);
-  //     itemInfoBlock.addInnerElement(itemName);
-  //     itemInfoBlock.addInnerElement(itemMoreDetails);
-  //     itemBlock.addInnerElement(itemInfoBlock);
-  //     itemQuantity.addInnerElement(itemQuantityInput);
-  //     itemBlock.addInnerElement(itemQuantity);
-  //     itemOrderValue.addInnerElement(itemOrderSumm);
-  //     itemOrderValue.addInnerElement(itemRemoveButton);
-  //     itemBlock.addInnerElement(itemOrderValue);
-  //     this.cartSection.addInnerElement(itemBlock.getElement());
-  //   });
-  // }
 
   private createCartHeader() {
     const header = new ElementCreator({
