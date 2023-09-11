@@ -105,7 +105,7 @@
   @include border();
   background-color: black;
   border-radius: 5px;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding: 0.5rem;
 
   &__image {
@@ -154,10 +154,36 @@
   }
 
   &__quantity-input {
-    width: 30%;
+    width: 15%;
     height: 32px;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     background-color: transparentize($color-brand-primary, 0.2);
+    margin: 0 0.5rem;
+    cursor: pointer;
+  }
+
+  &__quantity-minus {
+    color: white;
+    font-size: 3rem;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  &__quantity-plus {
+    color: white;
+    font-size: 2rem;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  &__quantity-minus:hover,
+  &__quantity-plus:hover {
+    color: transparentize($color-brand-primary, 0.01);
+  }
+
+  &__quantity-minus:active,
+  &__quantity-plus:active {
+    color: transparentize($color-brand-primary, 0.3);
   }
 
   &__order-value {
