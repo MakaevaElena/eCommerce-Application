@@ -9,6 +9,8 @@ import ErrorMessage from '../../../message/error-message';
 // eslint-disable-next-line import/no-named-as-default
 import CartItem from './cart-item';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class CartView extends DefaultView {
   private router: Router;
@@ -17,10 +19,18 @@ export default class CartView extends DefaultView {
 
   private anonimApi: ClientApi;
 
+  private observer: Observer;
+
   private cartSection = new ElementCreator({
     tag: TagName.SECTION,
     classNames: [styleCss['cart-section']],
     textContent: '',
+  });
+
+  private orderTotalCost = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [styleCss['cart-total-cost__value']],
+    textContent: ``,
   });
 
   private cartItem: CartItem;
@@ -40,6 +50,10 @@ export default class CartView extends DefaultView {
     this.anonimApi = new ClientApi();
 
     this.cartItem = new CartItem(router, this.cartSection, this.anonimApi);
+
+    this.observer = Observer.getInstance();
+    this.observer = Observer.getInstance();
+    this.observer?.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
     this.getCreator().addInnerElement(this.wrapper);
     this.configView();
@@ -122,19 +136,27 @@ export default class CartView extends DefaultView {
       textContent: 'TOTAL COST: ',
     });
 
-    const orderTotalCost = new ElementCreator({
-      tag: TagName.DIV,
-      classNames: [styleCss['cart-total-cost__value']],
-      textContent: `${value}`,
-    });
+    this.orderTotalCost.getElement().textContent = `${value}`;
 
     totalCost.addInnerElement(orderTotalCostTitle);
-    totalCost.addInnerElement(orderTotalCost);
+    totalCost.addInnerElement(this.orderTotalCost);
     this.cartSection.addInnerElement(totalCost);
   }
 
   public setContent(element: InsertableElement) {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
+  }
+
+  private async updateTotalSumm() {
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (anonimCartID)
+      await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
+        const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+          cartResponse.body.totalPrice.currencyCode
+        }`;
+        this.orderTotalCost.getElement().textContent = `${totalPrice}`;
+        console.log('totalPrice', totalPrice);
+      });
   }
 }

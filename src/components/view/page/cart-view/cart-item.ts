@@ -10,6 +10,8 @@ import { PagePath } from '../../../router/pages';
 import ErrorMessage from '../../../message/error-message';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
 
 export default class CartItem extends DefaultView {
   private router: Router;
@@ -17,6 +19,8 @@ export default class CartItem extends DefaultView {
   private anonimApi: ClientApi;
 
   private cartSection: ElementCreator;
+
+  private observer: Observer;
 
   constructor(router: Router, cartSection: ElementCreator, anonimApi: ClientApi) {
     const params: ElementParams = {
@@ -29,6 +33,8 @@ export default class CartItem extends DefaultView {
     this.cartSection = cartSection;
 
     this.router = router;
+
+    this.observer = Observer.getInstance();
 
     this.anonimApi = anonimApi;
   }
@@ -193,13 +199,14 @@ export default class CartItem extends DefaultView {
   }
 
   private changeQuantityItem(itemKey: string, quantity: number) {
+    console.log('quantity', quantity);
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {
-          console.log('cartResponse', cartResponse);
+          // console.log('cartResponse', cartResponse);
           const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
           this.anonimApi.changeQuantityByLineID(
             cartResponse.body.id,
@@ -208,6 +215,7 @@ export default class CartItem extends DefaultView {
             quantity
           );
         })
+        .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
         .catch((error) => {
           console.log(error);
           new ErrorMessage().showMessage(error.message);

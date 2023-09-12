@@ -8,6 +8,7 @@ enum EventName {
   UPDATE_FILTER_TAGS,
   ADDRESS_ADDED,
   UPDATE_CART,
+  TOTAL_COST_CHANGED,
 }
 
 export default EventName;
