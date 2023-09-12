@@ -148,15 +148,17 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
-  private async updateTotalSumm() {
+  // todo версия отстает на 1
+  private updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
+      this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
         this.orderTotalCost.getElement().textContent = `${totalPrice}`;
-        console.log('totalPrice', totalPrice);
+        // console.log('cartResponse.body.version', cartResponse.body.version);
+        // console.log('totalPrice', totalPrice);
       });
   }
 }

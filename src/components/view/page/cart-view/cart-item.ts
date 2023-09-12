@@ -191,15 +191,19 @@ export default class CartItem extends DefaultView {
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
         })
-        .then(() => new InfoMessage().showMessage('Item removed from cart'))
+        .then(() => {
+          this.observer.notify(EventName.TOTAL_COST_CHANGED);
+          new InfoMessage().showMessage('Item removed from cart');
+        })
         .catch((error) => {
-          console.log(error);
+          // console.log(error);
           new ErrorMessage().showMessage(error.message);
         });
   }
 
+  // todo после изменения количества должна приходить сумма со следующей версии корзины, а не с этой же корзины.
   private changeQuantityItem(itemKey: string, quantity: number) {
-    console.log('quantity', quantity);
+    // console.log('quantity', quantity);
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (anonimCartID)
@@ -214,10 +218,11 @@ export default class CartItem extends DefaultView {
             lineItemData[0].id,
             quantity
           );
+          this.observer.notify(EventName.TOTAL_COST_CHANGED);
         })
-        .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
+        // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
         .catch((error) => {
-          console.log(error);
+          // console.log(error);
           new ErrorMessage().showMessage(error.message);
         });
   }
