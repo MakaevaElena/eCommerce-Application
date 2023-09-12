@@ -17,6 +17,7 @@ import WarningMessage from '../../../message/warning-message';
 import QueryParamType from '../../../../api/sdk/type';
 import Pagination, { PaginationConfig } from '../../../shared/pagination/pagination';
 import PaginationPosition from './enum/pagination-position';
+import Spinner from '../../../shared/spinner/spinner';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -50,6 +51,8 @@ export default class CatalogView extends DefaultView {
   private sorting: SortView;
 
   private observer = Observer.getInstance();
+
+  private spinner = new Spinner();
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -87,7 +90,7 @@ export default class CatalogView extends DefaultView {
 
     this.cardsWrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
-    this.getElement().append(this.cardsWrapper);
+    this.getElement().append(this.spinner.getElement(), this.cardsWrapper);
 
     this.configView();
   }
@@ -106,13 +109,15 @@ export default class CatalogView extends DefaultView {
   }
 
   private initPagination() {
+    this.observer.notify(EventName.SPINNER_SHOW);
     this.productApi
       .getProducts({ limit: 0 })
       .then((response) => {
         this.paginationConfig.total = response.body?.total || 0;
         this.pagination.forEach((pagination) => pagination.initConfig(this.paginationConfig));
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => new ErrorMessage().showMessage(error.message))
+      .finally(() => this.observer.notify(EventName.SPINNER_HIDE));
   }
 
   /**
@@ -175,6 +180,7 @@ export default class CatalogView extends DefaultView {
       params.limit = this.paginationConfig.limit;
       params.offset = this.paginationConfig.offset;
 
+      this.observer.notify(EventName.SPINNER_SHOW);
       this.productApi
         .getProducts(params)
         .then((response) => {
@@ -192,7 +198,8 @@ export default class CatalogView extends DefaultView {
             new WarningMessage().showMessage(this.NOT_FOUND);
           }
         })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+        .catch((error) => new ErrorMessage().showMessage(error.message))
+        .finally(() => this.observer.notify(EventName.SPINNER_HIDE));
     }
   }
 
@@ -201,6 +208,7 @@ export default class CatalogView extends DefaultView {
     params.limit = this.paginationConfig.limit;
     params.offset = this.paginationConfig.offset;
 
+    this.observer.notify(EventName.SPINNER_SHOW);
     this.productApi
       .getProducts(params)
       .then((response) => {
@@ -216,7 +224,8 @@ export default class CatalogView extends DefaultView {
           new WarningMessage().showMessage(this.NOT_FOUND);
         }
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => new ErrorMessage().showMessage(error.message))
+      .finally(() => this.observer.notify(EventName.SPINNER_HIDE));
   }
 
   private getQueryParams(): QueryParamType {

@@ -8,6 +8,8 @@ enum EventName {
   UPDATE_FILTER_TAGS,
   ADDRESS_ADDED,
   UPDATE_CART,
+  SPINNER_SHOW,
+  SPINNER_HIDE,
 }
 
 export default EventName;
