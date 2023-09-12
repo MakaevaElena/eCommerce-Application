@@ -19,6 +19,8 @@ export default class SliderPopup {
 
   private swiperButtonNext: HTMLElement;
 
+  private closeButton: HTMLAnchorElement;
+
   private creator = new TagElement();
 
   private imagesUrl: string[] = [];
@@ -27,6 +29,7 @@ export default class SliderPopup {
     this.imagesUrl = imagesUrl.slice();
 
     this.element = this.creator.createTagElement('div', [styleCss['slider-popup__container']]);
+    this.closeButton = this.createCloseButton();
 
     const swiper = this.creator.createTagElement('div', ['swiper']);
     this.sliderWrapper = this.creator.createTagElement('div', ['swiper-wrapper']);
@@ -34,7 +37,7 @@ export default class SliderPopup {
     this.swiperButtonPrev = this.creator.createTagElement('div', ['swiper-button-prev']);
     this.swiperButtonNext = this.creator.createTagElement('div', ['swiper-button-next']);
 
-    swiper.append(this.sliderWrapper, this.pagination, this.swiperButtonPrev, this.swiperButtonNext);
+    swiper.append(this.sliderWrapper, this.pagination, this.swiperButtonPrev, this.swiperButtonNext, this.closeButton);
 
     this.element.append(swiper);
 
@@ -48,8 +51,22 @@ export default class SliderPopup {
   }
 
   private configClose() {
-    this.element.addEventListener('click', () => this.element.remove());
-    this.sliderWrapper.addEventListener('pointerleave', () => this.element.remove());
+    this.element.addEventListener('click', this.closeHandler.bind(this));
+  }
+
+  private createCloseButton() {
+    this.closeButton = this.creator.createTagElement('a', [styleCss['slider-popup__close-button']]);
+    this.closeButton.addEventListener('click', () => this.element.remove());
+
+    return this.closeButton;
+  }
+
+  private closeHandler(e: Event) {
+    if (e instanceof PointerEvent && e.target instanceof HTMLElement) {
+      if (e.target.classList.contains(styleCss['slider-popup__container'])) {
+        this.element.remove();
+      }
+    }
   }
 
   private addSlides() {

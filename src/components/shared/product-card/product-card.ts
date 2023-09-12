@@ -149,11 +149,13 @@ export default class ProductCard extends DefaultView {
     const url = masterVariant.images ? masterVariant.images[0].url : this.URL_NO_IMAGE;
     const image = this.creator.createTagElement('img', [styleCss['product-card__image']]);
     image.setAttribute('src', url);
+    image.addEventListener('click', this.showSliderPopup.bind(this));
 
     return image;
   }
 
-  private showSliderPopup() {
+  private showSliderPopup(e: Event) {
+    e.stopPropagation();
     const imagesUrl = this.getImagesUrl();
     const swiper = new SliderPopup(imagesUrl);
     document.body.append(swiper.getElement());

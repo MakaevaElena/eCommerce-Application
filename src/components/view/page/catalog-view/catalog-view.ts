@@ -178,9 +178,11 @@ export default class CatalogView extends DefaultView {
       this.productApi
         .getProducts(params)
         .then((response) => {
-          if (this.paginationConfig.total !== response.body?.total || 0) {
-            this.paginationConfig.total = response.body?.total || 0;
-            this.pagination.forEach((pagination) => pagination.setupButtons());
+          if (response.body?.total || 0) {
+            if (this.paginationConfig.total !== response.body?.total || 0) {
+              this.paginationConfig.total = response.body?.total || 0;
+              this.pagination.forEach((pagination) => pagination.setupButtons());
+            }
           }
           const products = response.body.results;
           if (products.length) {

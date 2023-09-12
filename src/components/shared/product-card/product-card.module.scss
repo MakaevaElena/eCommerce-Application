@@ -36,8 +36,9 @@
 .product-card__image {
   display: block;
   width: 100%;
-  object-fit: contain;
+  aspect-ratio: 1;
   align-self: flex-start;
+  cursor: zoom-in;
 }
 
 .card-button {
