@@ -73,6 +73,7 @@
   @include border();
   background-color: black;
   border-radius: 5px;
+  padding: 0.2rem 0;
 
   &__image {
     flex: 0 1 25%;
@@ -106,7 +107,7 @@
   background-color: black;
   border-radius: 5px;
   margin-top: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
 
   &__image {
     flex: 0 1 25%;
@@ -193,5 +194,25 @@
     justify-content: center;
     align-items: start;
     height: 100%;
+  }
+}
+
+.cart-total-cost {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  @include border();
+  background-color: black;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0;
+
+  &__title {
+    flex: 0 1 25%;
+  }
+
+  &__value {
+    flex: 0 1 25%;
   }
 }

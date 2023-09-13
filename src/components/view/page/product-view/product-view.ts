@@ -44,6 +44,12 @@ export default class ProductView extends DefaultView {
     textContent: `CATEGORY: `,
   });
 
+  private addButtonContainer = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [],
+    textContent: ``,
+  });
+
   constructor(router: Router) {
     const params: ElementParams = {
       tag: TagName.SECTION,
@@ -312,9 +318,11 @@ export default class ProductView extends DefaultView {
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
         if (productResponse.body.masterVariant.sku)
-          productInfo.addInnerElement(
-            (await this.createToCartButton(productResponse, productInfo.getElement())).getElement()
+          this.addButtonContainer.addInnerElement(
+            (await this.createToCartButton(productResponse, productInfo)).getElement()
           );
+
+        productInfo.addInnerElement(this.addButtonContainer);
         this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
       })
@@ -366,12 +374,13 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  // todo
-  private async createToCartButton(response: ClientResponse<ProductProjection>, productInfo: HTMLElement) {
+  // todo кнопка меняется со второго клика
+  private async createToCartButton(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    this.addButtonContainer.getElement().innerHTML = '';
     let button = new LinkButton('Add to cart', async () => {
-      await this.addToCart(response);
+      this.addToCart(response);
       button.getElement().remove();
-      productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
+      productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
     });
 
     // await this.changeButton(button, response);
@@ -381,15 +390,18 @@ export default class ProductView extends DefaultView {
       await this.anonimApi
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          const item = await cartResponse.body.lineItems.filter(
-            (lineItem) => lineItem.productKey === response.body.key
-          );
-          // console.log('item', item);
+          const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', async () => {
-              await this.removeFromCart(anonimCartID, item[0].id);
+              this.removeFromCart(anonimCartID, item[0].id);
               button.getElement().remove();
-              productInfo.append((await this.createToCartButton(response, productInfo)).getElement());
+              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+            });
+          } else {
+            button = new LinkButton('Add to cart', async () => {
+              this.addToCart(response);
+              button.getElement().remove();
+              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
             });
           }
         })
@@ -402,36 +414,29 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  // todo Не работает
-  private async changeButton(
-    button: LinkButton,
-    response: ClientResponse<ProductProjection>,
-    productInfo: HTMLElement
-  ) {
-    let newButton = button;
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    if (anonimCartID)
-      await this.anonimApi
-        .getCartByCartID(anonimCartID)
-        .then(async (cartResponse) => {
-          const item = await cartResponse.body.lineItems.filter(
-            (lineItem) => lineItem.productKey === response.body.key
-          );
-          if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
-            newButton = new LinkButton('Remove from cart', () => {
-              this.removeFromCart(anonimCartID, item[0].id);
-              button.getElement().remove();
-              this.createToCartButton(response, productInfo);
-            });
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          new ErrorMessage().showMessage(error.message);
-        });
+  // private createAddButton(response: ClientResponse<ProductProjection>) {
+  //   this.addButtonContainer.getElement().innerHTML = '';
+  //   const button = new LinkButton('Add to cart', async () => {
+  //     this.addToCart(response);
+  //     button.getElement().remove();
+  //   });
 
-    return newButton;
-  }
+  //   return button;
+  // }
+
+  // private createRemoveButton(response: ClientResponse<ProductProjection>) {
+  //   const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+  //   if (anonimCartID)
+  //     return this.anonimApi.getCartByCartID(anonimCartID).then(async (cartResponse) => {
+  //       const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
+  //       if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
+  //         const button = new LinkButton('Remove from cart', async () => {
+  //           this.removeFromCart(anonimCartID, item[0].id);
+  //           button.getElement().remove();
+  //         });
+  //       }
+  //     });
+  // }
 
   private removeFromCart(cartID: string, lineItemId: string) {
     this.anonimApi
@@ -450,7 +455,6 @@ export default class ProductView extends DefaultView {
   }
 
   private addToCart(response: ClientResponse<ProductProjection>) {
-    // const userId = localStorage.getItem('anonymousId');
     if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.anonimApi
         .createCart()
@@ -477,7 +481,10 @@ export default class ProductView extends DefaultView {
         if (response.body.masterVariant?.sku)
           this.anonimApi.addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
       })
-      .then(() => new InfoMessage().showMessage('Item added to cart'))
+      .then(() => {
+        new InfoMessage().showMessage('Item added to cart');
+        this.observer.notify(EventName.UPDATE_CART);
+      })
       .catch((error) => {
         console.log(error);
         new ErrorMessage().showMessage(error.message);

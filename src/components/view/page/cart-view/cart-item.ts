@@ -10,6 +10,9 @@ import { PagePath } from '../../../router/pages';
 import ErrorMessage from '../../../message/error-message';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import Observer from '../../../../observer/observer';
+import EventName from '../../../../enum/event-name';
+import debounce from '../../../../utils/debounce';
 
 export default class CartItem extends DefaultView {
   private router: Router;
@@ -17,6 +20,8 @@ export default class CartItem extends DefaultView {
   private anonimApi: ClientApi;
 
   private cartSection: ElementCreator;
+
+  private observer: Observer;
 
   constructor(router: Router, cartSection: ElementCreator, anonimApi: ClientApi) {
     const params: ElementParams = {
@@ -29,6 +34,8 @@ export default class CartItem extends DefaultView {
     this.cartSection = cartSection;
 
     this.router = router;
+
+    this.observer = Observer.getInstance();
 
     this.anonimApi = anonimApi;
   }
@@ -103,29 +110,41 @@ export default class CartItem extends DefaultView {
         textContent: '+',
       });
 
-      itemQuantityMinus.getElement().addEventListener('click', () => {
-        if (Number(itemQuantityInput.value) > 1) {
-          itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
-          itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-          this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
-        }
-      });
+      itemQuantityMinus.getElement().addEventListener(
+        'click',
+        debounce(async () => {
+          if (Number(itemQuantityInput.value) > 1) {
+            itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
+            await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+              itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+            });
+          }
+        }, 800)
+      );
 
-      itemQuantityPlus.getElement().addEventListener('click', () => {
-        itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
-        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-        this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
-      });
+      itemQuantityPlus.getElement().addEventListener(
+        'click',
+        debounce(async () => {
+          itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
+          await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+            itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+          });
+        }, 800)
+      );
 
       itemQuantityInput.setAttribute('type', 'number');
       itemQuantityInput.setAttribute('min', '1');
       itemQuantityInput.setAttribute('value', '1');
       itemQuantityInput.value = `${lineItemData[0].quantity}`;
 
-      itemQuantityInput.addEventListener('change', () => {
-        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-        this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
-      });
+      itemQuantityInput.addEventListener(
+        'change',
+        debounce(async () => {
+          this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+            itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+          });
+        }, 800)
+      );
 
       const itemOrderValue = new ElementCreator({
         tag: TagName.DIV,
@@ -164,6 +183,12 @@ export default class CartItem extends DefaultView {
   }
 
   private getItemSum(response: ClientResponse<ProductProjection>, value: string) {
+    if (response.body.masterVariant.prices?.[1].discounted?.value) {
+      return `PRICE: ${(
+        (Number(response.body.masterVariant.prices?.[1].discounted?.value.centAmount) / 100) *
+        Number(value)
+      ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value.currencyCode}`;
+    }
     if (response.body.masterVariant.prices?.[1].value) {
       return `PRICE: ${(
         (Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100) *
@@ -175,42 +200,44 @@ export default class CartItem extends DefaultView {
 
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    // console.log('anonimCartID', anonimCartID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          // this.cartSection.getElement().textContent = '';
-          // await this.configView();
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
+          if (item[0].id)
+            this.anonimApi
+              .removeLineItem(anonimCartID, cartResponse.body.version, item[0].id)
+              .then(() => {
+                this.observer.notify(EventName.TOTAL_COST_CHANGED);
+                new InfoMessage().showMessage('Item removed from cart');
+                this.observer.notify(EventName.UPDATE_CART);
+              })
+              .catch((error) => new ErrorMessage().showMessage(error.message));
         })
-        .then(() => new InfoMessage().showMessage('Item removed from cart'))
-        .catch((error) => {
-          console.log(error);
-          new ErrorMessage().showMessage(error.message);
-        });
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
-  private changeQuantityItem(itemKey: string, quantity: number) {
+  private async changeQuantityItem(itemKey: string, quantity: number) {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
-          console.log('cartResponse', cartResponse);
+        .then(async (cartResponse) => {
           const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
-          this.anonimApi.changeQuantityByLineID(
-            cartResponse.body.id,
-            cartResponse.body.version,
-            lineItemData[0].id,
-            quantity
-          );
+          this.anonimApi
+            .changeQuantityByLineID(cartResponse.body.id, cartResponse.body.version, lineItemData[0].id, quantity)
+            .then((response) => {
+              if (response.statusCode === 200) {
+                this.observer.notify(EventName.TOTAL_COST_CHANGED);
+                this.observer.notify(EventName.UPDATE_CART);
+              }
+            })
+            .catch((error) => new ErrorMessage().showMessage(error.message));
+          // this.observer.notify(EventName.TOTAL_COST_CHANGED);
+          return quantity;
         })
-        .catch((error) => {
-          console.log(error);
-          new ErrorMessage().showMessage(error.message);
-        });
+        // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 }
