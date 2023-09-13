@@ -58,7 +58,7 @@ export default class CartView extends DefaultView {
     this.cartItem = new CartItem(router, this.cartSection, this.anonimApi);
 
     this.observer = Observer.getInstance();
-    this.observer = Observer.getInstance();
+
     this.observer?.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
     this.getCreator().addInnerElement(this.wrapper);
@@ -127,8 +127,6 @@ export default class CartView extends DefaultView {
     header.addInnerElement(itemQuantity);
     header.addInnerElement(itemOrderValue);
     this.cartSection.addInnerElement(header);
-
-    // this.wrapper.append(this.cartSection.getElement());
   }
 
   private createTotalOrderValue(totalPrice: string) {
@@ -153,7 +151,6 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
-  // todo опаздывает на 1 клик
   private async updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
@@ -162,9 +159,6 @@ export default class CartView extends DefaultView {
           cartResponse.body.totalPrice.currencyCode
         }`;
         this.createTotalOrderValue(totalPrice);
-        console.log('cartResponse.body.totalPrice.centAmount', cartResponse.body.totalPrice.centAmount);
-        // console.log('cartResponse.body.version', cartResponse.body.version);
-        // console.log('totalPrice', totalPrice);
       });
   }
 }

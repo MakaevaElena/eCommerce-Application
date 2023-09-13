@@ -481,7 +481,10 @@ export default class ProductView extends DefaultView {
         if (response.body.masterVariant?.sku)
           this.anonimApi.addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
       })
-      .then(() => new InfoMessage().showMessage('Item added to cart'))
+      .then(() => {
+        new InfoMessage().showMessage('Item added to cart');
+        this.observer.notify(EventName.UPDATE_CART);
+      })
       .catch((error) => {
         console.log(error);
         new ErrorMessage().showMessage(error.message);

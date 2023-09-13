@@ -211,6 +211,7 @@ export default class CartItem extends DefaultView {
               .then(() => {
                 this.observer.notify(EventName.TOTAL_COST_CHANGED);
                 new InfoMessage().showMessage('Item removed from cart');
+                this.observer.notify(EventName.UPDATE_CART);
               })
               .catch((error) => new ErrorMessage().showMessage(error.message));
         })
@@ -227,7 +228,10 @@ export default class CartItem extends DefaultView {
           this.anonimApi
             .changeQuantityByLineID(cartResponse.body.id, cartResponse.body.version, lineItemData[0].id, quantity)
             .then((response) => {
-              if (response.statusCode === 200) this.observer.notify(EventName.TOTAL_COST_CHANGED);
+              if (response.statusCode === 200) {
+                this.observer.notify(EventName.TOTAL_COST_CHANGED);
+                this.observer.notify(EventName.UPDATE_CART);
+              }
             })
             .catch((error) => new ErrorMessage().showMessage(error.message));
           // this.observer.notify(EventName.TOTAL_COST_CHANGED);
