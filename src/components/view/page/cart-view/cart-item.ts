@@ -109,18 +109,22 @@ export default class CartItem extends DefaultView {
         textContent: '+',
       });
 
-      itemQuantityMinus.getElement().addEventListener('click', () => {
+      itemQuantityMinus.getElement().addEventListener('click', async () => {
         if (Number(itemQuantityInput.value) > 1) {
           itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
-          itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-          this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
+          await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+            // itemOrderSumm.getElement().textContent = `${await this.getActualTotalSummItemByID(lineItemData[0].id)}`;
+            itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+          });
         }
       });
 
-      itemQuantityPlus.getElement().addEventListener('click', () => {
+      itemQuantityPlus.getElement().addEventListener('click', async () => {
         itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
-        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-        this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
+        await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+          // itemOrderSumm.getElement().textContent = `${await this.getActualTotalSummItemByID(lineItemData[0].id)}`;
+          itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+        });
       });
 
       itemQuantityInput.setAttribute('type', 'number');
@@ -207,15 +211,14 @@ export default class CartItem extends DefaultView {
         });
   }
 
-  // todo после изменения количества должна приходить сумма со следующей версии корзины, а не с этой же корзины.
-  private changeQuantityItem(itemKey: string, quantity: number) {
+  private async changeQuantityItem(itemKey: string, quantity: number) {
     // console.log('quantity', quantity);
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
+        .then(async (cartResponse) => {
           // console.log('cartResponse', cartResponse);
           const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
           this.anonimApi.changeQuantityByLineID(
@@ -225,6 +228,7 @@ export default class CartItem extends DefaultView {
             quantity
           );
           this.observer.notify(EventName.TOTAL_COST_CHANGED);
+          return quantity;
         })
         // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
         .catch((error) => {
@@ -232,4 +236,19 @@ export default class CartItem extends DefaultView {
           new ErrorMessage().showMessage(error.message);
         });
   }
+
+  // private async getActualTotalSummItemByID(lineItemId: string) {
+  //   let currentTotalPrice = '';
+  //   const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+  //   if (anonimCartID)
+  //     await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
+  //       const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.id === lineItemId);
+  //       // console.log('item[0]', item[0]);
+  //       currentTotalPrice = `PRICE: ${(Number(item[0].totalPrice.centAmount) / 100).toFixed(2)} ${
+  //         item[0].totalPrice.currencyCode
+  //       }`;
+  //     });
+
+  //   return currentTotalPrice;
+  // }
 }

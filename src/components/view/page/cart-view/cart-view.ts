@@ -85,7 +85,7 @@ export default class CartView extends DefaultView {
           return totalPrice;
         })
         // .then((totalPrice) => this.createTotalOrderValue(totalPrice))
-        .then(() => this.updateTotalSumm())
+        .then(async () => this.updateTotalSumm())
         .catch((error) => new ErrorMessage().showMessage(error.message));
 
     this.wrapper.append(this.cartSection.getElement());
@@ -153,18 +153,17 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
-  // todo версия отстает на 1
-  private updateTotalSumm() {
-    console.log('updateTotalSumm');
+  // todo опаздывает на 1 клик
+  private async updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
-        // console.log('cartResponse', cartResponse);
+      await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
         // this.orderTotalCost.getElement().textContent = `${totalPrice}`;
         this.createTotalOrderValue(totalPrice);
+        console.log('cartResponse.body.totalPrice.centAmount', cartResponse.body.totalPrice.centAmount);
         // console.log('cartResponse.body.version', cartResponse.body.version);
         // console.log('totalPrice', totalPrice);
       });
