@@ -33,6 +33,12 @@ export default class CartView extends DefaultView {
     textContent: ``,
   });
 
+  private totalCost = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [styleCss['cart-total-cost']],
+    textContent: '',
+  });
+
   private cartItem: CartItem;
 
   constructor(router: Router) {
@@ -65,7 +71,7 @@ export default class CartView extends DefaultView {
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
+        .then(async (cartResponse) => {
           cartResponse.body.lineItems.forEach((item) => {
             const lineItemData = cartResponse.body.lineItems.filter(
               (lineItem) => lineItem.productKey === item.productKey
@@ -76,8 +82,10 @@ export default class CartView extends DefaultView {
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;
-          this.createTotalOrderValue(totalPrice);
+          return totalPrice;
         })
+        // .then((totalPrice) => this.createTotalOrderValue(totalPrice))
+        .then(() => this.updateTotalSumm())
         .catch((error) => new ErrorMessage().showMessage(error.message));
 
     this.wrapper.append(this.cartSection.getElement());
@@ -123,12 +131,9 @@ export default class CartView extends DefaultView {
     // this.wrapper.append(this.cartSection.getElement());
   }
 
-  private createTotalOrderValue(value: string) {
-    const totalCost = new ElementCreator({
-      tag: TagName.DIV,
-      classNames: [styleCss['cart-total-cost']],
-      textContent: '',
-    });
+  private createTotalOrderValue(totalPrice: string) {
+    this.totalCost.getElement().innerHTML = '';
+    this.totalCost.getElement().remove();
 
     const orderTotalCostTitle = new ElementCreator({
       tag: TagName.DIV,
@@ -136,11 +141,11 @@ export default class CartView extends DefaultView {
       textContent: 'TOTAL COST: ',
     });
 
-    this.orderTotalCost.getElement().textContent = `${value}`;
+    this.orderTotalCost.getElement().textContent = `${totalPrice}`;
 
-    totalCost.addInnerElement(orderTotalCostTitle);
-    totalCost.addInnerElement(this.orderTotalCost);
-    this.cartSection.addInnerElement(totalCost);
+    this.totalCost.addInnerElement(orderTotalCostTitle);
+    this.totalCost.addInnerElement(this.orderTotalCost);
+    this.cartSection.addInnerElement(this.totalCost);
   }
 
   public setContent(element: InsertableElement) {
@@ -150,14 +155,16 @@ export default class CartView extends DefaultView {
 
   // todo версия отстает на 1
   private updateTotalSumm() {
+    console.log('updateTotalSumm');
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
-        console.log('cartResponse', cartResponse);
+        // console.log('cartResponse', cartResponse);
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
-        this.orderTotalCost.getElement().textContent = `${totalPrice}`;
+        // this.orderTotalCost.getElement().textContent = `${totalPrice}`;
+        this.createTotalOrderValue(totalPrice);
         // console.log('cartResponse.body.version', cartResponse.body.version);
         // console.log('totalPrice', totalPrice);
       });
