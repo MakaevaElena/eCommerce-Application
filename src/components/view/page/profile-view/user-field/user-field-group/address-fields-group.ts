@@ -15,7 +15,6 @@ import PostalPatterns from '../../../registration-view/inputs-params/postal-pate
 import PostalTitles from '../../../registration-view/inputs-params/postal-titles';
 import Events from '../../../../../../enum/events';
 import InfoMessage from '../../../../../message/info-message';
-import RegApi from '../../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../../../message/error-message';
 import WarningMessage from '../../../../../message/warning-message';
@@ -26,9 +25,12 @@ import StatusCodes from '../../../../../../enum/status-codes';
 import EventName from '../../../../../../enum/event-name';
 import Observer from '../../../../../../observer/observer';
 import Address from '../../types/addresses/address';
+import CommonApi from '../../../../../../api/common-api';
 
 export default class AddressFieldsGroup {
-  private observer: Observer;
+  private observer = Observer.getInstance();
+
+  private api = CommonApi.getInstance().getRegApi();
 
   private addressGroup: HTMLDivElement;
 
@@ -68,7 +70,6 @@ export default class AddressFieldsGroup {
     this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
     this.makeShippingButton = this.createMakeShippingButton();
     this.makeBillingButton = this.createMakeBillingButton();
-    this.observer = Observer.getInstance();
 
     this.addressGroup = this.createAddressFieldGroupElement();
     this.countryOptions = new CountryOptions();
@@ -259,11 +260,10 @@ export default class AddressFieldsGroup {
     if (this.isCheckValidityForm()) {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
-      const api = new RegApi();
-      api
+      this.api
         .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
         .then((response) => {
-          api
+          this.api
             .changeAddress(
               response.body.results[0].id,
               response.body.results[0].version,
@@ -274,7 +274,9 @@ export default class AddressFieldsGroup {
               this.countryField.getInputElement().getInputValue().slice(-2)
             )
             .catch((error) => {
-              this.showErrorMessage(error.message);
+              if (error instanceof Error) {
+                this.showErrorMessage(error.message);
+              }
             });
         })
         .then(() => {
@@ -329,11 +331,10 @@ export default class AddressFieldsGroup {
   }
 
   private makeDefaulShippingtHandler() {
-    const api = new RegApi();
-    api
+    this.api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
           .makeAddressShippingDefault(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -366,11 +367,10 @@ export default class AddressFieldsGroup {
   }
 
   private makeDefaultBillingHandler() {
-    const api = new RegApi();
-    api
+    this.api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
           .makeAddressBillingDefault(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -382,7 +382,9 @@ export default class AddressFieldsGroup {
             }
           })
           .catch((error) => {
-            this.showErrorMessage(error);
+            if (error instanceof Error) {
+              this.showErrorMessage(error.message);
+            }
           });
       })
       .catch((error) => {
@@ -399,11 +401,10 @@ export default class AddressFieldsGroup {
   }
 
   private deleteAdressButtonHAndler() {
-    const api = new RegApi();
-    api
+    this.api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
           .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.values[CountryValues.ID])
           .then((responseRes) => {
             if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
@@ -432,11 +433,10 @@ export default class AddressFieldsGroup {
   }
 
   private makeShippingtHandler() {
-    const api = new RegApi();
-    api
+    this.api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
           .makeAddressShipping(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -465,11 +465,10 @@ export default class AddressFieldsGroup {
   }
 
   private makeBillingHandler() {
-    const api = new RegApi();
-    api
+    this.api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
           .makeAddressBilling(
             response.body.results[0].id,
             response.body.results[0].version,

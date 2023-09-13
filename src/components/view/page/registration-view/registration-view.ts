@@ -12,10 +12,8 @@ import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './enum/text-contents';
-import RegApi from '../../../../api/reg-api';
 import Router from '../../../router/router';
 import { PagePath } from '../../../router/pages';
-import ClientApi from '../../../../api/client-api';
 import EventName from '../../../../enum/event-name';
 import Observer from '../../../../observer/observer';
 import Delays from '../../../../enum/delays';
@@ -23,6 +21,8 @@ import StatusCodes from '../../../../enum/status-codes';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import CountryOptions from '../../../../utils/input/options/country-options';
 import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
+import Guid from '../../../../utils/guid';
+import CommonApi from '../../../../api/common-api';
 
 export default class RegistrationView extends DefaultView {
   private inputs: Array<InputCreator>;
@@ -53,7 +53,7 @@ export default class RegistrationView extends DefaultView {
 
   private isBillingAddress: boolean;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   private router: Router;
 
@@ -67,7 +67,6 @@ export default class RegistrationView extends DefaultView {
     };
     super(params);
     this.router = router;
-    this.observer = Observer.getInstance();
     this.mainInputsGroup = this.fillInputsGroups(this.createMainParams());
     this.shippingInputsGroup = this.fillInputsGroups(this.createShippingAddressParams());
     this.billingInputsGroup = this.fillInputsGroups(this.createBillingAddressParams());
@@ -106,7 +105,7 @@ export default class RegistrationView extends DefaultView {
   }
 
   private redirectLoginhandler() {
-    this.router.navigate(PagePath.LOGIN);
+    this.router.setHref(PagePath.LOGIN);
   }
 
   private createValidMessageElement(): HTMLDivElement {
@@ -337,7 +336,7 @@ export default class RegistrationView extends DefaultView {
       countryBillingCode: this.isBillingAddress
         ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
         : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
-      key: `${Date.now().toString(16)}-${Math.trunc(Math.random() * 1e10).toString(16)}`,
+      key: Guid.newGuid(),
       // TODO: realize GUID generator
       defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
       defaultBillingAddressNum: this.getDefaultBillinAddressNum(),
@@ -358,7 +357,7 @@ export default class RegistrationView extends DefaultView {
 
   private formSubmitHandler() {
     if (this.isCheckValidityFormHandler()) {
-      const api = new RegApi();
+      const api = CommonApi.getInstance().getRegApi();
       const params = this.getParams();
 
       const loginParams = {
@@ -371,7 +370,7 @@ export default class RegistrationView extends DefaultView {
           if (response.statusCode === StatusCodes.USER_CREATED) {
             this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
             this.getElement().append(this.checkValidityElement);
-            setTimeout(() => this.router.navigate(PagePath.LOGIN), Delays.SWITCH_TO_PAGE);
+            setTimeout(() => this.router.setHref(PagePath.LOGIN), Delays.SWITCH_TO_PAGE);
           }
         })
         .then(() => {
@@ -387,7 +386,7 @@ export default class RegistrationView extends DefaultView {
   }
 
   private makeLogin(params: { email: string; password: string }) {
-    const loginApi = new ClientApi();
+    const loginApi = CommonApi.getInstance().getClientApi();
     loginApi.getCustomer(params).then((response) => {
       if (response.body.customer) {
         window.localStorage.setItem(`isLogin`, 'true');

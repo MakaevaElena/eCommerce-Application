@@ -19,18 +19,4 @@ type QueryParamType = {
   markMatchingVariants?: boolean;
 };
 
-// type AnonymousAuthMiddlewareOptions = {
-//   host: string;
-//   projectKey: string;
-//   credentials: {
-//     clientId: string;
-//     clientSecret: string;
-//     anonymousId?: string;
-//   };
-//   scopes?: Array<string>;
-//   oauthUri?: string;
-//   fetch?: never;
-//   tokenCache?: TokenCache;
-// };
-
 export { QueryParamType, LoginData };

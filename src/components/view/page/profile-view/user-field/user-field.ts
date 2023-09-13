@@ -11,11 +11,11 @@ import ErrorMessage from '../../../../message/error-message';
 import InfoMessage from '../../../../message/info-message';
 import ButtonCreator from '../../../../shared/button/button-creator';
 import InputCreator from '../../../../../utils/input/inputCreator';
-import RegApi from '../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import ActionNames from './enum/action-names';
 import StatusCodes from '../../../../../enum/status-codes';
 import { InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
+import CommonApi from '../../../../../api/common-api';
 
 export default class UserField {
   private elementField: HTMLDivElement;
@@ -31,8 +31,6 @@ export default class UserField {
   private actionName: string;
 
   private id: string;
-
-  // private version: number;
 
   private confirmButton: HTMLButtonElement;
 
@@ -184,7 +182,7 @@ export default class UserField {
   }
 
   private saveValue() {
-    const api = new RegApi();
+    const api = CommonApi.getInstance().getRegApi();
     api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {

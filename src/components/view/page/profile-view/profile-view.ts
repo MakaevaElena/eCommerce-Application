@@ -7,7 +7,6 @@ import { LinkName, PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
-import RegApi from '../../../../api/reg-api';
 import Address from './types/addresses/address';
 import UserData from './types/user-data';
 import userFieldProps from './user-field/user-field-props';
@@ -29,6 +28,7 @@ import stylesRedactionButton from './user-field/styles/redaction-button-style.mo
 import AddressCreator from './address-creator/address-creator';
 import InfoMessage from '../../../message/info-message';
 import ErrorMessage from '../../../message/error-message';
+import CommonApi from '../../../../api/common-api';
 
 export default class ProfileView extends DefaultView {
   private router: Router;
@@ -39,7 +39,7 @@ export default class ProfileView extends DefaultView {
 
   private emailAddress: string | null;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   private countryOptions: CountryOptions;
 
@@ -54,8 +54,6 @@ export default class ProfileView extends DefaultView {
     this.router = router;
 
     this.emailAddress = window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS);
-
-    this.observer = Observer.getInstance();
 
     this.countryOptions = new CountryOptions();
 
@@ -147,13 +145,13 @@ export default class ProfileView extends DefaultView {
 
   private createMainButton() {
     const button = new LinkButton(LinkName.INDEX, () => {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     });
     return button;
   }
 
   private request() {
-    const api = new RegApi();
+    const api = CommonApi.getInstance().getRegApi();
     const userData: UserData = this.createUserData();
     const localStorageEmail = this.emailAddress;
     if (localStorageEmail) {

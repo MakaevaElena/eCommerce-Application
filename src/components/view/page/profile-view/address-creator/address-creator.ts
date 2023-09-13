@@ -12,7 +12,6 @@ import ButtonCreator from '../../../../shared/button/button-creator';
 import WarningMessage from '../../../../message/warning-message';
 import InfoMessage from '../../../../message/info-message';
 import ErrorMessage from '../../../../message/error-message';
-import RegApi from '../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import StatusCodes from '../../../../../enum/status-codes';
 import PostalPatterns from '../../registration-view/inputs-params/postal-paterns';
@@ -21,6 +20,7 @@ import CountryOptions from '../../../../../utils/input/options/country-options';
 import Observer from '../../../../../observer/observer';
 import EventName from '../../../../../enum/event-name';
 import TextContents from '../../registration-view/enum/text-contents';
+import CommonApi from '../../../../../api/common-api';
 
 export default class AddressCreator {
   private adressChangerElement: HTMLDivElement;
@@ -49,7 +49,7 @@ export default class AddressCreator {
 
   private isDefault: boolean;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   constructor(parentElement: HTMLDivElement, isShipping: boolean) {
     this.isShiping = isShipping;
@@ -58,7 +58,6 @@ export default class AddressCreator {
     this.parentElement = parentElement;
     this.adressChangerElement = this.createAddressGroupElement();
     this.inputParamsCreator = new InputParamsCreator();
-    this.observer = Observer.getInstance();
 
     this.streetField = this.createField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.STREET);
 
@@ -226,7 +225,7 @@ export default class AddressCreator {
   }
 
   private changeAdress() {
-    const api = new RegApi();
+    const api = CommonApi.getInstance().getRegApi();
     api
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {

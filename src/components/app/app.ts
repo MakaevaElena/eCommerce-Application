@@ -9,8 +9,6 @@ import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
 import EventName from '../../enum/event-name';
 import Observer from '../../observer/observer';
-import createAnonim from '../../api/sdk/with-anonimous-flow';
-import CommonApi from '../../api/common-api';
 
 export default class App {
   private observer = Observer.getInstance();
@@ -27,11 +25,7 @@ export default class App {
 
   private viewStorage: ViewStorage = new ViewStorage();
 
-  private commonApi: CommonApi;
-
   constructor() {
-    this.commonApi = new CommonApi();
-
     this.favicon = new Favicon();
 
     const routes: Route[] = this.getRoutes();
@@ -106,7 +100,7 @@ export default class App {
             ? this.viewStorage.get(PagePath.LOGIN)
             : new LoginView(this.router);
           if (localStorage.getItem('isLogin') === 'true') {
-            this.router.navigate(PagePath.INDEX);
+            this.router.setHref(PagePath.INDEX);
           }
           if (view) {
             this.viewStorage.set(PagePath.LOGIN, view);

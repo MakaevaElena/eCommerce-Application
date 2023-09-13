@@ -11,7 +11,6 @@ import 'swiper/css/zoom';
 import Swiper from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 
-import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
@@ -26,9 +25,10 @@ import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import CommonApi from '../../../../api/common-api';
 
 export default class ProductView extends DefaultView {
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   private router: Router;
 
@@ -36,7 +36,7 @@ export default class ProductView extends DefaultView {
 
   private wrapper: HTMLDivElement;
 
-  private anonimApi: ClientApi;
+  private anonimApi = CommonApi.getInstance().getClientApi();
 
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
@@ -57,9 +57,6 @@ export default class ProductView extends DefaultView {
       textContent: '',
     };
     super(params);
-    // this.router = router;
-    this.observer = Observer.getInstance();
-    this.anonimApi = new ClientApi();
 
     this.router = router;
 
@@ -105,8 +102,6 @@ export default class ProductView extends DefaultView {
         keyboard: true,
         // ...
       });
-
-      console.log(swiper.params);
     });
   }
 
@@ -115,8 +110,6 @@ export default class ProductView extends DefaultView {
     return this.anonimApi
       .productProjectionResponseKEY(key)
       .then(async (productResponse) => {
-        console.log('product', productResponse);
-
         this.getCategory(productResponse);
 
         const section = new ElementCreator({
@@ -327,8 +320,9 @@ export default class ProductView extends DefaultView {
         this.wrapper.append(section.getElement());
       })
       .catch((error) => {
-        console.log(error);
-        new ErrorMessage().showMessage(error.message);
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
       });
   }
 
@@ -369,7 +363,7 @@ export default class ProductView extends DefaultView {
 
   private createMainButton() {
     const button = new LinkButton(LinkName.INDEX, () => {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     });
     return button;
   }
@@ -406,8 +400,9 @@ export default class ProductView extends DefaultView {
           }
         })
         .catch((error) => {
-          console.log(error);
-          new ErrorMessage().showMessage(error.message);
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
         });
 
     // button.getElement().classList.remove(styleCss['product-view__disabled']);
@@ -443,14 +438,14 @@ export default class ProductView extends DefaultView {
       .getCartByCartID(cartID)
       .then((cartResponse) => {
         if (lineItemId) {
-          console.log('response.body.key', lineItemId);
           this.anonimApi.removeLineItem(cartID, cartResponse.body.version, lineItemId);
         }
       })
       .then(() => new InfoMessage().showMessage('Item removed from cart'))
       .catch((error) => {
-        console.log(error);
-        new ErrorMessage().showMessage(error.message);
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
       });
   }
 
@@ -462,8 +457,9 @@ export default class ProductView extends DefaultView {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
         .catch((error) => {
-          console.log(error);
-          new ErrorMessage().showMessage(error.message);
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
         });
     }
 
@@ -486,8 +482,9 @@ export default class ProductView extends DefaultView {
         this.observer.notify(EventName.UPDATE_CART);
       })
       .catch((error) => {
-        console.log(error);
-        new ErrorMessage().showMessage(error.message);
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
       });
   }
 

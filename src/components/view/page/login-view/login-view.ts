@@ -1,4 +1,3 @@
-import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
@@ -10,13 +9,14 @@ import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../message/error-message';
+import CommonApi from '../../../../api/common-api';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
 const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
 const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
 const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
-const checkWhiteSpace = /[^\s]/gim;
+const checkWhiteSpace = /^\s|\s$/;
 const checkEmail = /[a-z0-9]+[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/;
 
 enum Message {
@@ -54,11 +54,9 @@ export default class LoginView extends DefaultView {
 
   private emailElement = this.loginEmail.getElement() as HTMLInputElement;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
-  private anonimApi: ClientApi;
-
-  private userApi?: ClientApi;
+  private anonimApi = CommonApi.getInstance().getClientApi();
 
   constructor(router: Router) {
     const params: ElementParams = {
@@ -69,13 +67,10 @@ export default class LoginView extends DefaultView {
     super(params);
     this.router = router;
 
-    this.observer = Observer.getInstance();
-    this.observer?.subscribe(EventName.LOGOUT, this.updateLoginPage.bind(this));
-
-    this.anonimApi = new ClientApi();
+    this.observer.subscribe(EventName.LOGOUT, this.updateLoginPage.bind(this));
 
     if (localStorage.getItem('isLogin') === 'true') {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     } else {
       this.configView();
     }
@@ -88,7 +83,7 @@ export default class LoginView extends DefaultView {
   private updateLoginPage() {
     this.getCreator().clearInnerContent();
     this.configView();
-    this.anonimApi = new ClientApi();
+    this.anonimApi = CommonApi.getInstance().getClientApi();
   }
 
   private renderForm() {
@@ -166,7 +161,7 @@ export default class LoginView extends DefaultView {
     loginSubmitButton.getElement().addEventListener('click', (event) => this.submitLogin(event));
 
     toRegistrationLinkButton.getElement().addEventListener('click', () => {
-      this.router.navigate(PagePath.REGISTRATION);
+      this.router.setHref(PagePath.REGISTRATION);
     });
 
     loginForm.addInnerElement(loginTitle);
@@ -231,8 +226,6 @@ export default class LoginView extends DefaultView {
             window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
             this.observer.notify(EventName.LOGIN);
             this.router.setHref(PagePath.INDEX);
-            // this.userApi = new ClientApi({ email, password });
-            // this.userApi.getCustomerByID(response.body.customer.id);
           }
         })
         .catch(() => {
@@ -247,7 +240,7 @@ export default class LoginView extends DefaultView {
     this.emailElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWhiteSpace.test(value):
+      case checkWhiteSpace.test(value):
         this.emailElement.setCustomValidity(Message.EMAIL_CONTAIN_WHITESPACE);
         break;
 
@@ -274,7 +267,7 @@ export default class LoginView extends DefaultView {
     this.passwordElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWhiteSpace.test(value):
+      case checkWhiteSpace.test(value):
         this.passwordElement.setCustomValidity(Message.PASSWORD_CONTAIN_WHITESPACE);
         break;
 

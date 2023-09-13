@@ -18,6 +18,7 @@ import { QueryParamType } from '../../../../api/sdk/type';
 import Pagination, { PaginationConfig } from '../../../shared/pagination/pagination';
 import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
+import CommonApi from '../../../../api/common-api';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -62,7 +63,7 @@ export default class CatalogView extends DefaultView {
     };
     super(params);
 
-    this.productApi = new ProductApi();
+    this.productApi = CommonApi.getInstance().getProductApi();
 
     this.filter = new Filter(this.productApi);
 

@@ -5,7 +5,6 @@ import ElementCreator, { ElementParams } from '../../../../utils/element-creator
 import Router from '../../../router/router';
 import DefaultView from '../../default-view';
 import styleCss from './cart-view.module.scss';
-import ClientApi from '../../../../api/client-api';
 import { PagePath } from '../../../router/pages';
 import ErrorMessage from '../../../message/error-message';
 import InfoMessage from '../../../message/info-message';
@@ -13,6 +12,7 @@ import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import debounce from '../../../../utils/debounce';
+import ClientApi from '../../../../api/client-api';
 
 export default class CartItem extends DefaultView {
   private router: Router;
@@ -21,7 +21,7 @@ export default class CartItem extends DefaultView {
 
   private cartSection: ElementCreator;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   constructor(router: Router, cartSection: ElementCreator, anonimApi: ClientApi) {
     const params: ElementParams = {
@@ -34,8 +34,6 @@ export default class CartItem extends DefaultView {
     this.cartSection = cartSection;
 
     this.router = router;
-
-    this.observer = Observer.getInstance();
 
     this.anonimApi = anonimApi;
   }

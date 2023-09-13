@@ -3,19 +3,19 @@ import ProductApi from './products-api';
 import RegApi from './reg-api';
 import createAnonim from './sdk/with-anonimous-flow';
 
-export type ApiCollection = {
-  clientApi?: ClientApi;
-  productApi?: ProductApi;
-  regApi?: RegApi;
+type ApiCollection = {
+  clientApi: ClientApi;
+  productApi: ProductApi;
+  regApi: RegApi;
 };
 
 export default class CommonApi {
   static instance: CommonApi = new CommonApi();
 
-  private anonimClient = createAnonim();
+  static anonimClient = createAnonim();
 
   private api: ApiCollection = {
-    clientApi: new ClientApi(),
+    clientApi: new ClientApi(CommonApi.anonimClient),
     productApi: new ProductApi(),
     regApi: new RegApi(),
   };
