@@ -7,6 +7,7 @@ import TagElement from '../../../utils/create-tag-element';
 import { PagePath } from '../../router/pages';
 import Strings from './strings';
 import DefaultView from '../../view/default-view';
+import SliderPopup from './slider-popup/slider-popup';
 
 type LocalPrices = {
   value: string;
@@ -39,6 +40,7 @@ export default class ProductCard extends DefaultView {
     super(params);
 
     this.product = product;
+
     this.router = router;
 
     this.buttonAddToCart = this.createButtonAddToCart();
@@ -59,6 +61,12 @@ export default class ProductCard extends DefaultView {
       this.buttonAddToCart.classList.add(styleCss['card-button_disabled']);
       this.buttonRemoveFromCart.classList.remove(styleCss['card-button_hide']);
     }
+  }
+
+  private getImagesUrl() {
+    const imagesUrl = this.product.masterVariant?.images?.map((image) => image.url) || [];
+
+    return imagesUrl;
   }
 
   private createButtonAddToCart() {
@@ -94,7 +102,7 @@ export default class ProductCard extends DefaultView {
     const { masterVariant } = this.product;
 
     const image = this.getImageElement(masterVariant);
-    // const cartControls = this.getCartControls();
+
     const wrapper = this.creator.createTagElement('div', [styleCss['product-card__content-wrapper']]);
     parent.append(image, this.buttonRemoveFromCart, this.buttonAddToCart, wrapper);
 
@@ -103,13 +111,6 @@ export default class ProductCard extends DefaultView {
     const prices = this.getPricesElement(masterVariant);
     wrapper.append(title, description, prices);
   }
-
-  // private getCartControls() {
-  //   const wrapper = this.creator.createTagElement('div', [styleCss['product-card__cart-controls-wrapper']]);
-  //   wrapper.append(this.buttonRemoveFromCart, this.buttonAddToCart);
-
-  //   return wrapper;
-  // }
 
   private getPricesElement(masterVariant: ProductVariant) {
     const pricesWrapper = this.creator.createTagElement('span', [styleCss['product-card__prices-wrapper']]);
@@ -148,7 +149,16 @@ export default class ProductCard extends DefaultView {
     const url = masterVariant.images ? masterVariant.images[0].url : this.URL_NO_IMAGE;
     const image = this.creator.createTagElement('img', [styleCss['product-card__image']]);
     image.setAttribute('src', url);
+    image.addEventListener('click', this.showSliderPopup.bind(this));
+
     return image;
+  }
+
+  private showSliderPopup(e: Event) {
+    e.stopPropagation();
+    const imagesUrl = this.getImagesUrl();
+    const swiper = new SliderPopup(imagesUrl);
+    document.body.append(swiper.getElement());
   }
 
   private getLocalPrices(masterVariant: ProductVariant): LocalPrices {

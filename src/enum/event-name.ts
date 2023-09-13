@@ -9,6 +9,8 @@ enum EventName {
   ADDRESS_ADDED,
   UPDATE_CART,
   TOTAL_COST_CHANGED,
+  SPINNER_SHOW,
+  SPINNER_HIDE,
 }
 
 export default EventName;
