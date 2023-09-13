@@ -14,13 +14,15 @@ export type PaginationConfig = {
 export default class Pagination extends DefaultView {
   private config: PaginationConfig;
 
+  private paginations: Pagination[];
+
   private buttonPrev: ImageButton;
 
   private buttonNext: ImageButton;
 
   private callback: () => void;
 
-  constructor(config: PaginationConfig, callback: () => void) {
+  constructor(config: PaginationConfig, paginations: Pagination[], callback: () => void) {
     const elementParams: ElementParams = {
       tag: TagName.NAV,
       classNames: [styleCss.pagination],
@@ -30,6 +32,7 @@ export default class Pagination extends DefaultView {
     super(elementParams);
 
     this.config = config;
+    this.paginations = paginations;
     this.callback = callback;
 
     this.buttonPrev = new ImageButton(this.clickPrevButtonHandler.bind(this), styleCss['pagination__button-prev']);
@@ -42,24 +45,6 @@ export default class Pagination extends DefaultView {
   public initConfig(config: PaginationConfig) {
     this.config = this.correctConfig(config);
     this.setupButtons();
-  }
-
-  private correctConfig(config: PaginationConfig) {
-    this.config = config;
-    this.config.offset = 0;
-    this.config.currentPage = 0;
-
-    return config;
-  }
-
-  public getConfig() {
-    // this.config.currentPage = this.
-    return this.config;
-  }
-
-  private configView() {
-    this.setupButtons();
-    this.getElement().append(this.buttonPrev.getElement(), this.buttonNext.getElement());
   }
 
   public setupButtons() {
@@ -83,6 +68,19 @@ export default class Pagination extends DefaultView {
     }
   }
 
+  private correctConfig(config: PaginationConfig) {
+    this.config = config;
+    this.config.offset = 0;
+    this.config.currentPage = 0;
+
+    return config;
+  }
+
+  private configView() {
+    this.setupButtons();
+    this.getElement().append(this.buttonPrev.getElement(), this.buttonNext.getElement());
+  }
+
   private clickPrevButtonHandler() {
     if (this.config.offset - this.config.limit <= 0) {
       this.config.offset = 0;
@@ -91,7 +89,8 @@ export default class Pagination extends DefaultView {
       this.config.offset -= this.config.limit;
       this.config.currentPage -= 1;
     }
-    this.setupButtons();
+    this.paginations.forEach((pagination) => pagination.setupButtons());
+
     this.callback();
   }
 
@@ -99,7 +98,8 @@ export default class Pagination extends DefaultView {
     if (this.config.offset + this.config.limit < this.config.total) {
       this.config.offset += this.config.limit;
       this.config.currentPage += 1;
-      this.setupButtons();
+      this.paginations.forEach((pagination) => pagination.setupButtons());
+
       this.callback();
     }
   }
