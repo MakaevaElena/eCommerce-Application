@@ -125,7 +125,7 @@ export default class LoginView extends DefaultView {
     const loginSubmitButton = new ElementCreator({
       tag: TagName.BUTTON,
       classNames: [styleCss.button],
-      textContent: 'SIGN IN',
+      textContent: 'LOG IN',
     });
 
     const registrationField = new ElementCreator({
@@ -230,9 +230,9 @@ export default class LoginView extends DefaultView {
             window.localStorage.setItem(`isLogin`, 'true');
             window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
             this.observer.notify(EventName.LOGIN);
-            this.router.navigate(PagePath.INDEX);
-            this.userApi = new ClientApi({ email, password });
-            this.userApi.getCustomerByID(response.body.customer.id);
+            this.router.setHref(PagePath.INDEX);
+            // this.userApi = new ClientApi({ email, password });
+            // this.userApi.getCustomerByID(response.body.customer.id);
           }
         })
         .catch(() => {

@@ -14,7 +14,7 @@ import EventName from '../../../../enum/event-name';
 import SortView from './sort/sort';
 import SearchInput from '../../../shared/search-input/search-input';
 import WarningMessage from '../../../message/warning-message';
-import QueryParamType from '../../../../api/sdk/type';
+import { QueryParamType } from '../../../../api/sdk/type';
 import Pagination, { PaginationConfig } from '../../../shared/pagination/pagination';
 import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';

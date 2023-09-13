@@ -1,12 +1,9 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { createAnonim } from './sdk/with-anonimous-flow';
-import { createUser } from './sdk/with-password-flow';
+import { Client } from '@commercetools/sdk-client-v2';
+import createAnonim from './sdk/with-anonimous-flow';
+import createUser from './sdk/with-password-flow';
 import Guid from '../utils/guid';
-
-type LoginData = {
-  email: string;
-  password: string;
-};
+import { CTP_PROJECT_KEY } from './sdk/const';
 
 type CustomerData = {
   email: string;
@@ -18,12 +15,13 @@ type CustomerData = {
 };
 
 export default class ClientApi {
-  private clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot;
 
-  constructor(loginData?: LoginData) {
-    if (loginData) {
-      const userClient = createUser(loginData.email, loginData.password);
-      this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+  constructor(client?: Client) {
+    if (client) {
+      this.clientRoot = createApiBuilderFromCtpClient(client).withProjectKey({ projectKey: CTP_PROJECT_KEY });
+    } else {
+      this.clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     }
   }
 

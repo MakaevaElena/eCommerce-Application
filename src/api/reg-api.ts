@@ -1,6 +1,6 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { createAnonim } from './sdk/with-anonimous-flow';
-import { createUser } from './sdk/with-password-flow';
+import createAnonim from './sdk/with-anonimous-flow';
+import createUser from './sdk/with-password-flow';
 
 type LoginData = {
   email: string;

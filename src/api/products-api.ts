@@ -1,12 +1,7 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { createAnonim } from './sdk/with-anonimous-flow';
-import { createUser } from './sdk/with-password-flow';
-import QueryParamType from './sdk/type';
-
-type LoginData = {
-  email: string;
-  password: string;
-};
+import createAnonim from './sdk/with-anonimous-flow';
+import createUser from './sdk/with-password-flow';
+import { LoginData, QueryParamType } from './sdk/type';
 
 export enum Template {
   ENUM_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%.key:%VALUE%',
