@@ -1,0 +1,17 @@
+@import './src/style/helper.scss';
+
+.card {
+  width: 80%;
+  height: 30vh;
+  @include flex();
+  border-radius: 1rem;
+  background-color: $color-brand-primary;
+}
+
+.photo {
+  display: block;
+  height: 100%;
+  width: auto;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}

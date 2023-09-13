@@ -6,6 +6,8 @@ import DefaultView from '../../default-view';
 import styleCss from './styles/about-us-view.module.scss';
 import Title from './title/title';
 import RSLogo from './RS_logo/RS-logo';
+import TeamMemberCard from './team-member-card/team-member-card';
+import TeamMemberCardType from './team-member-card/types/team-member-card-type';
 
 export default class AboutUsView extends DefaultView {
   private router: Router;
@@ -37,8 +39,17 @@ export default class AboutUsView extends DefaultView {
 
     const logo = new RSLogo();
     const title = new Title();
+    const elenaCard = new TeamMemberCard(this.createElenaData());
+    const siarheiCard = new TeamMemberCard(this.createSiarheiData());
+    const vladimirCard = new TeamMemberCard(this.createVladimirData());
 
-    wrapper.append(logo.getElement(), title.getElement());
+    wrapper.append(
+      logo.getElement(),
+      title.getElement(),
+      elenaCard.getElement(),
+      siarheiCard.getElement(),
+      vladimirCard.getElement()
+    );
     this.getCreator().addInnerElement(wrapper);
   }
 
@@ -52,4 +63,24 @@ export default class AboutUsView extends DefaultView {
   //   });
   //   return linkButton;
   // }
+
+  //
+
+  private createSiarheiData(): TeamMemberCardType {
+    return {
+      photoSrc: 'https://avatars.githubusercontent.com/u/52540855?v=4',
+    };
+  }
+
+  private createElenaData(): TeamMemberCardType {
+    return {
+      photoSrc: 'https://avatars.githubusercontent.com/u/87429007?v=4',
+    };
+  }
+
+  private createVladimirData(): TeamMemberCardType {
+    return {
+      photoSrc: 'https://avatars.githubusercontent.com/u/90175914?v=4',
+    };
+  }
 }
