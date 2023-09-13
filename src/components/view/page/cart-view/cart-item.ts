@@ -170,6 +170,12 @@ export default class CartItem extends DefaultView {
   }
 
   private getItemSum(response: ClientResponse<ProductProjection>, value: string) {
+    if (response.body.masterVariant.prices?.[1].discounted?.value) {
+      return `PRICE: ${(
+        (Number(response.body.masterVariant.prices?.[1].discounted?.value.centAmount) / 100) *
+        Number(value)
+      ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value.currencyCode}`;
+    }
     if (response.body.masterVariant.prices?.[1].value) {
       return `PRICE: ${(
         (Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100) *

@@ -153,6 +153,7 @@ export default class CartView extends DefaultView {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
+        console.log('cartResponse', cartResponse);
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
