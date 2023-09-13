@@ -1,6 +1,5 @@
 import styleTitle from './title-style.module.scss';
 import TagName from '../../../../../enum/tag-name';
-import tagName from '../../../../../enum/tag-name';
 
 export default class Title {
   private element: HTMLDivElement;
@@ -25,7 +24,7 @@ export default class Title {
   }
 
   private createName() {
-    const name = document.createElement(tagName.DIV);
+    const name = document.createElement(TagName.DIV);
     name.classList.add(styleTitle.waving);
     name.classList.add(styleTitle.title);
     name.append(
@@ -39,7 +38,7 @@ export default class Title {
   }
 
   private createSubName() {
-    const subName = document.createElement(tagName.DIV);
+    const subName = document.createElement(TagName.DIV);
     subName.classList.add(styleTitle.waving);
     subName.classList.add(styleTitle.subtitle);
     subName.append(this.addLetter('t'), this.addLetter('e'), this.addLetter('a'), this.addLetter('m'));
@@ -47,7 +46,7 @@ export default class Title {
   }
 
   private addLetter(letter: string) {
-    const letterElement = document.createElement(tagName.SPAN);
+    const letterElement = document.createElement(TagName.SPAN);
     letterElement.innerText = letter;
     return letterElement;
   }
