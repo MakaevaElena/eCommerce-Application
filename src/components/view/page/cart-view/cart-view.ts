@@ -161,7 +161,6 @@ export default class CartView extends DefaultView {
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
-        // this.orderTotalCost.getElement().textContent = `${totalPrice}`;
         this.createTotalOrderValue(totalPrice);
         console.log('cartResponse.body.totalPrice.centAmount', cartResponse.body.totalPrice.centAmount);
         // console.log('cartResponse.body.version', cartResponse.body.version);
