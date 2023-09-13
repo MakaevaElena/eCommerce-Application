@@ -191,64 +191,40 @@ export default class CartItem extends DefaultView {
 
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    // console.log('anonimCartID', anonimCartID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          // this.cartSection.getElement().textContent = '';
-          // await this.configView();
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          if (item[0].id) this.anonimApi.removeLineItem(anonimCartID, cartResponse.body.version, item[0].id);
+          if (item[0].id)
+            this.anonimApi
+              .removeLineItem(anonimCartID, cartResponse.body.version, item[0].id)
+              .then(() => {
+                this.observer.notify(EventName.TOTAL_COST_CHANGED);
+                new InfoMessage().showMessage('Item removed from cart');
+              })
+              .catch((error) => new ErrorMessage().showMessage(error.message));
         })
-        .then(() => {
-          this.observer.notify(EventName.TOTAL_COST_CHANGED);
-          new InfoMessage().showMessage('Item removed from cart');
-        })
-        .catch((error) => {
-          // console.log(error);
-          new ErrorMessage().showMessage(error.message);
-        });
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
   private async changeQuantityItem(itemKey: string, quantity: number) {
-    // console.log('quantity', quantity);
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          // console.log('cartResponse', cartResponse);
           const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
-          this.anonimApi.changeQuantityByLineID(
-            cartResponse.body.id,
-            cartResponse.body.version,
-            lineItemData[0].id,
-            quantity
-          );
-          this.observer.notify(EventName.TOTAL_COST_CHANGED);
+          this.anonimApi
+            .changeQuantityByLineID(cartResponse.body.id, cartResponse.body.version, lineItemData[0].id, quantity)
+            .then((response) => {
+              if (response.statusCode === 200) this.observer.notify(EventName.TOTAL_COST_CHANGED);
+            })
+            .catch((error) => new ErrorMessage().showMessage(error.message));
+          // this.observer.notify(EventName.TOTAL_COST_CHANGED);
           return quantity;
         })
         // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
-        .catch((error) => {
-          // console.log(error);
-          new ErrorMessage().showMessage(error.message);
-        });
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
-
-  // private async getActualTotalSummItemByID(lineItemId: string) {
-  //   let currentTotalPrice = '';
-  //   const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-  //   if (anonimCartID)
-  //     await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
-  //       const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.id === lineItemId);
-  //       // console.log('item[0]', item[0]);
-  //       currentTotalPrice = `PRICE: ${(Number(item[0].totalPrice.centAmount) / 100).toFixed(2)} ${
-  //         item[0].totalPrice.currencyCode
-  //       }`;
-  //     });
-
-  //   return currentTotalPrice;
-  // }
 }
