@@ -12,6 +12,7 @@ import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import debounce from '../../../../utils/debounce';
 
 export default class CartItem extends DefaultView {
   private router: Router;
@@ -109,33 +110,41 @@ export default class CartItem extends DefaultView {
         textContent: '+',
       });
 
-      itemQuantityMinus.getElement().addEventListener('click', async () => {
-        if (Number(itemQuantityInput.value) > 1) {
-          itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
+      itemQuantityMinus.getElement().addEventListener(
+        'click',
+        debounce(async () => {
+          if (Number(itemQuantityInput.value) > 1) {
+            itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
+            await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+              itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+            });
+          }
+        }, 800)
+      );
+
+      itemQuantityPlus.getElement().addEventListener(
+        'click',
+        debounce(async () => {
+          itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
           await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
-            // itemOrderSumm.getElement().textContent = `${await this.getActualTotalSummItemByID(lineItemData[0].id)}`;
             itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
           });
-        }
-      });
-
-      itemQuantityPlus.getElement().addEventListener('click', async () => {
-        itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
-        await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
-          // itemOrderSumm.getElement().textContent = `${await this.getActualTotalSummItemByID(lineItemData[0].id)}`;
-          itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-        });
-      });
+        }, 800)
+      );
 
       itemQuantityInput.setAttribute('type', 'number');
       itemQuantityInput.setAttribute('min', '1');
       itemQuantityInput.setAttribute('value', '1');
       itemQuantityInput.value = `${lineItemData[0].quantity}`;
 
-      itemQuantityInput.addEventListener('change', () => {
-        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-        this.changeQuantityItem(itemKey, Number(itemQuantityInput.value));
-      });
+      itemQuantityInput.addEventListener(
+        'change',
+        debounce(async () => {
+          this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+            itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
+          });
+        }, 800)
+      );
 
       const itemOrderValue = new ElementCreator({
         tag: TagName.DIV,
