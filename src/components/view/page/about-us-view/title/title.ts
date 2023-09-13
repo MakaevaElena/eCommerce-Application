@@ -20,29 +20,24 @@ export default class Title {
   }
 
   private configure() {
-    this.element.append(this.createName(), this.createSubName());
-  }
-
-  private createName() {
-    const name = document.createElement(TagName.DIV);
-    name.classList.add(styleTitle.waving);
-    name.classList.add(styleTitle.title);
-    name.append(
-      this.addLetter('U'),
-      this.addLetter('P'),
-      this.addLetter('&'),
-      this.addLetter('G'),
-      this.addLetter('O')
+    const teamNameTitle = 'UP&GO';
+    const teamNameSubtitle = 'team';
+    this.element.append(
+      this.createFunnyString(teamNameTitle, styleTitle.title),
+      this.createFunnyString(teamNameSubtitle, styleTitle.subtitle)
     );
-    return name;
   }
 
-  private createSubName() {
-    const subName = document.createElement(TagName.DIV);
-    subName.classList.add(styleTitle.waving);
-    subName.classList.add(styleTitle.subtitle);
-    subName.append(this.addLetter('t'), this.addLetter('e'), this.addLetter('a'), this.addLetter('m'));
-    return subName;
+  private createFunnyString(string: string, className?: string) {
+    const stringElement = document.createElement(TagName.DIV);
+    stringElement.classList.add(styleTitle.waving);
+    if (className) {
+      stringElement.classList.add(className);
+    }
+
+    stringElement.append(...string.split('').map((letter) => this.addLetter(letter)));
+
+    return stringElement;
   }
 
   private addLetter(letter: string) {
