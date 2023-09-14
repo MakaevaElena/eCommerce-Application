@@ -65,10 +65,10 @@ export default class App {
   }
 
   private isLogged() {
-    localStorage.setItem(`isLogin`, 'false');
+    // localStorage.setItem(`isLogin`, 'false');
 
-    return false;
-    // return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
+    // return false;
+    return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
   }
 
   private setContent(pageName: string, view: DefaultView) {
@@ -150,6 +150,7 @@ export default class App {
       {
         path: `${PagePath.CATALOG}`,
         callback: async () => {
+          console.log(`API time app.ts: ${this.api.timestamp}`);
           const CatalogView = (await import('../view/page/catalog-view/catalog-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.CATALOG)
             ? this.viewStorage.get(PagePath.CATALOG)
@@ -163,6 +164,7 @@ export default class App {
       {
         path: `${PagePath.CATALOG}/${ITEM_ID}`,
         callback: async (id: string | undefined) => {
+          console.log(`API time app.ts: ${this.api.timestamp}`);
           const ProductView = (await import('../view/page/product-view/product-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PRODUCT)
             ? this.viewStorage.get(PagePath.PRODUCT)
@@ -177,6 +179,7 @@ export default class App {
       {
         path: `${PagePath.PROFILE}`,
         callback: async () => {
+          console.log(`API time app.ts: ${this.api.timestamp}`);
           if (this.isLogged()) {
             const ProfileView = (await import('../view/page/profile-view/profile-view')).default;
             const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)

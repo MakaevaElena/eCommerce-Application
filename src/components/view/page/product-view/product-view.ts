@@ -68,6 +68,7 @@ export default class ProductView extends DefaultView {
   }
 
   public initContent(productId?: string) {
+    console.log(`API time: ${this.api.getTimestamp()}`);
     if (productId) {
       this.productId = productId;
     }

@@ -10,17 +10,20 @@ export default class TotalApi {
 
   private regApi: RegApi;
 
+  public timestamp: string;
+
   constructor(client: Client) {
+    this.timestamp = new Date().toLocaleTimeString();
+    console.log('CREATE TotalApi: ', this.timestamp);
+
     this.clientApi = new ClientApi(client);
     this.productApi = new ProductApi(client);
     this.regApi = new RegApi(client);
   }
 
-  // public recreate(client: Client) {
-  //   this.clientApi = new ClientApi(client);
-  //   this.productApi = new ProductApi(client);
-  //   this.regApi = new RegApi(client);
-  // }
+  public getTimestamp() {
+    return this.timestamp;
+  }
 
   public getClientApi() {
     return this.clientApi;

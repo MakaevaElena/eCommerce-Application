@@ -64,7 +64,7 @@ export default class CatalogView extends DefaultView {
 
     this.api = api;
 
-    this.filter = new Filter(this.api.getProductApi());
+    this.filter = new Filter(this.api);
 
     this.search = new SearchInput(this.dispatchSearch.bind(this));
 

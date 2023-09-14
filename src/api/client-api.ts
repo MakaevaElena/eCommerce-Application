@@ -19,7 +19,6 @@ export default class ClientApi {
   private clientRoot;
 
   constructor(client?: Client) {
-    console.log('new ClientApi created: ', client);
     if (client) {
       this.clientRoot = createApiBuilderFromCtpClient(client).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     } else {

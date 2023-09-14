@@ -235,6 +235,8 @@ export default class LoginView extends DefaultView {
             const client = createUser(email, password);
             this.api = new TotalApi(client);
 
+            this.api.timestamp = 'Besome mucho!';
+
             const customerId = response.body.customer.id;
             localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
             // localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
@@ -242,12 +244,12 @@ export default class LoginView extends DefaultView {
             this.api
               .getClientApi()
               .getCustomerByID(customerId)
-              .then((customer) => customer);
+              .then((customer) => console.log('getClientApi().getCustomerByID(): ', customer));
 
             this.api
               .getProductApi()
               .getProducts()
-              .then((responce) => console.log('Products: ', responce));
+              .then((responce) => console.log('getProductApi().getProducts: ', responce));
             // .then((cart) => localStorage.setItem(LocalStorageKeys.CART_ID, cart.body.id))
             // .catch();
           }
