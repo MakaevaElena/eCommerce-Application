@@ -4,6 +4,7 @@ import createAnonim from './sdk/with-anonimous-flow';
 import createUser from './sdk/with-password-flow';
 import Guid from '../utils/guid';
 import { CTP_PROJECT_KEY } from './sdk/const';
+import { QueryParamType } from './sdk/type';
 
 type CustomerData = {
   email: string;
@@ -18,6 +19,7 @@ export default class ClientApi {
   private clientRoot;
 
   constructor(client?: Client) {
+    console.log('new ClientApi created: ', client);
     if (client) {
       this.clientRoot = createApiBuilderFromCtpClient(client).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     } else {
@@ -73,7 +75,7 @@ export default class ClientApi {
 
   public createUserRoot(email: string, password: string) {
     const userClient = createUser(email, password);
-    this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+    this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     return this.clientRoot;
   }
 
@@ -120,8 +122,19 @@ export default class ClientApi {
 
   // PRODUCTS
 
-  public getProducts() {
-    return this.clientRoot.products().get().execute();
+  // public getProducts() {
+  //   return this.clientRoot.products().get().execute();
+  // }
+  public getProducts(args?: QueryParamType) {
+    const params = args ? { ...args } : {};
+
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
+        queryArgs: params,
+      })
+      .execute();
   }
 
   public getProductbyID(productID: string) {

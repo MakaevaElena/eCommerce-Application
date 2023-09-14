@@ -10,6 +10,8 @@ import Router from '../../../router/router';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../message/error-message';
 import CommonApi from '../../../../api/common-api';
+import createUser from '../../../../api/sdk/with-password-flow';
+import createAnonim from '../../../../api/sdk/with-anonimous-flow';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
@@ -67,7 +69,7 @@ export default class LoginView extends DefaultView {
     super(params);
     this.router = router;
 
-    this.observer.subscribe(EventName.LOGOUT, this.updateLoginPage.bind(this));
+    this.observer.subscribe(EventName.LOGOUT, this.logout.bind(this));
 
     if (localStorage.getItem('isLogin') === 'true') {
       this.router.setHref(PagePath.INDEX);
@@ -80,9 +82,13 @@ export default class LoginView extends DefaultView {
     this.renderForm();
   }
 
-  private updateLoginPage() {
+  private logout() {
     this.getCreator().clearInnerContent();
     this.configView();
+
+    const client = createAnonim();
+    CommonApi.getInstance().recreate(client);
+
     this.anonimApi = CommonApi.getInstance().getClientApi();
   }
 
@@ -226,6 +232,25 @@ export default class LoginView extends DefaultView {
             window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
             this.observer.notify(EventName.LOGIN);
             this.router.setHref(PagePath.INDEX);
+
+            const client = createUser(email, password);
+            CommonApi.getInstance().recreate(client);
+
+            const customerId = response.body.customer.id;
+            localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+            // localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+
+            CommonApi.getInstance()
+              .getClientApi()
+              .getCustomerByID(customerId)
+              .then((customer) => customer);
+
+            CommonApi.getInstance()
+              .getProductApi()
+              .getProducts()
+              .then((responce) => console.log('Products: ', responce));
+            // .then((cart) => localStorage.setItem(LocalStorageKeys.CART_ID, cart.body.id))
+            // .catch();
           }
         })
         .catch(() => {

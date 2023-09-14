@@ -337,7 +337,7 @@ export default class RegistrationView extends DefaultView {
         ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
         : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
       key: Guid.newGuid(),
-      // TODO: realize GUID generator
+
       defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
       defaultBillingAddressNum: this.getDefaultBillinAddressNum(),
     };

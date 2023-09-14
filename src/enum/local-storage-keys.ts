@@ -1,7 +1,8 @@
 enum LocalStorageKeys {
   MAIL_ADDRESS = 'mailAddress',
   ANONYMOUS_ID = 'anonimousId',
-  ANONIM_CART_ID = 'anonimCartID',
+  CART_ID = 'cartId',
+  CUSTOMER_ID = 'customerId',
 }
 
 export default LocalStorageKeys;

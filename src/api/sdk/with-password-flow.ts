@@ -31,6 +31,8 @@ const createUser = (name: string, password: string) => {
     .withLoggerMiddleware()
     .build();
 
+  console.log('createUser: ', createUser);
+
   return loginClient;
 };
 

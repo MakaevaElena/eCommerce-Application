@@ -63,7 +63,7 @@ export default class CartView extends DefaultView {
 
   private configView() {
     this.createCartHeader();
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
@@ -148,7 +148,7 @@ export default class CartView extends DefaultView {
   }
 
   private async updateTotalSumm() {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
       await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${

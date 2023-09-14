@@ -379,7 +379,7 @@ export default class ProductView extends DefaultView {
 
     // await this.changeButton(button, response);
 
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
       await this.anonimApi
         .getCartByCartID(anonimCartID)
@@ -420,7 +420,7 @@ export default class ProductView extends DefaultView {
   // }
 
   // private createRemoveButton(response: ClientResponse<ProductProjection>) {
-  //   const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+  //   const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
   //   if (anonimCartID)
   //     return this.anonimApi.getCartByCartID(anonimCartID).then(async (cartResponse) => {
   //       const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
@@ -450,11 +450,11 @@ export default class ProductView extends DefaultView {
   }
 
   private addToCart(response: ClientResponse<ProductProjection>) {
-    if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
+    if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.CART_ID)) {
       this.anonimApi
         .createCart()
         .then((cartResponse) => {
-          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
+          localStorage.setItem(LocalStorageKeys.CART_ID, `${cartResponse.body.id}`);
         })
         .catch((error) => {
           if (error instanceof Error) {
@@ -463,7 +463,7 @@ export default class ProductView extends DefaultView {
         });
     }
 
-    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const cartID = localStorage.getItem(LocalStorageKeys.CART_ID);
 
     if (cartID !== null) {
       this.addItemToCart(cartID, response);

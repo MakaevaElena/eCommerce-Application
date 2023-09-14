@@ -197,7 +197,7 @@ export default class CartItem extends DefaultView {
   }
 
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
@@ -217,7 +217,7 @@ export default class CartItem extends DefaultView {
   }
 
   private async changeQuantityItem(itemKey: string, quantity: number) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
       this.anonimApi
         .getCartByCartID(anonimCartID)
