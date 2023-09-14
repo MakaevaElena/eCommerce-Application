@@ -2,6 +2,7 @@ import styleCard from './styles/team-member-card-style.module.scss';
 import TagName from '../../../../../enum/tag-name';
 import TeamMemberCardType from './types/team-member-card-type';
 import MagicString from '../magic-string/magic-string';
+import GitHubLink from './gitHubLink/git-hub-link';
 
 export default class TeamMemberCard {
   private element: HTMLDivElement;
@@ -54,9 +55,12 @@ export default class TeamMemberCard {
     nameTeamMember.classList.add(styleCard.description__headline);
     nameTeamMember.textContent = `${teamMemberData.firstName} ${teamMemberData.lastName}`;
 
-    // const nameTeamMember = this.createParagraph()
+    const role = this.createParagraph('Role:', teamMemberData.role);
+    const biography = this.createParagraph('Biography:', teamMemberData.biography);
+    const contribution = this.createParagraph('Contributon:', teamMemberData.contributions);
+    const linkToGitHub = new GitHubLink(teamMemberData.gitHubLink);
 
-    element.append(nameTeamMember);
+    element.append(nameTeamMember, role, linkToGitHub.getElement(), biography, contribution);
     return element;
   }
 
