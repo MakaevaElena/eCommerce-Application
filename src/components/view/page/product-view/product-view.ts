@@ -72,7 +72,7 @@ export default class ProductView extends DefaultView {
     if (productId) {
       this.productId = productId;
     }
-
+    this.createAnonimCart();
     this.configView();
   }
 
@@ -433,7 +433,7 @@ export default class ProductView extends DefaultView {
       });
   }
 
-  private addToCart(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+  private createAnonimCart() {
     if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.anonimApi
         .createCart()
@@ -446,6 +446,10 @@ export default class ProductView extends DefaultView {
           }
         });
     }
+  }
+
+  private addToCart(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    // this.createAnonimCart();
 
     const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
