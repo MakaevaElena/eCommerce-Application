@@ -28,17 +28,21 @@ export default class TeamMemberCard {
     );
   }
 
-  private createPhoto(src: string, alt: string): HTMLElement {
+  private createPhoto(src: string, name: string): HTMLElement {
     const photo = document.createElement('figure');
     photo.classList.add(styleCard.photo);
 
     const img = document.createElement('img');
     img.classList.add(styleCard.photo);
     img.src = src;
-    img.alt = alt;
-    img.title = alt;
+    img.alt = name;
+    img.title = name;
 
-    photo.append(img);
+    const figcaption = document.createElement('figcaption');
+    const figcaptionText = new MagicString(name, styleCard.photo__figcaption);
+    figcaption.append(figcaptionText.getElement());
+
+    photo.append(img, figcaption);
     return photo;
   }
 
