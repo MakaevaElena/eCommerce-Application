@@ -1,0 +1,37 @@
+@import './src/style/helper.scss';
+
+.card {
+  width: 90%;
+  height: 30vh;
+  margin-top: 4rem;
+  margin-inline: auto;
+  @include flex();
+  border-radius: 1rem;
+  background-color: $color-brand-primary;
+}
+
+.photo {
+  display: block;
+  height: 100%;
+  width: auto;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+.description {
+  &__wrap {
+    width: 70%;
+    height: 100%;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    background-color: $color-brand-secondary;
+  }
+
+  &__name {
+    margin-top: 1rem;
+    margin-inline: auto;
+    font-size: 2rem;
+    width: fit-content;
+    transform: translateY(-3rem);
+  }
+}
