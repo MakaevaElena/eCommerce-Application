@@ -1,5 +1,6 @@
 import styleTitle from './title-style.module.scss';
 import TagName from '../../../../../enum/tag-name';
+import MagicString from '../magic-string/magic-string';
 
 export default class Title {
   private element: HTMLDivElement;
@@ -21,28 +22,9 @@ export default class Title {
 
   private configure() {
     const teamNameTitle = 'UP&GO';
+    const funnyStringTeamName = new MagicString(teamNameTitle, styleTitle.title);
     const teamNameSubtitle = 'team';
-    this.element.append(
-      this.createFunnyString(teamNameTitle, styleTitle.title),
-      this.createFunnyString(teamNameSubtitle, styleTitle.subtitle)
-    );
-  }
-
-  private createFunnyString(string: string, className?: string) {
-    const stringElement = document.createElement(TagName.DIV);
-    stringElement.classList.add(styleTitle.waving);
-    if (className) {
-      stringElement.classList.add(className);
-    }
-
-    stringElement.append(...string.split('').map((letter) => this.addLetter(letter)));
-
-    return stringElement;
-  }
-
-  private addLetter(letter: string) {
-    const letterElement = document.createElement(TagName.SPAN);
-    letterElement.innerText = letter;
-    return letterElement;
+    const funnyStringTeamSubName = new MagicString(teamNameSubtitle, styleTitle.subtitle);
+    this.element.append(funnyStringTeamName.getElement(), funnyStringTeamSubName.getElement());
   }
 }

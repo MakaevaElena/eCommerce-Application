@@ -1,6 +1,7 @@
 type TeamMemberCardType = {
   photoSrc: string;
-  name: string;
+  firstName: string;
+  lastName: string;
 };
 
 export default TeamMemberCardType;

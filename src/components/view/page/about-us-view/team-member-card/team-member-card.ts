@@ -1,7 +1,7 @@
 import styleCard from './styles/team-member-card-style.module.scss';
 import TagName from '../../../../../enum/tag-name';
 import TeamMemberCardType from './types/team-member-card-type';
-import styleTitle from '../title/title-style.module.scss';
+import MagicString from '../magic-string/magic-string';
 
 export default class TeamMemberCard {
   private element: HTMLDivElement;
@@ -23,44 +23,38 @@ export default class TeamMemberCard {
 
   private configure(teamMemberData: TeamMemberCardType) {
     this.element.append(
-      this.createPhoto(teamMemberData.photoSrc, teamMemberData.name),
+      this.createPhoto(teamMemberData.photoSrc, teamMemberData.firstName),
       this.createCardDescription(teamMemberData)
     );
   }
 
-  private createPhoto(src: string, alt: string): HTMLImageElement {
+  private createPhoto(src: string, alt: string): HTMLElement {
+    const photo = document.createElement('figure');
+    photo.classList.add(styleCard.photo);
+
     const img = document.createElement('img');
     img.classList.add(styleCard.photo);
     img.src = src;
     img.alt = alt;
     img.title = alt;
-    return img;
+
+    photo.append(img);
+    return photo;
   }
 
   private createCardDescription(teamMemberData: TeamMemberCardType): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(styleCard.description__wrap);
 
-    const nameTeamMember = this.createNameMemberTeam(teamMemberData.name);
+    const nameTeamMember = this.createNameMemberTeam(teamMemberData.firstName);
 
     element.append(nameTeamMember);
     return element;
   }
 
   private createNameMemberTeam(name: string): HTMLDivElement {
-    return this.createFunnyString(name, styleCard.description__name);
-  }
-
-  private createFunnyString(string: string, className?: string) {
-    const stringElement = document.createElement(TagName.DIV);
-    stringElement.classList.add(styleTitle.waving);
-    if (className) {
-      stringElement.classList.add(className);
-    }
-
-    stringElement.append(...string.split('').map((letter) => this.addLetter(letter)));
-
-    return stringElement;
+    const funnyName = new MagicString(name);
+    return funnyName.getElement();
   }
 
   private addLetter(letter: string) {

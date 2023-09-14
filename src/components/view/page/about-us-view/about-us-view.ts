@@ -69,21 +69,24 @@ export default class AboutUsView extends DefaultView {
   private createSiarheiData(): TeamMemberCardType {
     return {
       photoSrc: 'https://avatars.githubusercontent.com/u/52540855?v=4',
-      name: 'Siarhei',
+      firstName: 'Siarhei',
+      lastName: 'Muliarenka',
     };
   }
 
   private createElenaData(): TeamMemberCardType {
     return {
       photoSrc: 'https://avatars.githubusercontent.com/u/87429007?v=4',
-      name: 'Makaeva Elena',
+      firstName: 'Elena',
+      lastName: 'Makaeva',
     };
   }
 
   private createVladimirData(): TeamMemberCardType {
     return {
       photoSrc: 'https://avatars.githubusercontent.com/u/90175914?v=4',
-      name: 'Vladimir Sobolev',
+      firstName: 'Vladimir',
+      lastName: 'Sobolev',
     };
   }
 }
