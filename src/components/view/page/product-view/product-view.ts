@@ -26,6 +26,7 @@ import EventName from '../../../../enum/event-name';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class ProductView extends DefaultView {
   private api: TotalApi;
@@ -50,7 +51,7 @@ export default class ProductView extends DefaultView {
     textContent: ``,
   });
 
-  constructor(router: Router, api: TotalApi) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
@@ -58,7 +59,7 @@ export default class ProductView extends DefaultView {
     };
     super(params);
 
-    this.api = api;
+    this.api = paramApi.api;
 
     this.router = router;
 
@@ -68,7 +69,6 @@ export default class ProductView extends DefaultView {
   }
 
   public initContent(productId?: string) {
-    console.log(`API time: ${this.api.getTimestamp()}`);
     if (productId) {
       this.productId = productId;
     }

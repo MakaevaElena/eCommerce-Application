@@ -29,6 +29,7 @@ import AddressCreator from './address-creator/address-creator';
 import InfoMessage from '../../../message/info-message';
 import ErrorMessage from '../../../message/error-message';
 import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class ProfileView extends DefaultView {
   private api: TotalApi;
@@ -45,7 +46,7 @@ export default class ProfileView extends DefaultView {
 
   private countryOptions: CountryOptions;
 
-  constructor(router: Router, api: TotalApi) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['profile-view']],
@@ -53,7 +54,7 @@ export default class ProfileView extends DefaultView {
     };
     super(params);
 
-    this.api = api;
+    this.api = paramApi.api;
 
     this.router = router;
 

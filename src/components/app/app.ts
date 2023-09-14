@@ -11,6 +11,7 @@ import EventName from '../../enum/event-name';
 import Observer from '../../observer/observer';
 import TotalApi from '../../api/total-api';
 import createAnonim from '../../api/sdk/with-anonimous-flow';
+import ApiType from './type';
 
 export default class App {
   private api: TotalApi;
@@ -32,11 +33,11 @@ export default class App {
   constructor() {
     this.favicon = new Favicon();
 
+    this.api = this.createApi();
+
     const routes: Route[] = this.getRoutes();
 
     this.router = new Router(routes);
-
-    this.api = this.createApi();
 
     this.main = new MainView();
     this.header = new HeaderView(this.router);
@@ -49,6 +50,8 @@ export default class App {
     document.body.append(this.header.getElement());
     document.body.append(this.main.getElement());
     document.body.append(this.footer.getElement());
+
+    localStorage.setItem(`isLogin`, 'false');
 
     if (this.isLogged()) {
       this.observer.notify(EventName.LOGIN);
@@ -65,9 +68,6 @@ export default class App {
   }
 
   private isLogged() {
-    // localStorage.setItem(`isLogin`, 'false');
-
-    // return false;
     return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
   }
 
@@ -78,6 +78,10 @@ export default class App {
   }
 
   private getRoutes(): Route[] {
+    const paramApi: ApiType = {
+      api: this.api,
+    };
+
     return [
       {
         path: ``,
@@ -111,7 +115,7 @@ export default class App {
           const LoginView = (await import('../view/page/login-view/login-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
-            : new LoginView(this.router, this.api);
+            : new LoginView(this.router, paramApi);
           if (localStorage.getItem('isLogin') === 'true') {
             this.router.setHref(PagePath.INDEX);
           }
@@ -127,7 +131,7 @@ export default class App {
           const RegistrationView = (await import('../view/page/registration-view/registration-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : new RegistrationView(this.router, this.api);
+            : new RegistrationView(this.router, paramApi);
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);
@@ -150,11 +154,10 @@ export default class App {
       {
         path: `${PagePath.CATALOG}`,
         callback: async () => {
-          console.log(`API time app.ts: ${this.api.timestamp}`);
           const CatalogView = (await import('../view/page/catalog-view/catalog-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.CATALOG)
             ? this.viewStorage.get(PagePath.CATALOG)
-            : new CatalogView(this.router, this.api);
+            : new CatalogView(this.router, paramApi);
           if (view) {
             this.viewStorage.set(PagePath.CATALOG, view);
             this.setContent(PagePath.CATALOG, view);
@@ -164,11 +167,10 @@ export default class App {
       {
         path: `${PagePath.CATALOG}/${ITEM_ID}`,
         callback: async (id: string | undefined) => {
-          console.log(`API time app.ts: ${this.api.timestamp}`);
           const ProductView = (await import('../view/page/product-view/product-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PRODUCT)
             ? this.viewStorage.get(PagePath.PRODUCT)
-            : new ProductView(this.router, this.api);
+            : new ProductView(this.router, paramApi);
           if (view instanceof ProductView) {
             this.viewStorage.set(PagePath.PRODUCT, view);
             view.initContent(id);
@@ -179,12 +181,11 @@ export default class App {
       {
         path: `${PagePath.PROFILE}`,
         callback: async () => {
-          console.log(`API time app.ts: ${this.api.timestamp}`);
           if (this.isLogged()) {
             const ProfileView = (await import('../view/page/profile-view/profile-view')).default;
             const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
               ? this.viewStorage.get(PagePath.PROFILE)
-              : new ProfileView(this.router, this.api);
+              : new ProfileView(this.router, paramApi);
             if (view instanceof ProfileView) {
               this.viewStorage.set(PagePath.PROFILE, view);
               this.setContent(PagePath.PROFILE, view);
@@ -200,7 +201,7 @@ export default class App {
           const CartView = (await import('../view/page/cart-view/cart-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
             ? this.viewStorage.get(PagePath.CART)
-            : new CartView(this.router, this.api);
+            : new CartView(this.router, paramApi);
           if (view instanceof CartView) {
             this.viewStorage.set(PagePath.CART, view);
             this.setContent(PagePath.CART, view);

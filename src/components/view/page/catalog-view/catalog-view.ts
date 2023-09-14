@@ -18,6 +18,7 @@ import Pagination, { PaginationConfig } from '../../../shared/pagination/paginat
 import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
 import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -54,7 +55,7 @@ export default class CatalogView extends DefaultView {
 
   private spinner = new Spinner();
 
-  constructor(router: Router, api: TotalApi) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['catalog-view']],
@@ -62,7 +63,7 @@ export default class CatalogView extends DefaultView {
     };
     super(params);
 
-    this.api = api;
+    this.api = paramApi.api;
 
     this.filter = new Filter(this.api);
 

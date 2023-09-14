@@ -11,6 +11,7 @@ import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class CartView extends DefaultView {
   private router: Router;
@@ -41,7 +42,7 @@ export default class CartView extends DefaultView {
 
   private cartItem: CartItem;
 
-  constructor(router: Router, api: TotalApi) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['cart-view']],
@@ -49,7 +50,7 @@ export default class CartView extends DefaultView {
     };
     super(params);
 
-    this.api = api;
+    this.api = paramApi.api;
 
     this.router = router;
 

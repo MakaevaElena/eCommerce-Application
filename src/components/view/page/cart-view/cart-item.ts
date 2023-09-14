@@ -12,7 +12,6 @@ import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import debounce from '../../../../utils/debounce';
-import ClientApi from '../../../../api/client-api';
 import TotalApi from '../../../../api/total-api';
 
 export default class CartItem extends DefaultView {

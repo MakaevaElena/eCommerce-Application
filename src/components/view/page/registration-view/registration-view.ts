@@ -24,6 +24,7 @@ import InputParamsCreator from '../../../../utils/input/input-values/input-param
 import Guid from '../../../../utils/guid';
 import TotalApi from '../../../../api/total-api';
 import createUser from '../../../../api/sdk/with-password-flow';
+import ApiType from '../../../app/type';
 
 export default class RegistrationView extends DefaultView {
   private api: TotalApi;
@@ -62,14 +63,14 @@ export default class RegistrationView extends DefaultView {
 
   private countryOption: CountryOptions;
 
-  constructor(router: Router, api: TotalApi) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styles.registrationView],
       textContent: '',
     };
     super(params);
-    this.api = api;
+    this.api = paramApi.api;
     this.router = router;
     this.mainInputsGroup = this.fillInputsGroups(this.createMainParams());
     this.shippingInputsGroup = this.fillInputsGroups(this.createShippingAddressParams());
@@ -400,7 +401,11 @@ export default class RegistrationView extends DefaultView {
           this.observer.notify(EventName.LOGIN);
 
           const client = createUser(params.email, params.password);
-          this.api = new TotalApi(client);
+          this.api.recreate(client);
+
+          const customerId = response.body.customer.id;
+          localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+          localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
         }
       });
   }
