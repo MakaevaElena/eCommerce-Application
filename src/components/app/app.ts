@@ -9,8 +9,12 @@ import HeaderView from '../view/page/header-view/header-view';
 import MainView from '../view/page/main-view/main-view';
 import EventName from '../../enum/event-name';
 import Observer from '../../observer/observer';
+import TotalApi from '../../api/total-api';
+import createAnonim from '../../api/sdk/with-anonimous-flow';
 
 export default class App {
+  private api: TotalApi;
+
   private observer = Observer.getInstance();
 
   private favicon: Favicon;
@@ -32,6 +36,8 @@ export default class App {
 
     this.router = new Router(routes);
 
+    this.api = this.createApi();
+
     this.main = new MainView();
     this.header = new HeaderView(this.router);
     this.footer = new FooterView();
@@ -51,11 +57,18 @@ export default class App {
     }
   }
 
-  private isLogged() {
-    // localStorage.setItem(`isLogin`, 'false');
+  private createApi() {
+    const client = createAnonim();
+    this.api = new TotalApi(client);
 
-    // return false;
-    return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
+    return this.api;
+  }
+
+  private isLogged() {
+    localStorage.setItem(`isLogin`, 'false');
+
+    return false;
+    // return !(localStorage.getItem(`isLogin`) === null || localStorage.getItem(`isLogin`) === 'false');
   }
 
   private setContent(pageName: string, view: DefaultView) {
@@ -98,7 +111,7 @@ export default class App {
           const LoginView = (await import('../view/page/login-view/login-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.LOGIN)
             ? this.viewStorage.get(PagePath.LOGIN)
-            : new LoginView(this.router);
+            : new LoginView(this.router, this.api);
           if (localStorage.getItem('isLogin') === 'true') {
             this.router.setHref(PagePath.INDEX);
           }
@@ -114,7 +127,7 @@ export default class App {
           const RegistrationView = (await import('../view/page/registration-view/registration-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.REGISTRATION)
             ? this.viewStorage.get(PagePath.REGISTRATION)
-            : new RegistrationView(this.router);
+            : new RegistrationView(this.router, this.api);
           if (view) {
             this.viewStorage.set(PagePath.REGISTRATION, view);
             this.setContent(PagePath.REGISTRATION, view);
@@ -140,7 +153,7 @@ export default class App {
           const CatalogView = (await import('../view/page/catalog-view/catalog-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.CATALOG)
             ? this.viewStorage.get(PagePath.CATALOG)
-            : new CatalogView(this.router);
+            : new CatalogView(this.router, this.api);
           if (view) {
             this.viewStorage.set(PagePath.CATALOG, view);
             this.setContent(PagePath.CATALOG, view);
@@ -153,7 +166,7 @@ export default class App {
           const ProductView = (await import('../view/page/product-view/product-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PRODUCT)
             ? this.viewStorage.get(PagePath.PRODUCT)
-            : new ProductView(this.router);
+            : new ProductView(this.router, this.api);
           if (view instanceof ProductView) {
             this.viewStorage.set(PagePath.PRODUCT, view);
             view.initContent(id);
@@ -168,7 +181,7 @@ export default class App {
             const ProfileView = (await import('../view/page/profile-view/profile-view')).default;
             const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
               ? this.viewStorage.get(PagePath.PROFILE)
-              : new ProfileView(this.router);
+              : new ProfileView(this.router, this.api);
             if (view instanceof ProfileView) {
               this.viewStorage.set(PagePath.PROFILE, view);
               this.setContent(PagePath.PROFILE, view);
@@ -184,7 +197,7 @@ export default class App {
           const CartView = (await import('../view/page/cart-view/cart-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.PROFILE)
             ? this.viewStorage.get(PagePath.CART)
-            : new CartView(this.router);
+            : new CartView(this.router, this.api);
           if (view instanceof CartView) {
             this.viewStorage.set(PagePath.CART, view);
             this.setContent(PagePath.CART, view);

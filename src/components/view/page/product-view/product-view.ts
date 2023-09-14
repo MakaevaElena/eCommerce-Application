@@ -25,9 +25,11 @@ import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
-import CommonApi from '../../../../api/common-api';
+import TotalApi from '../../../../api/total-api';
 
 export default class ProductView extends DefaultView {
+  private api: TotalApi;
+
   private observer = Observer.getInstance();
 
   private router: Router;
@@ -35,8 +37,6 @@ export default class ProductView extends DefaultView {
   private productId: string = '';
 
   private wrapper: HTMLDivElement;
-
-  private anonimApi = CommonApi.getInstance().getClientApi();
 
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
@@ -50,13 +50,15 @@ export default class ProductView extends DefaultView {
     textContent: ``,
   });
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
       textContent: '',
     };
     super(params);
+
+    this.api = api;
 
     this.router = router;
 
@@ -107,7 +109,8 @@ export default class ProductView extends DefaultView {
 
   private renderProductCard(key: string) {
     const imagesUrls: string[] = [];
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .productProjectionResponseKEY(key)
       .then(async (productResponse) => {
         this.getCategory(productResponse);
@@ -334,7 +337,8 @@ export default class ProductView extends DefaultView {
   private getCategory(response: ClientResponse<ProductProjection>) {
     const categoryId = response.body.categories?.[0].id;
 
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .getCategory(categoryId)
       .then((category) => {
         // console.log('category', category);
@@ -381,7 +385,8 @@ export default class ProductView extends DefaultView {
 
     const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
-      await this.anonimApi
+      await this.api
+        .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
@@ -422,7 +427,7 @@ export default class ProductView extends DefaultView {
   // private createRemoveButton(response: ClientResponse<ProductProjection>) {
   //   const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
   //   if (anonimCartID)
-  //     return this.anonimApi.getCartByCartID(anonimCartID).then(async (cartResponse) => {
+  //     return this.api.getClientApi().getCartByCartID(anonimCartID).then(async (cartResponse) => {
   //       const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
   //       if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
   //         const button = new LinkButton('Remove from cart', async () => {
@@ -434,11 +439,12 @@ export default class ProductView extends DefaultView {
   // }
 
   private removeFromCart(cartID: string, lineItemId: string) {
-    this.anonimApi
+    this.api
+      .getClientApi()
       .getCartByCartID(cartID)
       .then((cartResponse) => {
         if (lineItemId) {
-          this.anonimApi.removeLineItem(cartID, cartResponse.body.version, lineItemId);
+          this.api.getClientApi().removeLineItem(cartID, cartResponse.body.version, lineItemId);
         }
       })
       .then(() => new InfoMessage().showMessage('Item removed from cart'))
@@ -451,7 +457,8 @@ export default class ProductView extends DefaultView {
 
   private addToCart(response: ClientResponse<ProductProjection>) {
     if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.CART_ID)) {
-      this.anonimApi
+      this.api
+        .getClientApi()
         .createCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.CART_ID, `${cartResponse.body.id}`);
@@ -471,11 +478,14 @@ export default class ProductView extends DefaultView {
   }
 
   private addItemToCart(cartID: string, response: ClientResponse<ProductProjection>) {
-    this.anonimApi
+    this.api
+      .getClientApi()
       .getCartByCartID(cartID)
       .then((cartResponse) => {
         if (response.body.masterVariant?.sku)
-          this.anonimApi.addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
+          this.api
+            .getClientApi()
+            .addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku);
       })
       .then(() => {
         new InfoMessage().showMessage('Item added to cart');
@@ -516,8 +526,4 @@ export default class ProductView extends DefaultView {
 
     return slide.getElement();
   }
-}
-
-export function getView(router: Router): ProductView {
-  return new ProductView(router);
 }

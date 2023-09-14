@@ -28,9 +28,11 @@ import stylesRedactionButton from './user-field/styles/redaction-button-style.mo
 import AddressCreator from './address-creator/address-creator';
 import InfoMessage from '../../../message/info-message';
 import ErrorMessage from '../../../message/error-message';
-import CommonApi from '../../../../api/common-api';
+import TotalApi from '../../../../api/total-api';
 
 export default class ProfileView extends DefaultView {
+  private api: TotalApi;
+
   private router: Router;
 
   private wrapper: HTMLDivElement;
@@ -43,13 +45,15 @@ export default class ProfileView extends DefaultView {
 
   private countryOptions: CountryOptions;
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['profile-view']],
       textContent: '',
     };
     super(params);
+
+    this.api = api;
 
     this.router = router;
 
@@ -151,11 +155,11 @@ export default class ProfileView extends DefaultView {
   }
 
   private request() {
-    const api = CommonApi.getInstance().getRegApi();
     const userData: UserData = this.createUserData();
     const localStorageEmail = this.emailAddress;
     if (localStorageEmail) {
-      api
+      this.api
+        .getRegApi()
         .getCustomer(localStorageEmail)
         .then((result) => {
           const results = result.body.results[0];
@@ -206,7 +210,7 @@ export default class ProfileView extends DefaultView {
   private createAddressGroup(addressArray: Array<Address>): Array<HTMLDivElement> {
     const addresses: Array<HTMLDivElement> = [];
     addressArray.forEach((address) => {
-      const addressGroup = new AddressFieldsGroup(address);
+      const addressGroup = new AddressFieldsGroup(address, this.api);
       addresses.push(addressGroup.getElement());
     });
 
@@ -346,22 +350,22 @@ export default class ProfileView extends DefaultView {
   private createUserField(): HTMLDivElement {
     const mainGroupProps = this.createMainProps();
 
-    const userFieldElement = new MainFieldGroup(mainGroupProps);
+    const userFieldElement = new MainFieldGroup(mainGroupProps, this.api);
     return userFieldElement.getElement();
   }
 
   private goToPasswordChangerHandler() {
-    const passwordChanger = new PasswordChanger(this.wrapper);
+    const passwordChanger = new PasswordChanger(this.wrapper, this.api);
     this.wrapper.append(passwordChanger.getPasswordChanger());
   }
 
   private addShippingAddressHandler() {
-    const addressCreator = new AddressCreator(this.wrapper, true);
+    const addressCreator = new AddressCreator(this.wrapper, true, this.api);
     this.wrapper.append(addressCreator.getElement());
   }
 
   private addBillingAddressHandler() {
-    const addressCreator = new AddressCreator(this.wrapper, false);
+    const addressCreator = new AddressCreator(this.wrapper, false, this.api);
     this.wrapper.append(addressCreator.getElement());
   }
 

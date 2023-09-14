@@ -15,7 +15,7 @@ import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import ActionNames from './enum/action-names';
 import StatusCodes from '../../../../../enum/status-codes';
 import { InputPlaceholders, InputTittles } from '../../../../../utils/input/input-values/input-values';
-import CommonApi from '../../../../../api/common-api';
+import TotalApi from '../../../../../api/total-api';
 
 export default class UserField {
   private elementField: HTMLDivElement;
@@ -38,7 +38,10 @@ export default class UserField {
 
   private redactionModeButton: HTMLButtonElement;
 
-  constructor(userFieldsProps: UserFieldProps) {
+  private api: TotalApi;
+
+  constructor(userFieldsProps: UserFieldProps, api: TotalApi) {
+    this.api = api;
     this.elementField = this.createElementField();
     this.inputElement = new InputCreator(userFieldsProps.inputParams);
     this.value = userFieldsProps.value;
@@ -182,11 +185,12 @@ export default class UserField {
   }
 
   private saveValue() {
-    const api = CommonApi.getInstance().getRegApi();
-    api
+    this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
+          .getRegApi()
           .changeData(this.id, response.body.results[0].version, this.action, this.actionName, this.value)
           .then((respone) => {
             if (this.actionName === ActionNames.EMAIL_ADDRESS) {

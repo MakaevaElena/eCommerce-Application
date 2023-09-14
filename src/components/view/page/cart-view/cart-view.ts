@@ -10,14 +10,14 @@ import CartItem from './cart-item';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
-import CommonApi from '../../../../api/common-api';
+import TotalApi from '../../../../api/total-api';
 
 export default class CartView extends DefaultView {
   private router: Router;
 
   private wrapper: HTMLDivElement;
 
-  private anonimApi = CommonApi.getInstance().getClientApi();
+  private api: TotalApi;
 
   private observer = Observer.getInstance();
 
@@ -41,7 +41,7 @@ export default class CartView extends DefaultView {
 
   private cartItem: CartItem;
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['cart-view']],
@@ -49,11 +49,13 @@ export default class CartView extends DefaultView {
     };
     super(params);
 
+    this.api = api;
+
     this.router = router;
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
-    this.cartItem = new CartItem(router, this.cartSection, this.anonimApi);
+    this.cartItem = new CartItem(router, this.cartSection, this.api);
 
     this.observer.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
@@ -65,7 +67,8 @@ export default class CartView extends DefaultView {
     this.createCartHeader();
     const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
-      this.anonimApi
+      this.api
+        .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
           cartResponse.body.lineItems.forEach((item) => {
@@ -150,11 +153,14 @@ export default class CartView extends DefaultView {
   private async updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
     if (anonimCartID)
-      await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
-        const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-          cartResponse.body.totalPrice.currencyCode
-        }`;
-        this.createTotalOrderValue(totalPrice);
-      });
+      await this.api
+        .getClientApi()
+        .getCartByCartID(anonimCartID)
+        .then((cartResponse) => {
+          const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+            cartResponse.body.totalPrice.currencyCode
+          }`;
+          this.createTotalOrderValue(totalPrice);
+        });
   }
 }

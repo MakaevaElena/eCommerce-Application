@@ -22,9 +22,12 @@ import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import CountryOptions from '../../../../utils/input/options/country-options';
 import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
 import Guid from '../../../../utils/guid';
-import CommonApi from '../../../../api/common-api';
+import TotalApi from '../../../../api/total-api';
+import createUser from '../../../../api/sdk/with-password-flow';
 
 export default class RegistrationView extends DefaultView {
+  private api: TotalApi;
+
   private inputs: Array<InputCreator>;
 
   private mainInputsGroup: Array<InputCreator>;
@@ -59,13 +62,14 @@ export default class RegistrationView extends DefaultView {
 
   private countryOption: CountryOptions;
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styles.registrationView],
       textContent: '',
     };
     super(params);
+    this.api = api;
     this.router = router;
     this.mainInputsGroup = this.fillInputsGroups(this.createMainParams());
     this.shippingInputsGroup = this.fillInputsGroups(this.createShippingAddressParams());
@@ -357,14 +361,14 @@ export default class RegistrationView extends DefaultView {
 
   private formSubmitHandler() {
     if (this.isCheckValidityFormHandler()) {
-      const api = CommonApi.getInstance().getRegApi();
       const params = this.getParams();
 
       const loginParams = {
         email: this.inputs[Inputs.EMAIL].getInputValue(),
         password: this.inputs[Inputs.PASSWORD].getInputValue(),
       };
-      api
+      this.api
+        .getRegApi()
         .createCustomer(params)
         .then((response) => {
           if (response.statusCode === StatusCodes.USER_CREATED) {
@@ -386,14 +390,19 @@ export default class RegistrationView extends DefaultView {
   }
 
   private makeLogin(params: { email: string; password: string }) {
-    const loginApi = CommonApi.getInstance().getClientApi();
-    loginApi.getCustomer(params).then((response) => {
-      if (response.body.customer) {
-        window.localStorage.setItem(`isLogin`, 'true');
-        window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
-        this.observer.notify(EventName.LOGIN);
-      }
-    });
+    this.api
+      .getClientApi()
+      .getCustomer(params)
+      .then((response) => {
+        if (response.body.customer) {
+          window.localStorage.setItem(`isLogin`, 'true');
+          window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
+          this.observer.notify(EventName.LOGIN);
+
+          const client = createUser(params.email, params.password);
+          this.api = new TotalApi(client);
+        }
+      });
   }
 
   private isCheckValidityFormHandler(): boolean {

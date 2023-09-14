@@ -20,7 +20,7 @@ import CountryOptions from '../../../../../utils/input/options/country-options';
 import Observer from '../../../../../observer/observer';
 import EventName from '../../../../../enum/event-name';
 import TextContents from '../../registration-view/enum/text-contents';
-import CommonApi from '../../../../../api/common-api';
+import TotalApi from '../../../../../api/total-api';
 
 export default class AddressCreator {
   private adressChangerElement: HTMLDivElement;
@@ -51,7 +51,10 @@ export default class AddressCreator {
 
   private observer = Observer.getInstance();
 
-  constructor(parentElement: HTMLDivElement, isShipping: boolean) {
+  private api: TotalApi;
+
+  constructor(parentElement: HTMLDivElement, isShipping: boolean, api: TotalApi) {
+    this.api = api;
     this.isShiping = isShipping;
     this.isDefault = false;
     this.countryOptions = new CountryOptions();
@@ -225,11 +228,12 @@ export default class AddressCreator {
   }
 
   private changeAdress() {
-    const api = CommonApi.getInstance().getRegApi();
-    api
+    this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
+          .getRegApi()
           .addAddress(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -251,11 +255,13 @@ export default class AddressCreator {
           .then((result) => {
             if (result !== undefined) {
               if (this.isShiping) {
-                api
+                this.api
+                  .getRegApi()
                   .makeAddressShipping(response.body.results[0].id, result.version, result.id!)
                   .then((responseRes) => {
                     if (this.isDefault) {
-                      api
+                      this.api
+                        .getRegApi()
                         .makeAddressShippingDefault(
                           responseRes.body.id,
                           responseRes.body.version,
@@ -270,11 +276,13 @@ export default class AddressCreator {
                     this.showErrorMessage(error);
                   });
               } else {
-                api
+                this.api
+                  .getRegApi()
                   .makeAddressBilling(response.body.results[0].id, result.version, result.id!)
                   .then((responseRes) => {
                     if (this.isDefault) {
-                      api
+                      this.api
+                        .getRegApi()
                         .makeAddressBillingDefault(
                           responseRes.body.id,
                           responseRes.body.version,

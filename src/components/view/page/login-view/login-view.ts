@@ -9,9 +9,9 @@ import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../message/error-message';
-import CommonApi from '../../../../api/common-api';
 import createUser from '../../../../api/sdk/with-password-flow';
 import createAnonim from '../../../../api/sdk/with-anonimous-flow';
+import TotalApi from '../../../../api/total-api';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
@@ -58,9 +58,9 @@ export default class LoginView extends DefaultView {
 
   private observer = Observer.getInstance();
 
-  private anonimApi = CommonApi.getInstance().getClientApi();
+  private api: TotalApi;
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['login-view']],
@@ -68,7 +68,7 @@ export default class LoginView extends DefaultView {
     };
     super(params);
     this.router = router;
-
+    this.api = api;
     this.observer.subscribe(EventName.LOGOUT, this.logout.bind(this));
 
     if (localStorage.getItem('isLogin') === 'true') {
@@ -87,9 +87,7 @@ export default class LoginView extends DefaultView {
     this.configView();
 
     const client = createAnonim();
-    CommonApi.getInstance().recreate(client);
-
-    this.anonimApi = CommonApi.getInstance().getClientApi();
+    this.api = new TotalApi(client);
   }
 
   private renderForm() {
@@ -211,7 +209,7 @@ export default class LoginView extends DefaultView {
     if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
       if (email !== undefined) {
         try {
-          const response = await this.anonimApi.checkCustomerExist(email);
+          const response = await this.api.getClientApi().checkCustomerExist(email);
           if (response.body.results.length === 0) {
             this.emailElement.setCustomValidity(Message.MAIL_NOT_REGISTERED);
             this.emailElement.reportValidity();
@@ -224,7 +222,8 @@ export default class LoginView extends DefaultView {
         }
       }
 
-      this.anonimApi
+      this.api
+        .getClientApi()
         .getCustomer({ email, password })
         .then((response) => {
           if (response.body.customer) {
@@ -234,18 +233,18 @@ export default class LoginView extends DefaultView {
             this.router.setHref(PagePath.INDEX);
 
             const client = createUser(email, password);
-            CommonApi.getInstance().recreate(client);
+            this.api = new TotalApi(client);
 
             const customerId = response.body.customer.id;
             localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
             // localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
 
-            CommonApi.getInstance()
+            this.api
               .getClientApi()
               .getCustomerByID(customerId)
               .then((customer) => customer);
 
-            CommonApi.getInstance()
+            this.api
               .getProductApi()
               .getProducts()
               .then((responce) => console.log('Products: ', responce));

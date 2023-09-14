@@ -14,9 +14,11 @@ import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import StatusCodes from '../../../../../enum/status-codes';
 import InfoMessage from '../../../../message/info-message';
 import ErrorMessage from '../../../../message/error-message';
-import CommonApi from '../../../../../api/common-api';
+import TotalApi from '../../../../../api/total-api';
 
 export default class PasswordChanger {
+  private api: TotalApi;
+
   private passwordChangerElement: HTMLDivElement;
 
   private parentElement: HTMLDivElement;
@@ -33,7 +35,9 @@ export default class PasswordChanger {
 
   private buttonCancel: HTMLButtonElement;
 
-  constructor(parentElement: HTMLDivElement) {
+  constructor(parentElement: HTMLDivElement, api: TotalApi) {
+    this.api = api;
+
     this.parentElement = parentElement;
     this.passwordChangerElement = this.createPasswordChangerElement();
     this.inputParamsCreator = new InputParamsCreator();
@@ -171,11 +175,12 @@ export default class PasswordChanger {
   }
 
   private changePassword() {
-    const api = CommonApi.getInstance().getRegApi();
-    api
+    this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
+          .getRegApi()
           .changePassword(
             response.body.results[0].id,
             this.newPasswordField.getInputValue(),

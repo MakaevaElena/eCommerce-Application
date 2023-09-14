@@ -1,5 +1,4 @@
 import { ProductProjection } from '@commercetools/platform-sdk';
-import ProductApi from '../../../../api/products-api';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import { ElementParams } from '../../../../utils/element-creator';
@@ -18,7 +17,7 @@ import { QueryParamType } from '../../../../api/sdk/type';
 import Pagination, { PaginationConfig } from '../../../shared/pagination/pagination';
 import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
-import CommonApi from '../../../../api/common-api';
+import TotalApi from '../../../../api/total-api';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -31,9 +30,9 @@ export default class CatalogView extends DefaultView {
 
   private readonly MESSAGE_CUSTOMER_ID_NOT_FOUND = 'Customer ID not found';
 
-  private router: Router;
+  private api: TotalApi;
 
-  private productApi: ProductApi;
+  private router: Router;
 
   private pagination: Pagination[] = [];
 
@@ -55,7 +54,7 @@ export default class CatalogView extends DefaultView {
 
   private spinner = new Spinner();
 
-  constructor(router: Router) {
+  constructor(router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['catalog-view']],
@@ -63,9 +62,9 @@ export default class CatalogView extends DefaultView {
     };
     super(params);
 
-    this.productApi = CommonApi.getInstance().getProductApi();
+    this.api = api;
 
-    this.filter = new Filter(this.productApi);
+    this.filter = new Filter(this.api.getProductApi());
 
     this.search = new SearchInput(this.dispatchSearch.bind(this));
 
@@ -111,7 +110,8 @@ export default class CatalogView extends DefaultView {
 
   private initPagination() {
     this.observer.notify(EventName.SPINNER_SHOW);
-    this.productApi
+    this.api
+      .getProductApi()
       .getProducts({ limit: 0 })
       .then((response) => {
         this.paginationConfig.total = response.body?.total || 0;
@@ -182,7 +182,8 @@ export default class CatalogView extends DefaultView {
       params.offset = this.paginationConfig.offset;
 
       this.observer.notify(EventName.SPINNER_SHOW);
-      this.productApi
+      this.api
+        .getProductApi()
         .getProducts(params)
         .then((response) => {
           if (response.body?.total || 0) {
@@ -210,7 +211,8 @@ export default class CatalogView extends DefaultView {
     params.offset = this.paginationConfig.offset;
 
     this.observer.notify(EventName.SPINNER_SHOW);
-    this.productApi
+    this.api
+      .getProductApi()
       .getProducts(params)
       .then((response) => {
         if (this.paginationConfig.total !== response.body?.total || 0) {
@@ -225,7 +227,11 @@ export default class CatalogView extends DefaultView {
           new WarningMessage().showMessage(this.NOT_FOUND);
         }
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message))
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      })
       .finally(() => this.observer.notify(EventName.SPINNER_HIDE));
   }
 

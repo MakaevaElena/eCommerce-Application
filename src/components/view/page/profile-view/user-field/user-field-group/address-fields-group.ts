@@ -25,12 +25,12 @@ import StatusCodes from '../../../../../../enum/status-codes';
 import EventName from '../../../../../../enum/event-name';
 import Observer from '../../../../../../observer/observer';
 import Address from '../../types/addresses/address';
-import CommonApi from '../../../../../../api/common-api';
+import TotalApi from '../../../../../../api/total-api';
 
 export default class AddressFieldsGroup {
   private observer = Observer.getInstance();
 
-  private api = CommonApi.getInstance().getRegApi();
+  private api: TotalApi;
 
   private addressGroup: HTMLDivElement;
 
@@ -64,7 +64,8 @@ export default class AddressFieldsGroup {
 
   private values: Array<string>;
 
-  constructor(address: Address) {
+  constructor(address: Address, api: TotalApi) {
+    this.api = api;
     this.deleteAddressButton = this.createDeleteButton();
     this.makeShippingDefaultButton = this.createMakeDefaultShippingButton();
     this.makeBillingDefaultButton = this.createMakeDefaultBillingButton();
@@ -141,7 +142,7 @@ export default class AddressFieldsGroup {
       value,
       inputParams: this.inputsParams.getStreetParams(),
     };
-    const fieldCreator = new UserField(userFieldProps);
+    const fieldCreator = new UserField(userFieldProps, this.api);
     return fieldCreator;
   }
 
@@ -154,7 +155,7 @@ export default class AddressFieldsGroup {
       value,
       inputParams: this.inputsParams.getCityParams(),
     };
-    const fieldCreator = new UserField(userFieldProps);
+    const fieldCreator = new UserField(userFieldProps, this.api);
     return fieldCreator;
   }
 
@@ -167,7 +168,7 @@ export default class AddressFieldsGroup {
       value,
       inputParams: this.inputsParams.getSPostalParams(),
     };
-    const fieldCreator = new UserField(userFieldProps);
+    const fieldCreator = new UserField(userFieldProps, this.api);
     return fieldCreator;
   }
 
@@ -180,7 +181,7 @@ export default class AddressFieldsGroup {
       value,
       inputParams: this.inputsParams.getCountryParams(),
     };
-    const fieldCreator = new UserField(userFieldProps);
+    const fieldCreator = new UserField(userFieldProps, this.api);
     return fieldCreator;
   }
 
@@ -261,9 +262,11 @@ export default class AddressFieldsGroup {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
       this.api
+        .getRegApi()
         .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
         .then((response) => {
           this.api
+            .getRegApi()
             .changeAddress(
               response.body.results[0].id,
               response.body.results[0].version,
@@ -332,9 +335,11 @@ export default class AddressFieldsGroup {
 
   private makeDefaulShippingtHandler() {
     this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         this.api
+          .getRegApi()
           .makeAddressShippingDefault(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -368,9 +373,11 @@ export default class AddressFieldsGroup {
 
   private makeDefaultBillingHandler() {
     this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         this.api
+          .getRegApi()
           .makeAddressBillingDefault(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -388,7 +395,9 @@ export default class AddressFieldsGroup {
           });
       })
       .catch((error) => {
-        this.showErrorMessage(error);
+        if (error instanceof Error) {
+          this.showErrorMessage(error.message);
+        }
       });
   }
 
@@ -402,9 +411,11 @@ export default class AddressFieldsGroup {
 
   private deleteAdressButtonHAndler() {
     this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         this.api
+          .getRegApi()
           .deleteAdress(response.body.results[0].id, response.body.results[0].version, this.values[CountryValues.ID])
           .then((responseRes) => {
             if (responseRes.statusCode === StatusCodes.USER_VALUE_CHANGED) {
@@ -434,9 +445,11 @@ export default class AddressFieldsGroup {
 
   private makeShippingtHandler() {
     this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         this.api
+          .getRegApi()
           .makeAddressShipping(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -466,9 +479,11 @@ export default class AddressFieldsGroup {
 
   private makeBillingHandler() {
     this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
         this.api
+          .getRegApi()
           .makeAddressBilling(
             response.body.results[0].id,
             response.body.results[0].version,
