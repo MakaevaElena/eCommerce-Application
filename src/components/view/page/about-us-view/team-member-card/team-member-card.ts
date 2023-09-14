@@ -50,20 +50,30 @@ export default class TeamMemberCard {
     const element = document.createElement(TagName.DIV);
     element.classList.add(styleCard.description__wrap);
 
-    const nameTeamMember = this.createNameMemberTeam(teamMemberData.firstName);
+    const nameTeamMember = document.createElement('h2');
+    nameTeamMember.classList.add(styleCard.description__headline);
+    nameTeamMember.textContent = `${teamMemberData.firstName} ${teamMemberData.lastName}`;
+
+    // const nameTeamMember = this.createParagraph()
 
     element.append(nameTeamMember);
     return element;
   }
 
-  private createNameMemberTeam(name: string): HTMLDivElement {
-    const funnyName = new MagicString(name);
-    return funnyName.getElement();
-  }
+  private createParagraph(headLineContent: string, textContent: string): HTMLDivElement {
+    const headLine = document.createElement('h3');
+    headLine.classList.add(styleCard.description__headline);
+    headLine.textContent = headLineContent;
 
-  private addLetter(letter: string) {
-    const letterElement = document.createElement(TagName.SPAN);
-    letterElement.innerText = letter;
-    return letterElement;
+    const paragraph = document.createElement('p');
+    paragraph.classList.add(styleCard.description__textContent);
+    paragraph.textContent = textContent;
+
+    const element = document.createElement(TagName.DIV);
+    element.classList.add(styleCard.description__text);
+
+    element.append(headLine, paragraph);
+
+    return element;
   }
 }

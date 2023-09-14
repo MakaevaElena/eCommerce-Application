@@ -53,19 +53,6 @@ export default class AboutUsView extends DefaultView {
     this.getCreator().addInnerElement(wrapper);
   }
 
-  // private createSignInButton() {
-  //   const linkButton = new LinkButton(LinkName.REGISTRATION, () => {
-  //     if (localStorage.getItem('isLogin') === 'true') {
-  //       this.router.navigate(PagePath.INDEX);
-  //     } else {
-  //       this.router.navigate(PagePath.REGISTRATION);
-  //     }
-  //   });
-  //   return linkButton;
-  // }
-
-  //
-
   private createSiarheiData(): TeamMemberCardType {
     return {
       photoSrc: 'https://avatars.githubusercontent.com/u/52540855?v=4',
