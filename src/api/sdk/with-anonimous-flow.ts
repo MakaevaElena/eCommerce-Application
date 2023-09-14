@@ -9,10 +9,9 @@ import { CTP_API_URL, CTP_AUTH_URL, CTP_CLIENT_ID, CTP_CLIENT_SECRET, CTP_PROJEC
 
 const createAnonim = () => {
   const anonymousId = Guid.newGuid();
-  console.log('anonymousId: ', anonymousId);
 
   localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, '');
-  localStorage.setItem(LocalStorageKeys.CART_ID, '');
+  // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
   localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, anonymousId);
 
   const options: AnonymousAuthMiddlewareOptions = {

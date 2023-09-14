@@ -66,7 +66,7 @@ export default class CartView extends DefaultView {
 
   private configView() {
     this.createCartHeader();
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       this.api
         .getClientApi()
@@ -152,7 +152,7 @@ export default class CartView extends DefaultView {
   }
 
   private async updateTotalSumm() {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.CART_ID);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.api
         .getClientApi()

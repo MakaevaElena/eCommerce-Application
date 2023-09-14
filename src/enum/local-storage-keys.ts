@@ -1,7 +1,7 @@
 enum LocalStorageKeys {
   MAIL_ADDRESS = 'mailAddress',
   ANONYMOUS_ID = 'anonimousId',
-  CART_ID = 'cartId',
+  ANONIM_CART_ID = 'anonimCardID',
   CUSTOMER_ID = 'customerId',
 }
 

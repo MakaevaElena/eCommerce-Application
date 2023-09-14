@@ -1,3 +1,4 @@
+import { Template } from '../../../../../api/products-api';
 import TotalApi from '../../../../../api/total-api';
 import EventName from '../../../../../enum/event-name';
 import Observer from '../../../../../observer/observer';
