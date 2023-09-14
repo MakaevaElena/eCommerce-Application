@@ -11,6 +11,8 @@ enum EventName {
   TOTAL_COST_CHANGED,
   SPINNER_SHOW,
   SPINNER_HIDE,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
 }
 
 export default EventName;
