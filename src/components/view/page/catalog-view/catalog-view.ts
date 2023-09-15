@@ -1,5 +1,4 @@
 import { ProductProjection } from '@commercetools/platform-sdk';
-import ProductApi from '../../../../api/products-api';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import { ElementParams } from '../../../../utils/element-creator';
@@ -14,10 +13,13 @@ import EventName from '../../../../enum/event-name';
 import SortView from './sort/sort';
 import SearchInput from '../../../shared/search-input/search-input';
 import WarningMessage from '../../../message/warning-message';
-import QueryParamType from '../../../../api/sdk/type';
+import { QueryParamType } from '../../../../api/sdk/type';
 import Pagination, { PaginationConfig } from '../../../shared/pagination/pagination';
 import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
+import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -30,9 +32,9 @@ export default class CatalogView extends DefaultView {
 
   private readonly MESSAGE_CUSTOMER_ID_NOT_FOUND = 'Customer ID not found';
 
-  private router: Router;
+  private api: TotalApi;
 
-  private productApi: ProductApi;
+  private router: Router;
 
   private pagination: Pagination[] = [];
 
@@ -54,7 +56,7 @@ export default class CatalogView extends DefaultView {
 
   private spinner = new Spinner();
 
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['catalog-view']],
@@ -62,9 +64,9 @@ export default class CatalogView extends DefaultView {
     };
     super(params);
 
-    this.productApi = new ProductApi();
+    this.api = paramApi.api;
 
-    this.filter = new Filter(this.productApi);
+    this.filter = new Filter(this.api);
 
     this.search = new SearchInput(this.dispatchSearch.bind(this));
 
@@ -85,6 +87,8 @@ export default class CatalogView extends DefaultView {
 
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
     this.observer.subscribe(EventName.UPDATE_CART, this.checkProductsInCart.bind(this));
+    this.observer.subscribe(EventName.LOGIN, this.checkProductsInCart.bind(this));
+    this.observer.subscribe(EventName.LOGOUT, this.checkProductsInCart.bind(this));
 
     this.controlsWrapper = new TagElement().createTagElement('div', [styleCss['controls-wrapper']]);
 
@@ -110,7 +114,8 @@ export default class CatalogView extends DefaultView {
 
   private initPagination() {
     this.observer.notify(EventName.SPINNER_SHOW);
-    this.productApi
+    this.api
+      .getProductApi()
       .getProducts({ limit: 0 })
       .then((response) => {
         this.paginationConfig.total = response.body?.total || 0;
@@ -124,30 +129,60 @@ export default class CatalogView extends DefaultView {
    * Set visibility cards' button Add to/Remove from cart
    */
   private checkProductsInCart() {
-    this.cards.forEach((card) => {
-      card.setProductInCart(Math.random() > 0.5);
-    });
-    // const customerId = localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
-    // if (!customerId) {
-    //   new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
-    //   return;
-    // }
-    // this.clientApi
-    //   // .getCartByCustomerId(customerId)
-    //   .getCustomerByID(customerId)
-    //   .then((response) => {
-    //     console.log('response: ', response);
-    // TODO get products in cart
-    // const productsInCart: ProductProjection[] = response.body. ??;
-    // this.cards.forEach((card) => {
-    //   card.setProductInCart(productsInCart.includes(card.id));
-    // });
-    // })
-    // .catch((error) => {
-    //   if (error instanceof Error) {
-    //     new ErrorMessage().showMessage(error.message);
-    //   }
-    // });
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      if (anonimCartID) {
+        this.setProductInAnonimCart(anonimCartID);
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        this.setProductInCustomerCart();
+      } else {
+        new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
+      }
+    }
+  }
+
+  private setProductInCustomerCart() {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((responce) => {
+        const itemIds = responce.body.lineItems.map((item) => item.productId);
+        this.cards.forEach((card) => {
+          card.setProductInCart(itemIds.includes(card.getProductId()));
+        });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new WarningMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private setProductInAnonimCart(anonimCartID: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        const itemIds = responce.body.lineItems.map((item) => item.productId);
+        this.cards.forEach((card) => {
+          card.setProductInCart(itemIds.includes(card.getProductId()));
+        });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new WarningMessage().showMessage(error.message);
+        }
+      });
   }
 
   private recallProductCards() {
@@ -181,7 +216,8 @@ export default class CatalogView extends DefaultView {
       params.offset = this.paginationConfig.offset;
 
       this.observer.notify(EventName.SPINNER_SHOW);
-      this.productApi
+      this.api
+        .getProductApi()
         .getProducts(params)
         .then((response) => {
           if (response.body?.total || 0) {
@@ -209,7 +245,8 @@ export default class CatalogView extends DefaultView {
     params.offset = this.paginationConfig.offset;
 
     this.observer.notify(EventName.SPINNER_SHOW);
-    this.productApi
+    this.api
+      .getProductApi()
       .getProducts(params)
       .then((response) => {
         if (this.paginationConfig.total !== response.body?.total || 0) {
@@ -224,7 +261,11 @@ export default class CatalogView extends DefaultView {
           new WarningMessage().showMessage(this.NOT_FOUND);
         }
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message))
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      })
       .finally(() => this.observer.notify(EventName.SPINNER_HIDE));
   }
 
@@ -266,7 +307,7 @@ export default class CatalogView extends DefaultView {
     this.cards.length = 0;
     products.forEach((product) => {
       if (product.key) {
-        const card = new ProductCard(product, this.router);
+        const card = new ProductCard(product, this.router, this.api);
         this.cards.push(card);
         this.cardsWrapper.append(card.getElement());
       }

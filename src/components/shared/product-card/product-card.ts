@@ -8,6 +8,13 @@ import { PagePath } from '../../router/pages';
 import Strings from './strings';
 import DefaultView from '../../view/default-view';
 import SliderPopup from './slider-popup/slider-popup';
+import TotalApi from '../../../api/total-api';
+import LocalStorageKeys from '../../../enum/local-storage-keys';
+import ErrorMessage from '../../message/error-message';
+import WarningMessage from '../../message/warning-message';
+import InfoMessage from '../../message/info-message';
+import Observer from '../../../observer/observer';
+import EventName from '../../../enum/event-name';
 
 type LocalPrices = {
   value: string;
@@ -25,13 +32,17 @@ export default class ProductCard extends DefaultView {
 
   private product: ProductProjection;
 
+  private api: TotalApi;
+
   private creator = new TagElement();
 
   private buttonAddToCart: HTMLElement;
 
   private buttonRemoveFromCart: HTMLElement;
 
-  constructor(product: ProductProjection, router: Router) {
+  private observer = Observer.getInstance();
+
+  constructor(product: ProductProjection, router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.DIV,
       classNames: [styleCss['product-card'], styleCss['product-card__link']],
@@ -40,27 +51,44 @@ export default class ProductCard extends DefaultView {
     super(params);
 
     this.product = product;
-
     this.router = router;
+    this.api = api;
 
     this.buttonAddToCart = this.createButtonAddToCart();
     this.buttonRemoveFromCart = this.createButtonRemoveFromCart();
+    this.hideCartButton(this.buttonRemoveFromCart);
 
     this.configView();
   }
 
-  public getProduct() {
-    return this.product;
+  public getProductId() {
+    return this.product.id;
   }
 
   public setProductInCart(value: boolean) {
     if (value) {
-      this.buttonAddToCart.classList.remove(styleCss['card-button_disabled']);
-      this.buttonRemoveFromCart.classList.add(styleCss['card-button_hide']);
+      this.disableCartButton(this.buttonAddToCart);
+      this.showCartButton(this.buttonRemoveFromCart);
     } else {
-      this.buttonAddToCart.classList.add(styleCss['card-button_disabled']);
-      this.buttonRemoveFromCart.classList.remove(styleCss['card-button_hide']);
+      this.enableCartButton(this.buttonAddToCart);
+      this.hideCartButton(this.buttonRemoveFromCart);
     }
+  }
+
+  private disableCartButton(button: HTMLElement) {
+    button.classList.add(styleCss['card-button_disabled']);
+  }
+
+  private enableCartButton(button: HTMLElement) {
+    button.classList.remove(styleCss['card-button_disabled']);
+  }
+
+  private hideCartButton(button: HTMLElement) {
+    button.classList.add(styleCss['card-button_hide']);
+  }
+
+  private showCartButton(button: HTMLElement) {
+    button.classList.remove(styleCss['card-button_hide']);
   }
 
   private getImagesUrl() {
@@ -69,9 +97,113 @@ export default class ProductCard extends DefaultView {
     return imagesUrl;
   }
 
+  private addProductToCart(e: MouseEvent) {
+    e.stopPropagation();
+
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      const { sku } = this.product.masterVariant;
+      if (!sku) {
+        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
+        return;
+      }
+      if (anonimCartID) {
+        this.addProductToAnonimCart(anonimCartID, sku);
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        // this.setProductInCustomerCart(sku);
+      } else {
+        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+      }
+    }
+  }
+
+  private addProductToAnonimCart(anonimCartID: string, sku: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        this.api
+          .getClientApi()
+          .addItemToCartByID(anonimCartID, responce.body.version, sku)
+          .then(() => {
+            new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]);
+            this.observer.notify(EventName.ADD_TO_CART);
+            this.observer.notify(EventName.UPDATE_CART);
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeProductFromCart(e: MouseEvent) {
+    e.stopPropagation();
+
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      const { sku } = this.product.masterVariant;
+      if (!sku) {
+        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
+        return;
+      }
+      if (anonimCartID) {
+        this.removeProductFromAnonimCart(anonimCartID);
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        // this.setProductFromCustomerCart();
+      } else {
+        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+      }
+    }
+  }
+
+  private removeProductFromAnonimCart(anonimCartID: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === this.product.key);
+        const lineItemId = lineItems[0].id;
+        this.api
+          .getClientApi()
+          .removeLineItem(anonimCartID, responce.body.version, lineItemId)
+          .then(() => {
+            new InfoMessage().showMessage(Strings.Strings.PRODUCT_REMOVED[this.LANG]);
+            this.observer.notify(EventName.REMOVE_FROM_CART);
+            this.observer.notify(EventName.UPDATE_CART);
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
   private createButtonAddToCart() {
     this.buttonAddToCart = this.creator.createTagElement('div', [styleCss['card-button'], styleCss['button-add']], '+');
-
+    this.buttonAddToCart.addEventListener('click', this.addProductToCart.bind(this));
     return this.buttonAddToCart;
   }
 
@@ -81,6 +213,7 @@ export default class ProductCard extends DefaultView {
       [styleCss['card-button'], styleCss['button-remove']],
       '-'
     );
+    this.buttonRemoveFromCart.addEventListener('click', this.removeProductFromCart.bind(this));
 
     return this.buttonRemoveFromCart;
   }

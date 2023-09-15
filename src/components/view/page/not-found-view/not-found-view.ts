@@ -31,7 +31,7 @@ export default class NotFoundView extends DefaultView {
     const title = new TagElement().createTagElement('h1', [styleCss.title], 'Page Not Found');
     link.append(title);
 
-    const button = new LinkButton(this.BUTTON_TITLE, () => this.router.navigate(PagePath.INDEX));
+    const button = new LinkButton(this.BUTTON_TITLE, () => this.router.setHref(PagePath.INDEX));
     this.getCreator().addInnerElement(link);
     this.getCreator().addInnerElement(button.getElement());
   }
