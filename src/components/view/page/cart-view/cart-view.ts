@@ -118,7 +118,7 @@ export default class CartView extends DefaultView {
     const emptyCartFirstText = new ElementCreator({
       tag: TagName.DIV,
       classNames: [styleCss['cart-empty__first-text']],
-      textContent: 'Exciting games here',
+      textContent: 'Exciting games are here',
     });
 
     const emptyCartRowImage = new ElementCreator({
