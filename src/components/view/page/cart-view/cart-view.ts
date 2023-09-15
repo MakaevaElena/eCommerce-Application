@@ -46,6 +46,8 @@ export default class CartView extends DefaultView {
 
   private cartItem: CartItem;
 
+  private anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
   constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
@@ -65,6 +67,11 @@ export default class CartView extends DefaultView {
     this.observer.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
     this.getCreator().addInnerElement(this.wrapper);
+
+    if (!this.anonimCartID) {
+      this.createAnonimCart();
+    }
+
     this.configView();
   }
 
@@ -203,7 +210,7 @@ export default class CartView extends DefaultView {
     this.totalCost.addInnerElement(this.orderTotalCost);
     this.cartSection.addInnerElement(this.totalCost);
 
-    if (totalPrice === '0.00 USD') {
+    if (!totalPrice || totalPrice === '0.00 USD') {
       this.showEmptyCart();
     }
   }
@@ -225,5 +232,22 @@ export default class CartView extends DefaultView {
           }`;
           this.createTotalOrderValue(totalPrice);
         });
+  }
+
+  private createAnonimCart() {
+    if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
+      this.api
+        .getClientApi()
+        .createCart()
+        .then((cartResponse) => {
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
+          this.configView();
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
+    }
   }
 }
