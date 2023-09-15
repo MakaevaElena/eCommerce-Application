@@ -105,6 +105,7 @@ export default class ProductView extends DefaultView {
         keyboard: true,
         // ...
       });
+      console.log(swiper.params);
     });
   }
 
@@ -408,12 +409,14 @@ export default class ProductView extends DefaultView {
     response: ClientResponse<ProductProjection>,
     productInfo: ElementCreator
   ) {
-    this.anonimApi
+    this.api
+      .getClientApi()
       .getCartByCartID(cartID)
       .then((cartResponse) => {
         if (lineItemId) {
           // console.log('response.body.key', lineItemId);
-          this.anonimApi
+          this.api
+            .getClientApi()
             .removeLineItem(cartID, cartResponse.body.version, lineItemId)
             .then(async () =>
               productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
@@ -435,7 +438,8 @@ export default class ProductView extends DefaultView {
   private createAnonimCart() {
     if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
-        .getClient()
+        .getClientApi()
+        .createCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
@@ -458,11 +462,13 @@ export default class ProductView extends DefaultView {
   }
 
   private addItemToCart(cartID: string, response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
-    this.anonimApi
+    this.api
+      .getClientApi()
       .getCartByCartID(cartID)
       .then((cartResponse) => {
         if (response.body.masterVariant?.sku)
-          this.anonimApi
+          this.api
+            .getClientApi()
             .addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku)
             .then(async () =>
               productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
