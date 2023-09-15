@@ -50,9 +50,9 @@ export default class IndexView extends DefaultView {
   private createSignInButton() {
     const linkButton = new LinkButton(LinkName.REGISTRATION, () => {
       if (localStorage.getItem('isLogin') === 'true') {
-        this.router.navigate(PagePath.INDEX);
+        this.router.setHref(PagePath.INDEX);
       } else {
-        this.router.navigate(PagePath.REGISTRATION);
+        this.router.setHref(PagePath.REGISTRATION);
       }
     });
     return linkButton;

@@ -4,13 +4,16 @@ import ElementCreator, { ElementParams, InsertableElement } from '../../../../ut
 import Router from '../../../router/router';
 import DefaultView from '../../default-view';
 import styleCss from './cart-view.module.scss';
-import ClientApi from '../../../../api/client-api';
 import ErrorMessage from '../../../message/error-message';
 // eslint-disable-next-line import/no-named-as-default
 import CartItem from './cart-item';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+
+import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
+
 import { LinkName, PagePath } from '../../../router/pages';
 import LinkButton from '../../../shared/link-button/link-button';
 
@@ -19,9 +22,9 @@ export default class CartView extends DefaultView {
 
   private wrapper: HTMLDivElement;
 
-  private anonimApi: ClientApi;
+  private api: TotalApi;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   private cartSection = new ElementCreator({
     tag: TagName.SECTION,
@@ -43,7 +46,7 @@ export default class CartView extends DefaultView {
 
   private cartItem: CartItem;
 
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['cart-view']],
@@ -51,17 +54,15 @@ export default class CartView extends DefaultView {
     };
     super(params);
 
+    this.api = paramApi.api;
+
     this.router = router;
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
-    this.anonimApi = new ClientApi();
+    this.cartItem = new CartItem(router, this.cartSection, this.api);
 
-    this.cartItem = new CartItem(router, this.cartSection, this.anonimApi);
-
-    this.observer = Observer.getInstance();
-
-    this.observer?.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
+    this.observer.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
     this.getCreator().addInnerElement(this.wrapper);
     this.configView();
@@ -70,7 +71,8 @@ export default class CartView extends DefaultView {
   private configView() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      this.anonimApi
+      this.api
+        .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
           if (cartResponse.body.lineItems.length > 0) {
@@ -214,11 +216,14 @@ export default class CartView extends DefaultView {
   private async updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      await this.anonimApi.getCartByCartID(anonimCartID).then((cartResponse) => {
-        const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-          cartResponse.body.totalPrice.currencyCode
-        }`;
-        this.createTotalOrderValue(totalPrice);
-      });
+      await this.api
+        .getClientApi()
+        .getCartByCartID(anonimCartID)
+        .then((cartResponse) => {
+          const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+            cartResponse.body.totalPrice.currencyCode
+          }`;
+          this.createTotalOrderValue(totalPrice);
+        });
   }
 }

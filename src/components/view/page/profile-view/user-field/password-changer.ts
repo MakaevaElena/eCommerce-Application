@@ -9,14 +9,16 @@ import InputParamsCreator from '../../../../../utils/input/input-values/input-pa
 import Events from '../../../../../enum/events';
 import InputCreator from '../../../../../utils/input/inputCreator';
 import ButtonCreator from '../../../../shared/button/button-creator';
-import RegApi from '../../../../../api/reg-api';
 import WarningMessage from '../../../../message/warning-message';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import StatusCodes from '../../../../../enum/status-codes';
 import InfoMessage from '../../../../message/info-message';
 import ErrorMessage from '../../../../message/error-message';
+import TotalApi from '../../../../../api/total-api';
 
 export default class PasswordChanger {
+  private api: TotalApi;
+
   private passwordChangerElement: HTMLDivElement;
 
   private parentElement: HTMLDivElement;
@@ -33,7 +35,9 @@ export default class PasswordChanger {
 
   private buttonCancel: HTMLButtonElement;
 
-  constructor(parentElement: HTMLDivElement) {
+  constructor(parentElement: HTMLDivElement, api: TotalApi) {
+    this.api = api;
+
     this.parentElement = parentElement;
     this.passwordChangerElement = this.createPasswordChangerElement();
     this.inputParamsCreator = new InputParamsCreator();
@@ -171,11 +175,12 @@ export default class PasswordChanger {
   }
 
   private changePassword() {
-    const api = new RegApi();
-    api
+    this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
+          .getRegApi()
           .changePassword(
             response.body.results[0].id,
             this.newPasswordField.getInputValue(),

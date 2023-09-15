@@ -11,7 +11,6 @@ import 'swiper/css/zoom';
 import Swiper from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 
-import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
@@ -26,17 +25,19 @@ import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import InfoMessage from '../../../message/info-message';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class ProductView extends DefaultView {
-  private observer: Observer;
+  private api: TotalApi;
+
+  private observer = Observer.getInstance();
 
   private router: Router;
 
   private productId: string = '';
 
   private wrapper: HTMLDivElement;
-
-  private anonimApi: ClientApi;
 
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
@@ -50,16 +51,15 @@ export default class ProductView extends DefaultView {
     textContent: ``,
   });
 
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
       textContent: '',
     };
     super(params);
-    // this.router = router;
-    this.observer = Observer.getInstance();
-    this.anonimApi = new ClientApi();
+
+    this.api = paramApi.api;
 
     this.router = router;
 
@@ -105,18 +105,15 @@ export default class ProductView extends DefaultView {
         keyboard: true,
         // ...
       });
-
-      console.log(swiper.params);
     });
   }
 
   private renderProductCard(key: string) {
     const imagesUrls: string[] = [];
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .productProjectionResponseKEY(key)
       .then(async (productResponse) => {
-        // console.log('product', productResponse);
-
         this.getCategory(productResponse);
 
         const section = new ElementCreator({
@@ -338,7 +335,8 @@ export default class ProductView extends DefaultView {
   private getCategory(response: ClientResponse<ProductProjection>) {
     const categoryId = response.body.categories?.[0].id;
 
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .getCategory(categoryId)
       .then((category) => {
         // console.log('category', category);
@@ -367,7 +365,7 @@ export default class ProductView extends DefaultView {
 
   private createMainButton() {
     const button = new LinkButton(LinkName.INDEX, () => {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     });
     return button;
   }
@@ -382,7 +380,8 @@ export default class ProductView extends DefaultView {
 
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      await this.anonimApi
+      await this.api
+        .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
@@ -435,8 +434,8 @@ export default class ProductView extends DefaultView {
 
   private createAnonimCart() {
     if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
-      this.anonimApi
-        .createCart()
+      this.api
+        .getClient()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
@@ -509,8 +508,4 @@ export default class ProductView extends DefaultView {
 
     return slide.getElement();
   }
-}
-
-export function getView(router: Router): ProductView {
-  return new ProductView(router);
 }

@@ -1,37 +1,17 @@
 import {
   ClientBuilder,
-  TokenCache,
-  // Import middlewares
-  // type AuthMiddlewareOptions, // Required for auth
-  type HttpMiddlewareOptions, // Required for sending HTTP requests
+  type HttpMiddlewareOptions,
+  AnonymousAuthMiddlewareOptions,
 } from '@commercetools/sdk-client-v2';
 import Guid from '../../utils/guid';
 import LocalStorageKeys from '../../enum/local-storage-keys';
+import { CTP_API_URL, CTP_AUTH_URL, CTP_CLIENT_ID, CTP_CLIENT_SECRET, CTP_PROJECT_KEY } from './const';
 
-export const CTP_PROJECT_KEY = 'best-games';
-export const CTP_CLIENT_SECRET = 'RKi7doGwQ75b4wfuLsPuahDT366uOhUY';
-export const CTP_CLIENT_ID = 'A8PxwfHMEiItZ24oahyDGO2A';
-export const CTP_AUTH_URL = 'https://auth.europe-west1.gcp.commercetools.com';
-export const CTP_API_URL = 'https://api.europe-west1.gcp.commercetools.com';
-export const CTP_SCOPES = 'manage_project:best-games manage_api_clients:best-games view_audit_log:best-games';
+const createAnonim = () => {
+  const anonymousId = Guid.newGuid();
 
-type AnonymousAuthMiddlewareOptions = {
-  host: string;
-  projectKey: string;
-  credentials: {
-    clientId: string;
-    clientSecret: string;
-    anonymousId?: string;
-  };
-  scopes?: Array<string>;
-  oauthUri?: string;
-  fetch?: never;
-  tokenCache?: TokenCache;
-};
-
-export const createAnonim = () => {
-  const anonymousId = `best-games-${Guid.newGuid().slice(0, 10)}`; // a unique id
-
+  localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, '');
+  // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
   localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, anonymousId);
 
   const options: AnonymousAuthMiddlewareOptions = {
@@ -40,15 +20,13 @@ export const createAnonim = () => {
     credentials: {
       clientId: CTP_CLIENT_ID,
       clientSecret: CTP_CLIENT_SECRET,
-      anonymousId, // a unique id
+      anonymousId,
     },
     scopes: [`manage_project:${CTP_PROJECT_KEY}`],
   };
 
-  // Configure httpMiddlewareOptions
   const httpMiddlewareOptions: HttpMiddlewareOptions = {
-    host: CTP_API_URL || '',
-    // fetch,
+    host: CTP_API_URL,
   };
 
   const anonimClient = new ClientBuilder()
@@ -60,3 +38,5 @@ export const createAnonim = () => {
 
   return anonimClient;
 };
+
+export default createAnonim;

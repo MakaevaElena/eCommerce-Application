@@ -36,8 +36,6 @@ export default class ProductModal extends Modal {
       },
       keyboard: true,
     });
-
-    console.log(productModalSwiper.params);
   }
 
   private createProductModal() {

@@ -12,7 +12,6 @@ import ButtonCreator from '../../../../shared/button/button-creator';
 import WarningMessage from '../../../../message/warning-message';
 import InfoMessage from '../../../../message/info-message';
 import ErrorMessage from '../../../../message/error-message';
-import RegApi from '../../../../../api/reg-api';
 import LocalStorageKeys from '../../../../../enum/local-storage-keys';
 import StatusCodes from '../../../../../enum/status-codes';
 import PostalPatterns from '../../registration-view/inputs-params/postal-paterns';
@@ -21,6 +20,7 @@ import CountryOptions from '../../../../../utils/input/options/country-options';
 import Observer from '../../../../../observer/observer';
 import EventName from '../../../../../enum/event-name';
 import TextContents from '../../registration-view/enum/text-contents';
+import TotalApi from '../../../../../api/total-api';
 
 export default class AddressCreator {
   private adressChangerElement: HTMLDivElement;
@@ -49,16 +49,18 @@ export default class AddressCreator {
 
   private isDefault: boolean;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
-  constructor(parentElement: HTMLDivElement, isShipping: boolean) {
+  private api: TotalApi;
+
+  constructor(parentElement: HTMLDivElement, isShipping: boolean, api: TotalApi) {
+    this.api = api;
     this.isShiping = isShipping;
     this.isDefault = false;
     this.countryOptions = new CountryOptions();
     this.parentElement = parentElement;
     this.adressChangerElement = this.createAddressGroupElement();
     this.inputParamsCreator = new InputParamsCreator();
-    this.observer = Observer.getInstance();
 
     this.streetField = this.createField(this.inputParamsCreator.getStreetParams(), InputPlaceholders.STREET);
 
@@ -226,11 +228,12 @@ export default class AddressCreator {
   }
 
   private changeAdress() {
-    const api = new RegApi();
-    api
+    this.api
+      .getRegApi()
       .getCustomer(window.localStorage.getItem(LocalStorageKeys.MAIL_ADDRESS)!)
       .then((response) => {
-        api
+        this.api
+          .getRegApi()
           .addAddress(
             response.body.results[0].id,
             response.body.results[0].version,
@@ -252,11 +255,13 @@ export default class AddressCreator {
           .then((result) => {
             if (result !== undefined) {
               if (this.isShiping) {
-                api
+                this.api
+                  .getRegApi()
                   .makeAddressShipping(response.body.results[0].id, result.version, result.id!)
                   .then((responseRes) => {
                     if (this.isDefault) {
-                      api
+                      this.api
+                        .getRegApi()
                         .makeAddressShippingDefault(
                           responseRes.body.id,
                           responseRes.body.version,
@@ -271,11 +276,13 @@ export default class AddressCreator {
                     this.showErrorMessage(error);
                   });
               } else {
-                api
+                this.api
+                  .getRegApi()
                   .makeAddressBilling(response.body.results[0].id, result.version, result.id!)
                   .then((responseRes) => {
                     if (this.isDefault) {
-                      api
+                      this.api
+                        .getRegApi()
                         .makeAddressBillingDefault(
                           responseRes.body.id,
                           responseRes.body.version,
