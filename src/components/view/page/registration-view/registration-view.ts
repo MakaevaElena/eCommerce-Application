@@ -398,7 +398,6 @@ export default class RegistrationView extends DefaultView {
         if (response.body.customer) {
           window.localStorage.setItem(`isLogin`, 'true');
           window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
-          this.observer.notify(EventName.LOGIN);
 
           const client = createUser(params.email, params.password);
           this.api.recreate(client);
@@ -406,6 +405,7 @@ export default class RegistrationView extends DefaultView {
           const customerId = response.body.customer.id;
           localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
           localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+          this.observer.notify(EventName.LOGIN);
         }
       });
   }

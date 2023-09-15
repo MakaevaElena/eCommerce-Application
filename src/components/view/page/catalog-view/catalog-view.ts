@@ -19,6 +19,7 @@ import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
 import TotalApi from '../../../../api/total-api';
 import ApiType from '../../../app/type';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -86,6 +87,8 @@ export default class CatalogView extends DefaultView {
 
     this.observer.subscribe(EventName.UPDATE_CATALOG_CARDS, this.recallProductCards.bind(this));
     this.observer.subscribe(EventName.UPDATE_CART, this.checkProductsInCart.bind(this));
+    this.observer.subscribe(EventName.LOGIN, this.checkProductsInCart.bind(this));
+    this.observer.subscribe(EventName.LOGOUT, this.checkProductsInCart.bind(this));
 
     this.controlsWrapper = new TagElement().createTagElement('div', [styleCss['controls-wrapper']]);
 
@@ -126,30 +129,60 @@ export default class CatalogView extends DefaultView {
    * Set visibility cards' button Add to/Remove from cart
    */
   private checkProductsInCart() {
-    this.cards.forEach((card) => {
-      card.setProductInCart(Math.random() > 0.5);
-    });
-    // const customerId = localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
-    // if (!customerId) {
-    //   new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
-    //   return;
-    // }
-    // this.clientApi
-    //   // .getCartByCustomerId(customerId)
-    //   .getCustomerByID(customerId)
-    //   .then((response) => {
-    //     console.log('response: ', response);
-    // TODO get products in cart
-    // const productsInCart: ProductProjection[] = response.body. ??;
-    // this.cards.forEach((card) => {
-    //   card.setProductInCart(productsInCart.includes(card.id));
-    // });
-    // })
-    // .catch((error) => {
-    //   if (error instanceof Error) {
-    //     new ErrorMessage().showMessage(error.message);
-    //   }
-    // });
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      if (anonimCartID) {
+        this.setProductInAnonimCart(anonimCartID);
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        this.setProductInCustomerCart();
+      } else {
+        new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
+      }
+    }
+  }
+
+  private setProductInCustomerCart() {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((responce) => {
+        const itemIds = responce.body.lineItems.map((item) => item.productId);
+        this.cards.forEach((card) => {
+          card.setProductInCart(itemIds.includes(card.getProductId()));
+        });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new WarningMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private setProductInAnonimCart(anonimCartID: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        const itemIds = responce.body.lineItems.map((item) => item.productId);
+        this.cards.forEach((card) => {
+          card.setProductInCart(itemIds.includes(card.getProductId()));
+        });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new WarningMessage().showMessage(error.message);
+        }
+      });
   }
 
   private recallProductCards() {
@@ -274,7 +307,7 @@ export default class CatalogView extends DefaultView {
     this.cards.length = 0;
     products.forEach((product) => {
       if (product.key) {
-        const card = new ProductCard(product, this.router);
+        const card = new ProductCard(product, this.router, this.api);
         this.cards.push(card);
         this.cardsWrapper.append(card.getElement());
       }
