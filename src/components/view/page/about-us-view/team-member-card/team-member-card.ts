@@ -23,9 +23,14 @@ export default class TeamMemberCard {
   }
 
   private configure(teamMemberData: TeamMemberCardType) {
+    const biography = this.createParagraph('Biography:', teamMemberData.biography);
+    const contribution = this.createParagraph('Contribution:', teamMemberData.contributions);
+
     this.element.append(
       this.createPhoto(teamMemberData.photoSrc, teamMemberData.firstName),
-      this.createCardDescription(teamMemberData)
+      this.createCardDescription(teamMemberData),
+      biography,
+      contribution
     );
   }
 
@@ -34,7 +39,7 @@ export default class TeamMemberCard {
     photo.classList.add(styleCard.photo);
 
     const img = document.createElement('img');
-    img.classList.add(styleCard.photo);
+    img.classList.add(styleCard.photo__img);
     img.src = src;
     img.alt = name;
     img.title = name;
@@ -52,31 +57,32 @@ export default class TeamMemberCard {
     element.classList.add(styleCard.description__wrap);
 
     const nameTeamMember = document.createElement('h2');
-    nameTeamMember.classList.add(styleCard.description__headline);
+    nameTeamMember.classList.add(styleCard.title);
     nameTeamMember.textContent = `${teamMemberData.firstName} ${teamMemberData.lastName}`;
 
-    const role = this.createParagraph('Role:', teamMemberData.role);
-    const biography = this.createParagraph('Biography:', teamMemberData.biography);
-    const contribution = this.createParagraph('Contributon:', teamMemberData.contributions);
+    const role = this.createParagraph(`Role: ${teamMemberData.role}`);
+
     const linkToGitHub = new GitHubLink(teamMemberData.gitHubLink);
 
-    element.append(nameTeamMember, role, linkToGitHub.getElement(), biography, contribution);
+    element.append(nameTeamMember, role, linkToGitHub.getElement());
     return element;
   }
 
-  private createParagraph(headLineContent: string, textContent: string): HTMLDivElement {
+  private createParagraph(headLineContent: string, textContent?: string): HTMLDivElement {
     const headLine = document.createElement('h3');
     headLine.classList.add(styleCard.description__headline);
     headLine.textContent = headLineContent;
 
-    const paragraph = document.createElement('p');
-    paragraph.classList.add(styleCard.description__textContent);
-    paragraph.textContent = textContent;
-
     const element = document.createElement(TagName.DIV);
     element.classList.add(styleCard.description__text);
+    element.append(headLine);
 
-    element.append(headLine, paragraph);
+    if (textContent) {
+      const paragraph = document.createElement('p');
+      paragraph.classList.add(styleCard.description__textContent);
+      paragraph.textContent = textContent;
+      element.append(paragraph);
+    }
 
     return element;
   }

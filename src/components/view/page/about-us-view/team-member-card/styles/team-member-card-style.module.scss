@@ -2,22 +2,28 @@
 
 .card {
   width: 90%;
-  height: 30vh;
   margin-top: 4rem;
   margin-inline: auto;
+  padding: 1rem;
   @include flex();
-  border-radius: 1rem;
-  background-color: $color-brand-primary;
+  flex-wrap: wrap;
+  border-radius: 2rem;
+  background: radial-gradient(circle, rgba(86, 207, 225, 0.5) 40%, rgba(166, 38, 38, 0.5) 90%);
 }
 
 .photo {
   position: relative;
   display: block;
-  height: 100%;
-  width: auto;
-  margin: 0;
+  width: 35%;
+  height: auto;
+  margin: 1rem;
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
+
+  &__img {
+    width: 100%;
+    border-radius: 2rem;
+  }
 
   &__figcaption {
     position: absolute;
@@ -28,12 +34,16 @@
   }
 }
 
+.title {
+  margin: 0.5rem;
+  font-size: 2rem;
+}
+
 .description {
   &__wrap {
-    height: 100%;
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-    background-color: transparentize($color-brand-secondary, 0.8);
+    @include flex();
+    flex-grow: 1;
+    flex-direction: column;
   }
 
   &__name {
@@ -46,11 +56,14 @@
 
   &__headline {
     margin: 0.5rem;
+    padding-left: 1rem;
+    font-size: 1.5rem;
   }
 
   &__textContent {
     margin: 0.3rem;
-    color: $color-text-secondary;
+    text-indent: 1rem;
+    text-align: justify;
   }
 
   &__text {
