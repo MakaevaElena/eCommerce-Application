@@ -90,7 +90,7 @@ export default class AboutUsView extends DefaultView {
     const summary = document.createElement('p');
     summary.classList.add(styleCss.intro__item);
     summary.textContent =
-      'Below you can familiarize yourself with each of the team members and their contribution to this project.';
+      'Our team has been actively keeping in touch on Telegram. We also held online meetings among ourselves and an online meeting with our mentor 2 times a week. The kanban was maintained in github repositories. Below you can familiarize yourself with each of the team members and their contribution to this project.';
 
     element.append(greeting, aboutRs, gratitude, summary);
     return element;
