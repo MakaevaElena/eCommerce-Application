@@ -24,6 +24,11 @@ const Strings = {
     en: 'Product added to your cart',
     ru: 'Продукт добавлен в вашу корзину',
   },
+  PRODUCT_REMOVED: {
+    'en-US': 'Product removed from your cart',
+    en: 'Product removed from your cart',
+    ru: 'Продукт удален из вашей корзины',
+  },
 };
 
 export default { Strings };

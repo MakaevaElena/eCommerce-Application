@@ -13,6 +13,8 @@ import LocalStorageKeys from '../../../enum/local-storage-keys';
 import ErrorMessage from '../../message/error-message';
 import WarningMessage from '../../message/warning-message';
 import InfoMessage from '../../message/info-message';
+import Observer from '../../../observer/observer';
+import EventName from '../../../enum/event-name';
 
 type LocalPrices = {
   value: string;
@@ -37,6 +39,8 @@ export default class ProductCard extends DefaultView {
   private buttonAddToCart: HTMLElement;
 
   private buttonRemoveFromCart: HTMLElement;
+
+  private observer = Observer.getInstance();
 
   constructor(product: ProductProjection, router: Router, api: TotalApi) {
     const params: ElementParams = {
@@ -118,7 +122,11 @@ export default class ProductCard extends DefaultView {
             this.api
               .getClientApi()
               .addItemToCartByID(anonimCartID, responce.body.version, sku)
-              .then(() => new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]));
+              .then(() => {
+                new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]);
+                this.observer.notify(EventName.ADD_TO_CART);
+                this.observer.notify(EventName.UPDATE_CART);
+              });
           })
           .catch((error) => {
             if (error instanceof Error) {
@@ -144,6 +152,44 @@ export default class ProductCard extends DefaultView {
       !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
     ) {
       new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      const { sku } = this.product.masterVariant;
+      if (!sku) {
+        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
+        return;
+      }
+      if (anonimCartID) {
+        this.api
+          .getClientApi()
+          .getCartByCartID(anonimCartID)
+          .then((responce) => {
+            const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === this.product.key);
+            const lineItemId = lineItems[0].id;
+            this.api
+              .getClientApi()
+              .removeLineItem(anonimCartID, responce.body.version, lineItemId)
+              .then(() => {
+                new InfoMessage().showMessage(Strings.Strings.PRODUCT_REMOVED[this.LANG]);
+                this.observer.notify(EventName.REMOVE_FROM_CART);
+                this.observer.notify(EventName.UPDATE_CART);
+              });
+          })
+          .catch((error) => {
+            if (error instanceof Error) {
+              new ErrorMessage().showMessage(error.message);
+            }
+          });
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        // this.setProductInCustomerCart();
+      } else {
+        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+      }
     }
   }
 
