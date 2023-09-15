@@ -1,6 +1,5 @@
 import styleGitHub from './git-hub-link.module.scss';
 import TagName from '../../../../../../enum/tag-name';
-import styleLogo from '../../RS_logo/rs-logo-style.module.scss';
 
 export default class GitHubLink {
   private element: HTMLDivElement;
@@ -16,7 +15,7 @@ export default class GitHubLink {
 
   private createElement() {
     const element = document.createElement(TagName.DIV);
-    element.classList.add(styleGitHub.link);
+    element.classList.add(styleGitHub.link__container);
     return element;
   }
 
@@ -25,17 +24,12 @@ export default class GitHubLink {
   }
 
   private createLink(linkToGitHub: string) {
-    const linkContainer = document.createElement('img');
-    linkContainer.classList.add(styleGitHub.link__container);
-    linkContainer.src = '.';
-
     const link = document.createElement(TagName.A);
     link.classList.add(styleGitHub.link);
     link.href = linkToGitHub;
     link.title = 'go to GitHub';
     link.target = 'blank';
 
-    linkContainer.append(link);
-    return linkContainer;
+    return link;
   }
 }
