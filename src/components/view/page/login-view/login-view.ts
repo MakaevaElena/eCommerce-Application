@@ -230,7 +230,6 @@ export default class LoginView extends DefaultView {
           if (response.body.customer) {
             window.localStorage.setItem(`isLogin`, 'true');
             window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
-            this.observer.notify(EventName.LOGIN);
             this.router.setHref(PagePath.INDEX);
 
             const client = createUser(email, password);
@@ -239,6 +238,7 @@ export default class LoginView extends DefaultView {
             const customerId = response.body.customer.id;
             localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
             localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+            this.observer.notify(EventName.LOGIN);
           }
         })
         .catch(() => {

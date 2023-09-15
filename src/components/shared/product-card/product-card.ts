@@ -8,6 +8,7 @@ import { PagePath } from '../../router/pages';
 import Strings from './strings';
 import DefaultView from '../../view/default-view';
 import SliderPopup from './slider-popup/slider-popup';
+import TotalApi from '../../../api/total-api';
 
 type LocalPrices = {
   value: string;
@@ -31,7 +32,7 @@ export default class ProductCard extends DefaultView {
 
   private buttonRemoveFromCart: HTMLElement;
 
-  constructor(product: ProductProjection, router: Router) {
+  constructor(product: ProductProjection, router: Router, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.DIV,
       classNames: [styleCss['product-card'], styleCss['product-card__link']],
@@ -45,22 +46,39 @@ export default class ProductCard extends DefaultView {
 
     this.buttonAddToCart = this.createButtonAddToCart();
     this.buttonRemoveFromCart = this.createButtonRemoveFromCart();
+    this.hideCartButton(this.buttonRemoveFromCart);
 
     this.configView();
   }
 
-  public getProduct() {
-    return this.product;
+  public getProductId() {
+    return this.product.id;
   }
 
   public setProductInCart(value: boolean) {
     if (value) {
-      this.buttonAddToCart.classList.remove(styleCss['card-button_disabled']);
-      this.buttonRemoveFromCart.classList.add(styleCss['card-button_hide']);
+      this.disableCartButton(this.buttonAddToCart);
+      this.showCartButton(this.buttonRemoveFromCart);
     } else {
-      this.buttonAddToCart.classList.add(styleCss['card-button_disabled']);
-      this.buttonRemoveFromCart.classList.remove(styleCss['card-button_hide']);
+      this.enableCartButton(this.buttonAddToCart);
+      this.hideCartButton(this.buttonRemoveFromCart);
     }
+  }
+
+  private disableCartButton(button: HTMLElement) {
+    button.classList.add(styleCss['card-button_disabled']);
+  }
+
+  private enableCartButton(button: HTMLElement) {
+    button.classList.remove(styleCss['card-button_disabled']);
+  }
+
+  private hideCartButton(button: HTMLElement) {
+    button.classList.add(styleCss['card-button_hide']);
+  }
+
+  private showCartButton(button: HTMLElement) {
+    button.classList.remove(styleCss['card-button_hide']);
   }
 
   private getImagesUrl() {
@@ -69,9 +87,15 @@ export default class ProductCard extends DefaultView {
     return imagesUrl;
   }
 
+  private async addProductToCart(e: MouseEvent) {
+    e.stopPropagation();
+
+    console.log(e);
+  }
+
   private createButtonAddToCart() {
     this.buttonAddToCart = this.creator.createTagElement('div', [styleCss['card-button'], styleCss['button-add']], '+');
-
+    this.buttonAddToCart.addEventListener('click', this.addProductToCart.bind(this));
     return this.buttonAddToCart;
   }
 
