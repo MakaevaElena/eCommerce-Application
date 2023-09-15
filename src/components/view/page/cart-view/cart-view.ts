@@ -96,8 +96,8 @@ export default class CartView extends DefaultView {
           }`;
           return totalPrice;
         })
-        // .then((totalPrice) => this.createTotalOrderValue(totalPrice))
-        .then(async () => this.updateTotalSumm())
+        .then(() => this.createPromo())
+        .then(() => this.updateTotalSumm())
         .catch((error) => new ErrorMessage().showMessage(error.message));
 
     this.wrapper.append(this.cartSection.getElement());
@@ -215,9 +215,59 @@ export default class CartView extends DefaultView {
     }
   }
 
+  private createPromo() {
+    this.totalCost.getElement().innerHTML = '';
+    this.totalCost.getElement().remove();
+
+    const promo = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo']],
+      textContent: '',
+    });
+
+    const promoTitle = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__title']],
+      textContent: 'PROMO CODE: ',
+    });
+
+    const promoInputBox = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__input-box']],
+      textContent: '',
+    });
+
+    const promoInput = new ElementCreator({
+      tag: TagName.INPUT,
+      classNames: [styleCss['cart-promo__input']],
+      textContent: '',
+    });
+
+    const promoApplyButtonBox = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__apply-button-box'], styleCss.button],
+      textContent: '',
+    });
+
+    const applyButton = new LinkButton('Apply PROMO', () => {
+      this.applyPromo();
+    });
+
+    promo.addInnerElement(promoTitle);
+    promoInputBox.addInnerElement(promoInput);
+    promo.addInnerElement(promoInputBox);
+    promoApplyButtonBox.addInnerElement(applyButton.getElement());
+    promo.addInnerElement(promoApplyButtonBox);
+    this.cartSection.addInnerElement(promo);
+  }
+
   public setContent(element: InsertableElement) {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
+  }
+
+  private applyPromo() {
+    console.log('applyPromo');
   }
 
   private async updateTotalSumm() {

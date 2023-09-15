@@ -99,6 +99,8 @@ export default class CartItem extends DefaultView {
           styleCss['cart-cell'],
         ]);
 
+        itemQuantityInput.setAttribute('readonly', 'readonly');
+
         const itemQuantityMinus = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['item-block__quantity-minus'], styleCss['cart-cell']],
