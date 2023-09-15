@@ -9,6 +9,10 @@ import Strings from './strings';
 import DefaultView from '../../view/default-view';
 import SliderPopup from './slider-popup/slider-popup';
 import TotalApi from '../../../api/total-api';
+import LocalStorageKeys from '../../../enum/local-storage-keys';
+import ErrorMessage from '../../message/error-message';
+import WarningMessage from '../../message/warning-message';
+import InfoMessage from '../../message/info-message';
 
 type LocalPrices = {
   value: string;
@@ -26,6 +30,8 @@ export default class ProductCard extends DefaultView {
 
   private product: ProductProjection;
 
+  private api: TotalApi;
+
   private creator = new TagElement();
 
   private buttonAddToCart: HTMLElement;
@@ -41,8 +47,8 @@ export default class ProductCard extends DefaultView {
     super(params);
 
     this.product = product;
-
     this.router = router;
+    this.api = api;
 
     this.buttonAddToCart = this.createButtonAddToCart();
     this.buttonRemoveFromCart = this.createButtonRemoveFromCart();
@@ -87,10 +93,58 @@ export default class ProductCard extends DefaultView {
     return imagesUrl;
   }
 
-  private async addProductToCart(e: MouseEvent) {
+  private addProductToCart(e: MouseEvent) {
     e.stopPropagation();
 
-    console.log(e);
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    }
+
+    if (isAnonim) {
+      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      const { sku } = this.product.masterVariant;
+      if (!sku) {
+        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
+        return;
+      }
+      if (anonimCartID) {
+        this.api
+          .getClientApi()
+          .getCartByCartID(anonimCartID)
+          .then((responce) => {
+            this.api
+              .getClientApi()
+              .addItemToCartByID(anonimCartID, responce.body.version, sku)
+              .then(() => new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]));
+          })
+          .catch((error) => {
+            if (error instanceof Error) {
+              new ErrorMessage().showMessage(error.message);
+            }
+          });
+      }
+    } else {
+      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
+      if (customerId) {
+        // this.setProductInCustomerCart();
+      } else {
+        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+      }
+    }
+  }
+
+  private removeProductToCart(e: MouseEvent) {
+    e.stopPropagation();
+
+    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+    if (
+      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
+    ) {
+      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    }
   }
 
   private createButtonAddToCart() {
@@ -105,6 +159,7 @@ export default class ProductCard extends DefaultView {
       [styleCss['card-button'], styleCss['button-remove']],
       '-'
     );
+    this.buttonRemoveFromCart.addEventListener('click', this.removeProductToCart.bind(this));
 
     return this.buttonRemoveFromCart;
   }
