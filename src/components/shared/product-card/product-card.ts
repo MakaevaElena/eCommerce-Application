@@ -115,36 +115,40 @@ export default class ProductCard extends DefaultView {
         return;
       }
       if (anonimCartID) {
-        this.api
-          .getClientApi()
-          .getCartByCartID(anonimCartID)
-          .then((responce) => {
-            this.api
-              .getClientApi()
-              .addItemToCartByID(anonimCartID, responce.body.version, sku)
-              .then(() => {
-                new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]);
-                this.observer.notify(EventName.ADD_TO_CART);
-                this.observer.notify(EventName.UPDATE_CART);
-              });
-          })
-          .catch((error) => {
-            if (error instanceof Error) {
-              new ErrorMessage().showMessage(error.message);
-            }
-          });
+        this.addProductToAnonimCart(anonimCartID, sku);
       }
     } else {
       const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
       if (customerId) {
-        // this.setProductInCustomerCart();
+        // this.setProductInCustomerCart(sku);
       } else {
         new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
       }
     }
   }
 
-  private removeProductToCart(e: MouseEvent) {
+  private addProductToAnonimCart(anonimCartID: string, sku: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        this.api
+          .getClientApi()
+          .addItemToCartByID(anonimCartID, responce.body.version, sku)
+          .then(() => {
+            new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]);
+            this.observer.notify(EventName.ADD_TO_CART);
+            this.observer.notify(EventName.UPDATE_CART);
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeProductFromCart(e: MouseEvent) {
     e.stopPropagation();
 
     const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
@@ -162,35 +166,39 @@ export default class ProductCard extends DefaultView {
         return;
       }
       if (anonimCartID) {
-        this.api
-          .getClientApi()
-          .getCartByCartID(anonimCartID)
-          .then((responce) => {
-            const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === this.product.key);
-            const lineItemId = lineItems[0].id;
-            this.api
-              .getClientApi()
-              .removeLineItem(anonimCartID, responce.body.version, lineItemId)
-              .then(() => {
-                new InfoMessage().showMessage(Strings.Strings.PRODUCT_REMOVED[this.LANG]);
-                this.observer.notify(EventName.REMOVE_FROM_CART);
-                this.observer.notify(EventName.UPDATE_CART);
-              });
-          })
-          .catch((error) => {
-            if (error instanceof Error) {
-              new ErrorMessage().showMessage(error.message);
-            }
-          });
+        this.removeProductFromAnonimCart(anonimCartID);
       }
     } else {
       const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
       if (customerId) {
-        // this.setProductInCustomerCart();
+        // this.setProductFromCustomerCart();
       } else {
         new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
       }
     }
+  }
+
+  private removeProductFromAnonimCart(anonimCartID: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(anonimCartID)
+      .then((responce) => {
+        const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === this.product.key);
+        const lineItemId = lineItems[0].id;
+        this.api
+          .getClientApi()
+          .removeLineItem(anonimCartID, responce.body.version, lineItemId)
+          .then(() => {
+            new InfoMessage().showMessage(Strings.Strings.PRODUCT_REMOVED[this.LANG]);
+            this.observer.notify(EventName.REMOVE_FROM_CART);
+            this.observer.notify(EventName.UPDATE_CART);
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
   private createButtonAddToCart() {
@@ -205,7 +213,7 @@ export default class ProductCard extends DefaultView {
       [styleCss['card-button'], styleCss['button-remove']],
       '-'
     );
-    this.buttonRemoveFromCart.addEventListener('click', this.removeProductToCart.bind(this));
+    this.buttonRemoveFromCart.addEventListener('click', this.removeProductFromCart.bind(this));
 
     return this.buttonRemoveFromCart;
   }
