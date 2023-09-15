@@ -436,7 +436,7 @@ export default class ProductView extends DefaultView {
   }
 
   private createAnonimCart() {
-    if (!localStorage.getItem('isLogin') && !localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
+    if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
         .createCart()
