@@ -1,7 +1,8 @@
 import styleCard from './styles/team-member-card-style.module.scss';
 import TagName from '../../../../../enum/tag-name';
 import TeamMemberCardType from './types/team-member-card-type';
-import styleTitle from '../title/title-style.module.scss';
+import MagicString from '../magic-string/magic-string';
+import GitHubLink from './gitHubLink/git-hub-link';
 
 export default class TeamMemberCard {
   private element: HTMLDivElement;
@@ -22,50 +23,67 @@ export default class TeamMemberCard {
   }
 
   private configure(teamMemberData: TeamMemberCardType) {
+    const biography = this.createParagraph('Biography:', teamMemberData.biography);
+    const contribution = this.createParagraph('Contribution:', teamMemberData.contributions);
+
     this.element.append(
-      this.createPhoto(teamMemberData.photoSrc, teamMemberData.name),
-      this.createCardDescription(teamMemberData)
+      this.createPhoto(teamMemberData.photoSrc, teamMemberData.firstName),
+      this.createCardDescription(teamMemberData),
+      biography,
+      contribution
     );
   }
 
-  private createPhoto(src: string, alt: string): HTMLImageElement {
+  private createPhoto(src: string, name: string): HTMLElement {
+    const photo = document.createElement('figure');
+    photo.classList.add(styleCard.photo);
+
     const img = document.createElement('img');
-    img.classList.add(styleCard.photo);
+    img.classList.add(styleCard.photo__img);
     img.src = src;
-    img.alt = alt;
-    img.title = alt;
-    return img;
+    img.alt = name;
+    img.title = name;
+
+    const figcaption = document.createElement('figcaption');
+    const figcaptionText = new MagicString(name, styleCard.photo__figcaption);
+    figcaption.append(figcaptionText.getElement());
+
+    photo.append(img, figcaption);
+    return photo;
   }
 
   private createCardDescription(teamMemberData: TeamMemberCardType): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(styleCard.description__wrap);
 
-    const nameTeamMember = this.createNameMemberTeam(teamMemberData.name);
+    const nameTeamMember = document.createElement('h2');
+    nameTeamMember.classList.add(styleCard.title);
+    nameTeamMember.textContent = `${teamMemberData.firstName} ${teamMemberData.lastName}`;
 
-    element.append(nameTeamMember);
+    const role = this.createParagraph(`Role: ${teamMemberData.role}`);
+
+    const linkToGitHub = new GitHubLink(teamMemberData.gitHubLink);
+
+    element.append(nameTeamMember, role, linkToGitHub.getElement());
     return element;
   }
 
-  private createNameMemberTeam(name: string): HTMLDivElement {
-    return this.createFunnyString(name, styleCard.description__name);
-  }
+  private createParagraph(headLineContent: string, textContent?: string): HTMLDivElement {
+    const headLine = document.createElement('h3');
+    headLine.classList.add(styleCard.description__headline);
+    headLine.textContent = headLineContent;
 
-  private createFunnyString(string: string, className?: string) {
-    const stringElement = document.createElement(TagName.DIV);
-    stringElement.classList.add(styleTitle.waving);
-    if (className) {
-      stringElement.classList.add(className);
+    const element = document.createElement(TagName.DIV);
+    element.classList.add(styleCard.description__text);
+    element.append(headLine);
+
+    if (textContent) {
+      const paragraph = document.createElement('p');
+      paragraph.classList.add(styleCard.description__textContent);
+      paragraph.textContent = textContent;
+      element.append(paragraph);
     }
 
-    stringElement.append(...string.split('').map((letter) => this.addLetter(letter)));
-
-    return stringElement;
-  }
-
-  private addLetter(letter: string) {
-    const letterElement = document.createElement(TagName.SPAN);
-    letterElement.innerText = letter;
-    return letterElement;
+    return element;
   }
 }

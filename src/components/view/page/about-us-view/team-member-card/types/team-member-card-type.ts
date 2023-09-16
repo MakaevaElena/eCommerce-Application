@@ -1,6 +1,11 @@
 type TeamMemberCardType = {
   photoSrc: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  biography: string;
+  contributions: string;
+  gitHubLink: string;
 };
 
 export default TeamMemberCardType;
