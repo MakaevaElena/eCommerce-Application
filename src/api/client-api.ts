@@ -273,5 +273,17 @@ export default class ClientApi {
   public getActiveCart() {
     return this.clientRoot.me().activeCart().get().execute();
   }
+
+  public createCustomerCart() {
+    return this.clientRoot
+      .me()
+      .carts()
+      .post({ body: { currency: 'USD', country: 'US' } })
+      .execute();
+  }
+
+  // public addToActiveCart() {
+  //   return this.clientRoot.me()..activeCart().get().execute();
+  // }
 }
 // https://docs.commercetools.com/api/projects/carts#update-actions

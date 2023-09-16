@@ -11,7 +11,6 @@ import SliderPopup from './slider-popup/slider-popup';
 import TotalApi from '../../../api/total-api';
 import LocalStorageKeys from '../../../enum/local-storage-keys';
 import ErrorMessage from '../../message/error-message';
-import WarningMessage from '../../message/warning-message';
 import InfoMessage from '../../message/info-message';
 import Observer from '../../../observer/observer';
 import EventName from '../../../enum/event-name';
@@ -97,44 +96,57 @@ export default class ProductCard extends DefaultView {
     return imagesUrl;
   }
 
-  private addProductToCart(e: MouseEvent) {
+  private addProductHandler(e: MouseEvent) {
     e.stopPropagation();
 
-    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
-    if (
-      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
-    ) {
-      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
+    const { sku } = this.product.masterVariant;
+    if (!sku) {
+      new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
+      return;
     }
 
-    if (isAnonim) {
-      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-      const { sku } = this.product.masterVariant;
-      if (!sku) {
-        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
-        return;
-      }
-      if (anonimCartID) {
-        this.addProductToAnonimCart(anonimCartID, sku);
-      }
-    } else {
-      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
-      if (customerId) {
-        // this.setProductInCustomerCart(sku);
-      } else {
-        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
-      }
-    }
+    this.checkCartExistAndAddProduct(sku);
   }
 
-  private addProductToAnonimCart(anonimCartID: string, sku: string) {
+  private checkCartExistAndAddProduct(sku: string) {
     this.api
       .getClientApi()
-      .getCartByCartID(anonimCartID)
+      .getActiveCart()
+      .then((cart) => {
+        const cartId = cart.body.id;
+        this.addProductToCart(cartId, sku);
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+      })
+      .catch(() => {
+        this.api
+          .getClientApi()
+          .createCustomerCart()
+          .then((cart) => {
+            const cartId = cart.body.id;
+            localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+            this.addProductToCart(cartId, sku);
+          })
+          .catch((error) => {
+            if (error instanceof Error) {
+              new ErrorMessage().showMessage(error.message);
+            }
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private addProductToCart(cardId: string, sku: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(cardId)
       .then((responce) => {
         this.api
           .getClientApi()
-          .addItemToCartByID(anonimCartID, responce.body.version, sku)
+          .addItemToCartByID(cardId, responce.body.version, sku)
           .then(() => {
             new InfoMessage().showMessage(Strings.Strings.PRODUCT_ADDED[this.LANG]);
             this.observer.notify(EventName.ADD_TO_CART);
@@ -148,46 +160,34 @@ export default class ProductCard extends DefaultView {
       });
   }
 
-  private removeProductFromCart(e: MouseEvent) {
+  private removeProductHandler(e: MouseEvent) {
     e.stopPropagation();
 
-    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
-    if (
-      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
-    ) {
-      new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
-    }
-
-    if (isAnonim) {
-      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-      const { sku } = this.product.masterVariant;
-      if (!sku) {
-        new ErrorMessage().showMessage(Strings.Strings.SKU_NOT_AVAILABLE[this.LANG]);
-        return;
-      }
-      if (anonimCartID) {
-        this.removeProductFromAnonimCart(anonimCartID);
-      }
-    } else {
-      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
-      if (customerId) {
-        // this.setProductFromCustomerCart();
-      } else {
-        new WarningMessage().showMessage(Strings.Strings.MESSAGE_CUSTOMER_ID_NOT_FOUND[this.LANG]);
-      }
-    }
-  }
-
-  private removeProductFromAnonimCart(anonimCartID: string) {
     this.api
       .getClientApi()
-      .getCartByCartID(anonimCartID)
+      .getActiveCart()
+      .then((cart) => {
+        const cartId = cart.body.id;
+        this.removeProductFromCart(cartId);
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeProductFromCart(cartID: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(cartID)
       .then((responce) => {
         const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === this.product.key);
         const lineItemId = lineItems[0].id;
         this.api
           .getClientApi()
-          .removeLineItem(anonimCartID, responce.body.version, lineItemId)
+          .removeLineItem(cartID, responce.body.version, lineItemId)
           .then(() => {
             new InfoMessage().showMessage(Strings.Strings.PRODUCT_REMOVED[this.LANG]);
             this.observer.notify(EventName.REMOVE_FROM_CART);
@@ -203,7 +203,7 @@ export default class ProductCard extends DefaultView {
 
   private createButtonAddToCart() {
     this.buttonAddToCart = this.creator.createTagElement('div', [styleCss['card-button'], styleCss['button-add']], '+');
-    this.buttonAddToCart.addEventListener('click', this.addProductToCart.bind(this));
+    this.buttonAddToCart.addEventListener('click', this.addProductHandler.bind(this));
     return this.buttonAddToCart;
   }
 
@@ -213,7 +213,7 @@ export default class ProductCard extends DefaultView {
       [styleCss['card-button'], styleCss['button-remove']],
       '-'
     );
-    this.buttonRemoveFromCart.addEventListener('click', this.removeProductFromCart.bind(this));
+    this.buttonRemoveFromCart.addEventListener('click', this.removeProductHandler.bind(this));
 
     return this.buttonRemoveFromCart;
   }

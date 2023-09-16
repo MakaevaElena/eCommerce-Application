@@ -32,6 +32,8 @@ export default class CatalogView extends DefaultView {
 
   private readonly MESSAGE_CUSTOMER_ID_NOT_FOUND = 'Customer ID not found';
 
+  private readonly MESSAGE_CUSTOMER_CART_IS_ABSENT = 'Customer cart is absent';
+
   private api: TotalApi;
 
   private router: Router;
@@ -161,11 +163,7 @@ export default class CatalogView extends DefaultView {
           card.setProductInCart(itemIds.includes(card.getProductId()));
         });
       })
-      .catch((error) => {
-        if (error instanceof Error) {
-          new WarningMessage().showMessage(error.message);
-        }
-      });
+      .catch(() => new WarningMessage().showMessage(this.MESSAGE_CUSTOMER_CART_IS_ABSENT));
   }
 
   private setProductInAnonimCart(anonimCartID: string) {
@@ -180,7 +178,7 @@ export default class CatalogView extends DefaultView {
       })
       .catch((error) => {
         if (error instanceof Error) {
-          new WarningMessage().showMessage(error.message);
+          new ErrorMessage().showMessage(error.message);
         }
       });
   }

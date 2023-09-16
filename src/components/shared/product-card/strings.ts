@@ -29,6 +29,11 @@ const Strings = {
     en: 'Product removed from your cart',
     ru: 'Продукт удален из вашей корзины',
   },
+  ACTIVE_CART_NOT_FOUND: {
+    'en-US': 'Active cart not found',
+    en: 'Active cart not found',
+    ru: 'Активная корзина не найдена',
+  },
 };
 
 export default { Strings };
