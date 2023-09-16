@@ -95,7 +95,7 @@ export default class ProductCard extends DefaultView {
 
     return imagesUrl;
   }
-
+  
   private addProductHandler(e: MouseEvent) {
     e.stopPropagation();
 
@@ -204,6 +204,7 @@ export default class ProductCard extends DefaultView {
   private createButtonAddToCart() {
     this.buttonAddToCart = this.creator.createTagElement('div', [styleCss['card-button'], styleCss['button-add']], '+');
     this.buttonAddToCart.addEventListener('click', this.addProductHandler.bind(this));
+    
     return this.buttonAddToCart;
   }
 
