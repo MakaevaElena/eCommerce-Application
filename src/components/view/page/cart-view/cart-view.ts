@@ -95,10 +95,11 @@ export default class CartView extends DefaultView {
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;
+
           return totalPrice;
         })
-        .then(() => this.createPromo())
         .then(() => this.updateTotalSumm())
+        .then(() => this.createPromo())
         .catch((error) => new ErrorMessage().showMessage(error.message));
 
     this.wrapper.append(this.cartSection.getElement());
@@ -266,7 +267,6 @@ export default class CartView extends DefaultView {
   }
 
   private applyPromo(promoCode: string) {
-    console.log(promoCode);
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       this.api
@@ -276,7 +276,10 @@ export default class CartView extends DefaultView {
           this.api
             .getClientApi()
             .updateCartWithDiscount(anonimCartID, cartResponse.body.version, promoCode)
-            .then(async () => this.updateTotalSumm())
+            .then(() => {
+              this.updateTotalSumm();
+              // this.updateTotalSumm().then(() => this.observer.notify(EventName.UPDATE_CART));
+            })
             .catch((error) => {
               if (error instanceof Error) {
                 new ErrorMessage().showMessage(error.message);
@@ -285,10 +288,10 @@ export default class CartView extends DefaultView {
         });
   }
 
-  private async updateTotalSumm() {
+  private updateTotalSumm() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      await this.api
+      this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {

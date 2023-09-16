@@ -89,7 +89,7 @@ export default class App {
           const IndexView = (await import('../view/page/index-view/index-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : new IndexView(this.router);
+            : new IndexView(this.router, paramApi);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
@@ -102,7 +102,7 @@ export default class App {
           const IndexView = (await import('../view/page/index-view/index-view')).default;
           const view: DefaultView | undefined = this.viewStorage.has(PagePath.INDEX)
             ? this.viewStorage.get(PagePath.INDEX)
-            : new IndexView(this.router);
+            : new IndexView(this.router, paramApi);
           if (view) {
             this.viewStorage.set(PagePath.INDEX, view);
             this.setContent(PagePath.INDEX, view);
