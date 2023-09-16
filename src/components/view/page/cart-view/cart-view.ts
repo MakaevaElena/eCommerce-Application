@@ -84,13 +84,14 @@ export default class CartView extends DefaultView {
         .then(async (cartResponse) => {
           if (cartResponse.body.lineItems.length > 0) {
             this.createCartHeader();
-            cartResponse.body.lineItems.forEach((item) => {
+            cartResponse.body.lineItems.forEach(async (item) => {
               const lineItemData = cartResponse.body.lineItems.filter(
                 (lineItem) => lineItem.productKey === item.productKey
               );
-              if (item.productKey) this.cartItem.createCartItem(item.productKey, lineItemData);
+              if (item.productKey) await this.cartItem.createCartItem(item.productKey, lineItemData);
             });
           }
+
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;
@@ -237,11 +238,7 @@ export default class CartView extends DefaultView {
       textContent: '',
     });
 
-    const promoInput = new ElementCreator({
-      tag: TagName.INPUT,
-      classNames: [styleCss['cart-promo__input']],
-      textContent: '',
-    });
+    const promoInput = new TagElement().createTagElement('input', [styleCss['cart-promo__input']]);
 
     const promoApplyButtonBox = new ElementCreator({
       tag: TagName.DIV,
@@ -250,7 +247,9 @@ export default class CartView extends DefaultView {
     });
 
     const applyButton = new LinkButton('Apply PROMO', () => {
-      this.applyPromo();
+      if (promoInput instanceof HTMLInputElement) {
+        this.applyPromo(promoInput.value);
+      }
     });
 
     promo.addInnerElement(promoTitle);
@@ -266,8 +265,24 @@ export default class CartView extends DefaultView {
     this.getCreator().addInnerElement(element);
   }
 
-  private applyPromo() {
-    console.log('applyPromo');
+  private applyPromo(promoCode: string) {
+    console.log(promoCode);
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (anonimCartID)
+      this.api
+        .getClientApi()
+        .getCartByCartID(anonimCartID)
+        .then((cartResponse) => {
+          this.api
+            .getClientApi()
+            .updateCartWithDiscount(anonimCartID, cartResponse.body.version, promoCode)
+            .then(async () => this.updateTotalSumm())
+            .catch((error) => {
+              if (error instanceof Error) {
+                new ErrorMessage().showMessage(error.message);
+              }
+            });
+        });
   }
 
   private async updateTotalSumm() {
@@ -281,6 +296,11 @@ export default class CartView extends DefaultView {
             cartResponse.body.totalPrice.currencyCode
           }`;
           this.createTotalOrderValue(totalPrice);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
         });
   }
 

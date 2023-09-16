@@ -156,7 +156,7 @@
 
   &__quantity-input {
     width: 15%;
-    height: 32px;
+    height: 2rem;
     font-size: 1.2rem;
     background-color: transparentize($color-brand-primary, 0.2);
     margin: 0 0.5rem;
@@ -207,7 +207,7 @@
   background-color: black;
   border-radius: 5px;
   margin-top: 0.5rem;
-  padding: 0.2rem 0;
+  padding: 0.3rem 0;
 
   &__title {
     flex: 0 1 25%;
@@ -223,13 +223,13 @@
 
   &__input {
     width: 70%;
+    height: 1.2rem;
     background-color: transparentize($color-brand-primary, 0.2);
   }
 
   &__apply-button-box {
     flex: 0 1 25%;
     width: 50px;
-    height: 20px;
     font-size: 1rem;
 
     a.link-button {
