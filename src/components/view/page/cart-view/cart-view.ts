@@ -278,6 +278,7 @@ export default class CartView extends DefaultView {
             .updateCartWithDiscount(anonimCartID, cartResponse.body.version, promoCode)
             .then(() => {
               this.updateTotalSumm();
+              this.observer.notify(EventName.UPDATE_CART);
               // this.updateTotalSumm().then(() => this.observer.notify(EventName.UPDATE_CART));
             })
             .catch((error) => {
