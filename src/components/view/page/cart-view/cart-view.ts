@@ -1,3 +1,4 @@
+import { Cart, ClientResponse } from '@commercetools/platform-sdk';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -44,6 +45,12 @@ export default class CartView extends DefaultView {
     textContent: '',
   });
 
+  private itemsWrapper = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [styleCss['cart-items-wrapper']],
+    textContent: '',
+  });
+
   private cartItem: CartItem;
 
   private anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
@@ -62,7 +69,7 @@ export default class CartView extends DefaultView {
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
-    this.cartItem = new CartItem(router, this.cartSection, this.api);
+    this.cartItem = new CartItem(router, this.itemsWrapper, this.api);
 
     this.observer.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
@@ -77,6 +84,7 @@ export default class CartView extends DefaultView {
 
   private configView() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
     if (anonimCartID)
       this.api
         .getClientApi()
@@ -84,23 +92,32 @@ export default class CartView extends DefaultView {
         .then(async (cartResponse) => {
           if (cartResponse.body.lineItems.length > 0) {
             this.createCartHeader();
-            cartResponse.body.lineItems.forEach((item) => {
+            cartResponse.body.lineItems.forEach(async (item) => {
               const lineItemData = cartResponse.body.lineItems.filter(
                 (lineItem) => lineItem.productKey === item.productKey
               );
-              if (item.productKey) this.cartItem.createCartItem(item.productKey, lineItemData);
+              if (item.productKey) await this.cartItem.createCartItem(item.productKey, lineItemData);
             });
           }
-          const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-            cartResponse.body.totalPrice.currencyCode
-          }`;
-          return totalPrice;
-        })
-        // .then((totalPrice) => this.createTotalOrderValue(totalPrice))
-        .then(async () => this.updateTotalSumm())
-        .catch((error) => new ErrorMessage().showMessage(error.message));
 
-    this.wrapper.append(this.cartSection.getElement());
+          // const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+          //   cartResponse.body.totalPrice.currencyCode
+          // }`;
+
+          // return totalPrice;
+          return cartResponse;
+        })
+        .then((cartResponse) => {
+          this.cartSection.addInnerElement(this.itemsWrapper);
+          this.wrapper.append(this.cartSection.getElement());
+          return cartResponse;
+        })
+        .then((cartResponse) => {
+          this.updateTotalSumm();
+          return cartResponse;
+        })
+        .then((cartResponse) => this.createPromo(cartResponse))
+        .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
   private showEmptyCart() {
@@ -215,22 +232,101 @@ export default class CartView extends DefaultView {
     }
   }
 
+  private createPromo(cartResponse: ClientResponse<Cart>) {
+    this.totalCost.getElement().innerHTML = '';
+    this.totalCost.getElement().remove();
+
+    const promo = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo']],
+      textContent: '',
+    });
+
+    const promoTitle = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__title']],
+      textContent: 'PROMO CODE: ',
+    });
+
+    const promoInputBox = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__input-box']],
+      textContent: '',
+    });
+
+    const promoInput = new TagElement().createTagElement('input', [styleCss['cart-promo__input']]);
+
+    const promoApplyButtonBox = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-promo__apply-button-box'], styleCss.button],
+      textContent: '',
+    });
+
+    const applyButton = new LinkButton('Apply PROMO', () => {
+      if (promoInput instanceof HTMLInputElement) {
+        this.applyPromo(promoInput.value);
+        applyButton.disableButton();
+        applyButton.getElement().textContent = 'PROMO applied';
+      }
+    });
+
+    if (cartResponse.body.discountCodes.length > 0) {
+      applyButton.disableButton();
+      applyButton.getElement().textContent = 'PROMO applied';
+    }
+
+    promo.addInnerElement(promoTitle);
+    promoInputBox.addInnerElement(promoInput);
+    promo.addInnerElement(promoInputBox);
+    promoApplyButtonBox.addInnerElement(applyButton.getElement());
+    promo.addInnerElement(promoApplyButtonBox);
+    this.cartSection.addInnerElement(promo);
+  }
+
   public setContent(element: InsertableElement) {
     this.getCreator().clearInnerContent();
     this.getCreator().addInnerElement(element);
   }
 
-  private async updateTotalSumm() {
+  private applyPromo(promoCode: string) {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
-      await this.api
+      this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {
+          this.api
+            .getClientApi()
+            .updateCartWithDiscount(anonimCartID, cartResponse.body.version, promoCode)
+            .then(() => {
+              this.updateTotalSumm();
+              this.observer.notify(EventName.UPDATE_CART);
+            })
+            .catch((error) => {
+              if (error instanceof Error) {
+                new ErrorMessage().showMessage(error.message);
+              }
+            });
+        });
+  }
+
+  private updateTotalSumm() {
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (anonimCartID)
+      this.api
+        .getClientApi()
+        .getCartByCartID(anonimCartID)
+        .then((cartResponse) => {
+          console.log('cartResponse', cartResponse);
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;
           this.createTotalOrderValue(totalPrice);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
         });
   }
 
