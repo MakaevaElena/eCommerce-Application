@@ -274,6 +274,14 @@ export default class ClientApi {
     return this.clientRoot.me().activeCart().get().execute();
   }
 
+  public createCustomerCart() {
+    return this.clientRoot
+      .me()
+      .carts()
+      .post({ body: { currency: 'USD', country: 'US' } })
+      .execute();
+  }
+
   public getPromoCodes() {
     return this.clientRoot.discountCodes().get().execute();
   }

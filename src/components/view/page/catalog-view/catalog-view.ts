@@ -129,29 +129,6 @@ export default class CatalogView extends DefaultView {
    * Set visibility cards' button Add to/Remove from cart
    */
   private checkProductsInCart() {
-    const isAnonim = !!localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
-    if (
-      !(localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID) || localStorage.getItem(LocalStorageKeys.CUSTOMER_ID) || '')
-    ) {
-      new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
-    }
-
-    if (isAnonim) {
-      const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-      if (anonimCartID) {
-        this.setProductInAnonimCart(anonimCartID);
-      }
-    } else {
-      const customerId = localStorage.getItem(LocalStorageKeys.CUSTOMER_ID);
-      if (customerId) {
-        this.setProductInCustomerCart();
-      } else {
-        new ErrorMessage().showMessage(this.MESSAGE_CUSTOMER_ID_NOT_FOUND);
-      }
-    }
-  }
-
-  private setProductInCustomerCart() {
     this.api
       .getClientApi()
       .getActiveCart()
@@ -161,28 +138,7 @@ export default class CatalogView extends DefaultView {
           card.setProductInCart(itemIds.includes(card.getProductId()));
         });
       })
-      .catch((error) => {
-        if (error instanceof Error) {
-          new WarningMessage().showMessage(error.message);
-        }
-      });
-  }
-
-  private setProductInAnonimCart(anonimCartID: string) {
-    this.api
-      .getClientApi()
-      .getCartByCartID(anonimCartID)
-      .then((responce) => {
-        const itemIds = responce.body.lineItems.map((item) => item.productId);
-        this.cards.forEach((card) => {
-          card.setProductInCart(itemIds.includes(card.getProductId()));
-        });
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          new WarningMessage().showMessage(error.message);
-        }
-      });
+      .catch(() => {});
   }
 
   private recallProductCards() {

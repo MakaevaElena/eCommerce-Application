@@ -12,6 +12,7 @@ import Observer from '../../observer/observer';
 import TotalApi from '../../api/total-api';
 import createAnonim from '../../api/sdk/with-anonimous-flow';
 import ApiType from './type';
+import LocalStorageKeys from '../../enum/local-storage-keys';
 
 export default class App {
   private api: TotalApi;
@@ -42,6 +43,9 @@ export default class App {
     this.main = new MainView();
     this.header = new HeaderView(this.router);
     this.footer = new FooterView();
+
+    this.observer.subscribe(EventName.LOGIN, this.lookForCustomerCartId.bind(this));
+    this.observer.subscribe(EventName.LOGOUT, this.clearCustomerCartId.bind(this));
   }
 
   public init() {
@@ -58,6 +62,18 @@ export default class App {
     } else {
       this.observer.notify(EventName.LOGOUT);
     }
+  }
+
+  private lookForCustomerCartId() {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((responce) => localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, responce.body.id))
+      .catch(() => localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, ''));
+  }
+
+  private clearCustomerCartId() {
+    localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
   }
 
   private createApi() {
