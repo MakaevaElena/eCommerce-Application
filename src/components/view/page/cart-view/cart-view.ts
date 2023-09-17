@@ -114,19 +114,16 @@ export default class CartView extends DefaultView {
         .then((cartResponse) => {
           if (cartResponse.body.lineItems.length > 0) {
             this.cartSection.addInnerElement(this.itemsWrapper);
+            this.createPromo(cartResponse);
+            this.updateTotalSumm();
           }
           this.wrapper.append(this.cartSection.getElement());
+
           return cartResponse;
         })
         .then((cartResponse) => {
-          if (cartResponse.body.lineItems.length > 0) this.updateTotalSumm();
-          return cartResponse;
+          this.createClearCartButton(cartResponse);
         })
-        .then((cartResponse) => {
-          if (cartResponse.body.lineItems.length > 0) this.createPromo(cartResponse);
-          return cartResponse;
-        })
-        .then((cartResponse) => this.createClearCartButton(cartResponse))
         .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
@@ -135,6 +132,7 @@ export default class CartView extends DefaultView {
 
     if (anonimCartID && cartResponse.body.lineItems.length > 0) {
       const button = new LinkButton('CLEAR CART', () => {
+        // todo удаляется только один Item, дальше конфликт по версии карты
         cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
         this.showEmptyCart();
       });
@@ -376,19 +374,26 @@ export default class CartView extends DefaultView {
   }
 
   private removeProductHandler(lineItemId: string) {
-    this.api
-      .getClientApi()
-      .getActiveCart()
-      .then((cart) => {
-        const cartId = cart.body.id;
-        this.removeProductFromCart(cartId, lineItemId, cart.body.version);
-        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          new ErrorMessage().showMessage(error.message);
-        }
-      });
+    // todo здесь не получилось заменить на getActiveCart()
+    const cartId = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
+    if (cartId)
+      this.api
+        .getClientApi()
+        .getCartByCartID(cartId)
+        // this.api
+        //   .getClientApi()
+        //   .getActiveCart()
+        .then((cart) => {
+          // const cartId = cart.body.id;
+          this.removeProductFromCart(cartId, lineItemId, cart.body.version);
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
   }
 
   private removeProductFromCart(cartID: string, lineItemId: string, version: number) {

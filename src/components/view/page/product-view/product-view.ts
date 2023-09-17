@@ -380,12 +380,17 @@ export default class ProductView extends DefaultView {
     });
 
     // todo здесь не получилось заменить на getActiveCart()
+    // this.api
+    //   .getClientApi()
+    //   .getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
+          // const cartId = cartResponse.body.id;
+          // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', async () => {
