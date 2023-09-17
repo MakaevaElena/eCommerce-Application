@@ -119,7 +119,7 @@ export default class CartItem extends DefaultView {
             if (Number(itemQuantityInput.value) > 1) {
               itemQuantityInput.value = (Number(itemQuantityInput.value) - 1).toString();
               await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
-                itemOrderSumm.getElement().textContent = `${this.getItemSum(lineItemData, +itemQuantityInput.value)}`;
+                itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
               });
             }
           }, 800)
@@ -130,7 +130,7 @@ export default class CartItem extends DefaultView {
           debounce(async () => {
             itemQuantityInput.value = (Number(itemQuantityInput.value) + 1).toString();
             await this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
-              itemOrderSumm.getElement().textContent = `${this.getItemSum(lineItemData, +itemQuantityInput.value)}`;
+              itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
             });
           }, 800)
         );
@@ -145,7 +145,7 @@ export default class CartItem extends DefaultView {
           debounce(async () => {
             this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
               // itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
-              itemOrderSumm.getElement().textContent = `${this.getItemSum(lineItemData, +itemQuantityInput.value)}`;
+              itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
             });
           }, 800)
         );
@@ -156,9 +156,11 @@ export default class CartItem extends DefaultView {
           textContent: ``,
         });
 
-        itemOrderSumm.getElement().textContent = `PRICE: ${(
-          Number(lineItemData[0].totalPrice.centAmount) / 100
-        ).toFixed(2)}  ${lineItemData[0].totalPrice.currencyCode}`;
+        // itemOrderSumm.getElement().textContent = `PRICE: ${(
+        //   Number(lineItemData[0].totalPrice.centAmount) / 100
+        // ).toFixed(2)}  ${lineItemData[0].totalPrice.currencyCode}`;
+
+        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
 
         const itemRemoveButton = new ElementCreator({
           tag: TagName.SPAN,
@@ -186,10 +188,26 @@ export default class CartItem extends DefaultView {
       });
   }
 
-  private getItemSum(lineItemData: LineItem[], value: number) {
-    return `PRICE: ${((Number(lineItemData[0].totalPrice.centAmount) / 100) * Number(value)).toFixed(2)}  ${
-      lineItemData[0].totalPrice.currencyCode
-    }`;
+  // private getItemSum(lineItemData: LineItem[], value: number) {
+  //   return `PRICE: ${((Number(lineItemData[0].totalPrice.centAmount) / 100) * Number(value)).toFixed(2)}  ${
+  //     lineItemData[0].totalPrice.currencyCode
+  //   }`;
+  // }
+
+  private getItemSum(response: ClientResponse<ProductProjection>, value: string) {
+    if (response.body.masterVariant.prices?.[1].discounted?.value) {
+      return `PRICE: ${(
+        (Number(response.body.masterVariant.prices?.[1].discounted?.value.centAmount) / 100) *
+        Number(value)
+      ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value.currencyCode}`;
+    }
+    if (response.body.masterVariant.prices?.[1].value) {
+      return `PRICE: ${(
+        (Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100) *
+        Number(value)
+      ).toFixed(2)} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
+    }
+    return '';
   }
 
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
