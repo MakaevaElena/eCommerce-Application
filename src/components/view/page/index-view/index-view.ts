@@ -53,6 +53,7 @@ export default class IndexView extends DefaultView {
       .getClientApi()
       .getPromoCodes()
       .then((codes) => {
+        // console.log('codes', codes);
         codes.body.results.forEach((code) => {
           // this.getPromoCodesPercent(code.cartDiscounts[0].id).then((percent) => {
           this.renderPromoCode(code);

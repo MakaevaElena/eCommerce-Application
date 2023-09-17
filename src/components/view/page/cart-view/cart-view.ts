@@ -1,3 +1,4 @@
+import { Cart, ClientResponse } from '@commercetools/platform-sdk';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -99,18 +100,23 @@ export default class CartView extends DefaultView {
             });
           }
 
-          const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-            cartResponse.body.totalPrice.currencyCode
-          }`;
+          // const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+          //   cartResponse.body.totalPrice.currencyCode
+          // }`;
 
-          return totalPrice;
+          // return totalPrice;
+          return cartResponse;
         })
-        .then(() => {
+        .then((cartResponse) => {
           this.cartSection.addInnerElement(this.itemsWrapper);
           this.wrapper.append(this.cartSection.getElement());
+          return cartResponse;
         })
-        .then(() => this.updateTotalSumm())
-        .then(() => this.createPromo())
+        .then((cartResponse) => {
+          this.updateTotalSumm();
+          return cartResponse;
+        })
+        .then((cartResponse) => this.createPromo(cartResponse))
         .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
@@ -226,7 +232,7 @@ export default class CartView extends DefaultView {
     }
   }
 
-  private createPromo() {
+  private createPromo(cartResponse: ClientResponse<Cart>) {
     this.totalCost.getElement().innerHTML = '';
     this.totalCost.getElement().remove();
 
@@ -264,6 +270,11 @@ export default class CartView extends DefaultView {
       }
     });
 
+    if (cartResponse.body.discountCodes.length > 0) {
+      applyButton.disableButton();
+      applyButton.getElement().textContent = 'PROMO applied';
+    }
+
     promo.addInnerElement(promoTitle);
     promoInputBox.addInnerElement(promoInput);
     promo.addInnerElement(promoInputBox);
@@ -290,7 +301,6 @@ export default class CartView extends DefaultView {
             .then(() => {
               this.updateTotalSumm();
               this.observer.notify(EventName.UPDATE_CART);
-              // this.updateTotalSumm().then(() => this.observer.notify(EventName.UPDATE_CART));
             })
             .catch((error) => {
               if (error instanceof Error) {
@@ -307,6 +317,7 @@ export default class CartView extends DefaultView {
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {
+          console.log('cartResponse', cartResponse);
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;
