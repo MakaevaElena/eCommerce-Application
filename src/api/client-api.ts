@@ -289,6 +289,5 @@ export default class ClientApi {
   public getPromoCodesPercent(promoCodeCartDiscountId: string) {
     return this.clientRoot.discountCodes().withId({ ID: promoCodeCartDiscountId }).get().execute();
   }
-
 }
 // https://docs.commercetools.com/api/projects/carts#update-actions
