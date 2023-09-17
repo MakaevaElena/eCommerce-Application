@@ -155,6 +155,7 @@ export default class HeaderView extends DefaultView {
     const link = new LinkButton(LinkName.LOGOUT, () => {
       this.observer.notify(EventName.LOGOUT);
       localStorage.setItem(`isLogin`, 'false');
+      localStorage.removeItem('anonimCardID');
       this.router.setHref('');
     });
 
