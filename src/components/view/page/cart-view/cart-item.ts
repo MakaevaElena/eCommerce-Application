@@ -19,11 +19,13 @@ export default class CartItem extends DefaultView {
 
   private api: TotalApi;
 
-  private cartSection: ElementCreator;
+  // private cartSection: ElementCreator;
+
+  private itemsWrapper: ElementCreator;
 
   private observer = Observer.getInstance();
 
-  constructor(router: Router, cartSection: ElementCreator, api: TotalApi) {
+  constructor(router: Router, itemsWrapper: ElementCreator, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['cart-view']],
@@ -33,7 +35,8 @@ export default class CartItem extends DefaultView {
 
     this.api = api;
 
-    this.cartSection = cartSection;
+    // this.cartSection = cartSection;
+    this.itemsWrapper = itemsWrapper;
 
     this.router = router;
   }
@@ -170,7 +173,7 @@ export default class CartItem extends DefaultView {
 
         itemRemoveButton.getElement().addEventListener('click', () => {
           this.removeItemFromCart(response);
-          this.cartSection.getElement().removeChild(itemBlock.getElement());
+          this.itemsWrapper.getElement().removeChild(itemBlock.getElement());
         });
 
         itemBlock.addInnerElement(itemImage);
@@ -184,7 +187,8 @@ export default class CartItem extends DefaultView {
         itemOrderValue.addInnerElement(itemOrderSumm);
         itemOrderValue.addInnerElement(itemRemoveButton);
         itemBlock.addInnerElement(itemOrderValue);
-        this.cartSection.addInnerElement(itemBlock.getElement());
+        this.itemsWrapper.addInnerElement(itemBlock.getElement());
+        // this.cartSection.addInnerElement(itemsWrapper);
       });
   }
 

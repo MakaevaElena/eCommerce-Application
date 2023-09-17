@@ -98,14 +98,27 @@
   align-items: center;
 }
 
-.item-block {
+.cart-items-wrapper {
   display: flex;
+  flex-direction: column;
   justify-content: space-around;
   align-items: center;
   width: 100%;
   @include border();
   background-color: black;
   border-radius: 5px;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.item-block {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  // @include border();
+  // background-color: black;
+  // border-radius: 5px;
   margin-top: 0.5rem;
   padding: 0.5rem 0;
 
@@ -235,6 +248,11 @@
     a.link-button {
       font-size: 1rem;
     }
+  }
+
+  &__disabled {
+    pointer-events: none;
+    opacity: 0.2;
   }
 }
 

@@ -44,6 +44,12 @@ export default class CartView extends DefaultView {
     textContent: '',
   });
 
+  private itemsWrapper = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [styleCss['cart-items-wrapper']],
+    textContent: '',
+  });
+
   private cartItem: CartItem;
 
   private anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
@@ -62,7 +68,7 @@ export default class CartView extends DefaultView {
 
     this.wrapper = new TagElement().createTagElement('div', [styleCss['content-wrapper']]);
 
-    this.cartItem = new CartItem(router, this.cartSection, this.api);
+    this.cartItem = new CartItem(router, this.itemsWrapper, this.api);
 
     this.observer.subscribe(EventName.TOTAL_COST_CHANGED, this.updateTotalSumm.bind(this));
 
@@ -77,6 +83,7 @@ export default class CartView extends DefaultView {
 
   private configView() {
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
     if (anonimCartID)
       this.api
         .getClientApi()
@@ -98,11 +105,13 @@ export default class CartView extends DefaultView {
 
           return totalPrice;
         })
+        .then(() => {
+          this.cartSection.addInnerElement(this.itemsWrapper);
+          this.wrapper.append(this.cartSection.getElement());
+        })
         .then(() => this.updateTotalSumm())
         .then(() => this.createPromo())
         .catch((error) => new ErrorMessage().showMessage(error.message));
-
-    this.wrapper.append(this.cartSection.getElement());
   }
 
   private showEmptyCart() {
@@ -250,6 +259,8 @@ export default class CartView extends DefaultView {
     const applyButton = new LinkButton('Apply PROMO', () => {
       if (promoInput instanceof HTMLInputElement) {
         this.applyPromo(promoInput.value);
+        applyButton.disableButton();
+        applyButton.getElement().textContent = 'PROMO applied';
       }
     });
 
