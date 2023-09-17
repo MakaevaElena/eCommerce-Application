@@ -1,4 +1,4 @@
-import { Cart, ClientResponse } from '@commercetools/platform-sdk';
+import { Cart, ClientResponse, LineItem } from '@commercetools/platform-sdk';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -116,8 +116,29 @@ export default class CartView extends DefaultView {
           this.updateTotalSumm();
           return cartResponse;
         })
-        .then((cartResponse) => this.createPromo(cartResponse))
+        .then((cartResponse) => {
+          this.createPromo(cartResponse);
+          return cartResponse;
+        })
+        // .then((cartResponse) => this.createClearCartButton(cartResponse))
         .catch((error) => new ErrorMessage().showMessage(error.message));
+  }
+
+  private createClearCartButton(cartResponse: ClientResponse<Cart>) {
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
+    if (anonimCartID && cartResponse.body.lineItems.length > 0) {
+      const button = new LinkButton('CLEAR CART', () => {
+        cartResponse.body.lineItems.forEach((item) => this.removeItem(item));
+      });
+
+      this.cartSection.addInnerElement(button.getElement());
+    }
+  }
+
+  private removeItem(item: LineItem) {
+    if (item.productKey) this.removeProductHandler(item.id);
+    this.itemsWrapper.getElement().innerHTML = '';
   }
 
   private showEmptyCart() {
@@ -322,6 +343,7 @@ export default class CartView extends DefaultView {
             cartResponse.body.totalPrice.currencyCode
           }`;
           this.createTotalOrderValue(totalPrice);
+          this.createClearCartButton(cartResponse);
         })
         .catch((error) => {
           if (error instanceof Error) {
@@ -345,5 +367,44 @@ export default class CartView extends DefaultView {
           }
         });
     }
+  }
+
+  private removeProductHandler(id: string) {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((cart) => {
+        const cartId = cart.body.id;
+        this.removeProductFromCart(cartId, id);
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeProductFromCart(cartID: string, lineItemId: string) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(cartID)
+      .then((responce) => {
+        // const lineItems = responce.body.lineItems.filter((lineItem) => lineItem.productKey === key);
+        // const lineItemId = lineItems[0].id;
+        this.api
+          .getClientApi()
+          .removeLineItem(cartID, responce.body.version, lineItemId)
+          .then(() => {
+            this.updateTotalSumm();
+            this.observer.notify(EventName.REMOVE_FROM_CART);
+            this.observer.notify(EventName.UPDATE_CART);
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 }
