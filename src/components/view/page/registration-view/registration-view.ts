@@ -391,9 +391,12 @@ export default class RegistrationView extends DefaultView {
   }
 
   private makeLogin(params: { email: string; password: string }) {
+    // const userID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    // if (userID)
     this.api
       .getClientApi()
-      .getCustomer(params)
+      .loginCustomer(params)
+      // .loginCustomer(params, userID)
       .then((response) => {
         if (response.body.customer) {
           window.localStorage.setItem(`isLogin`, 'true');

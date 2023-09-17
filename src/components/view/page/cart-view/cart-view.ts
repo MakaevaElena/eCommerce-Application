@@ -317,7 +317,7 @@ export default class CartView extends DefaultView {
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then((cartResponse) => {
-          console.log('cartResponse', cartResponse);
+          // console.log('cartResponse', cartResponse);
           const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
             cartResponse.body.totalPrice.currencyCode
           }`;

@@ -52,24 +52,26 @@ export default class ClientApi {
       .execute();
   }
 
-  public getCustomer({ email, password }: { email: string; password: string }) {
-    return this.clientRoot
-      .me()
-      .login()
-      .post({
-        body: {
-          email,
-          password,
-          updateProductData: true,
-          // anonymousId: options?.anonymousId,
-          // anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
-        },
-        // headers: {
-        //   Authorization: 'Bearer xxx',
-        // },
-      })
+  public loginCustomer({ email, password }: { email: string; password: string }) {
+    return (
+      this.clientRoot
+        // .me()
+        .login()
+        .post({
+          body: {
+            email,
+            password,
+            updateProductData: true,
+            // anonymousId,
+            // anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
+          },
+          // headers: {
+          //   Authorization: 'Bearer xxx',
+          // },
+        })
 
-      .execute();
+        .execute()
+    );
   }
 
   public createUserRoot(email: string, password: string) {
