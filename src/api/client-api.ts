@@ -273,5 +273,13 @@ export default class ClientApi {
   public getActiveCart() {
     return this.clientRoot.me().activeCart().get().execute();
   }
+
+  public getPromoCodes() {
+    return this.clientRoot.discountCodes().get().execute();
+  }
+
+  public getPromoCodesPercent(promoCodeCartDiscountId: string) {
+    return this.clientRoot.discountCodes().withId({ ID: promoCodeCartDiscountId }).get().execute();
+  }
 }
 // https://docs.commercetools.com/api/projects/carts#update-actions

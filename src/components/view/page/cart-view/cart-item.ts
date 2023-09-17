@@ -19,11 +19,13 @@ export default class CartItem extends DefaultView {
 
   private api: TotalApi;
 
-  private cartSection: ElementCreator;
+  // private cartSection: ElementCreator;
+
+  private itemsWrapper: ElementCreator;
 
   private observer = Observer.getInstance();
 
-  constructor(router: Router, cartSection: ElementCreator, api: TotalApi) {
+  constructor(router: Router, itemsWrapper: ElementCreator, api: TotalApi) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['cart-view']],
@@ -33,7 +35,8 @@ export default class CartItem extends DefaultView {
 
     this.api = api;
 
-    this.cartSection = cartSection;
+    // this.cartSection = cartSection;
+    this.itemsWrapper = itemsWrapper;
 
     this.router = router;
   }
@@ -99,6 +102,8 @@ export default class CartItem extends DefaultView {
           styleCss['cart-cell'],
         ]);
 
+        itemQuantityInput.setAttribute('readonly', 'readonly');
+
         const itemQuantityMinus = new ElementCreator({
           tag: TagName.DIV,
           classNames: [styleCss['item-block__quantity-minus'], styleCss['cart-cell']],
@@ -142,6 +147,7 @@ export default class CartItem extends DefaultView {
           'change',
           debounce(async () => {
             this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
+              // itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
               itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
             });
           }, 800)
@@ -153,9 +159,11 @@ export default class CartItem extends DefaultView {
           textContent: ``,
         });
 
-        itemOrderSumm.getElement().textContent = `PRICE: ${(
-          Number(lineItemData[0].totalPrice.centAmount) / 100
-        ).toFixed(2)}  ${lineItemData[0].totalPrice.currencyCode}`;
+        // itemOrderSumm.getElement().textContent = `PRICE: ${(
+        //   Number(lineItemData[0].totalPrice.centAmount) / 100
+        // ).toFixed(2)}  ${lineItemData[0].totalPrice.currencyCode}`;
+
+        itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
 
         const itemRemoveButton = new ElementCreator({
           tag: TagName.SPAN,
@@ -165,7 +173,7 @@ export default class CartItem extends DefaultView {
 
         itemRemoveButton.getElement().addEventListener('click', () => {
           this.removeItemFromCart(response);
-          this.cartSection.getElement().removeChild(itemBlock.getElement());
+          this.itemsWrapper.getElement().removeChild(itemBlock.getElement());
         });
 
         itemBlock.addInnerElement(itemImage);
@@ -179,9 +187,16 @@ export default class CartItem extends DefaultView {
         itemOrderValue.addInnerElement(itemOrderSumm);
         itemOrderValue.addInnerElement(itemRemoveButton);
         itemBlock.addInnerElement(itemOrderValue);
-        this.cartSection.addInnerElement(itemBlock.getElement());
+        this.itemsWrapper.addInnerElement(itemBlock.getElement());
+        // this.cartSection.addInnerElement(itemsWrapper);
       });
   }
+
+  // private getItemSum(lineItemData: LineItem[], value: number) {
+  //   return `PRICE: ${((Number(lineItemData[0].totalPrice.centAmount) / 100) * Number(value)).toFixed(2)}  ${
+  //     lineItemData[0].totalPrice.currencyCode
+  //   }`;
+  // }
 
   private getItemSum(response: ClientResponse<ProductProjection>, value: string) {
     if (response.body.masterVariant.prices?.[1].discounted?.value) {
