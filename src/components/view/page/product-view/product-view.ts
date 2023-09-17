@@ -379,6 +379,7 @@ export default class ProductView extends DefaultView {
       // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
     });
 
+    // todo здесь не получилось заменить на getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.api
