@@ -227,7 +227,6 @@ export default class LoginView extends DefaultView {
       if (userID)
         this.api
           .getClientApi()
-          // .loginCustomer({ email, password })
           .loginCustomer({ email, password }, userID)
           .then((response) => {
             if (response.body.customer) {

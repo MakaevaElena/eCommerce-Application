@@ -2,7 +2,7 @@ import { ClientResponse, ProductProjection } from '@commercetools/platform-sdk';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-//
+
 import './swiper.css';
 import './modal.css';
 
@@ -103,9 +103,7 @@ export default class ProductView extends DefaultView {
           prevEl: '.swiper-button-prev',
         },
         keyboard: true,
-        // ...
       });
-      console.log(swiper.params);
     });
   }
 
@@ -215,7 +213,6 @@ export default class ProductView extends DefaultView {
           textContent: `DEVELOPER: ${developer()}`,
         });
 
-        // eslint-disable-next-line consistent-return
         const playersQuantity = () => {
           const index = productResponse.body.masterVariant.attributes?.findIndex(
             (el) => el.name === 'players_quantity'
@@ -340,7 +337,6 @@ export default class ProductView extends DefaultView {
       .getClientApi()
       .getCategory(categoryId)
       .then((category) => {
-        // console.log('category', category);
         this.productCategory.getElement().textContent = `CATEGORY: ${category.body.name.ru}`;
       })
       .catch((error) => {
@@ -376,27 +372,19 @@ export default class ProductView extends DefaultView {
     let button = new LinkButton('Add to cart', async () => {
       this.addToCart(response, productInfo);
       button.getElement().remove();
-      // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
     });
 
-    // todo здесь не получилось заменить на getActiveCart()
-    // this.api
-    //   .getClientApi()
-    //   .getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          // const cartId = cartResponse.body.id;
-          // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', async () => {
               this.removeFromCart(item[0].id, response, productInfo);
               button.getElement().remove();
-              // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
             });
           }
         })
@@ -409,13 +397,7 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  // todo здесь не получилось заменить на getActiveCart()
-  private removeFromCart(
-    // cartID: string,
-    lineItemId: string,
-    response: ClientResponse<ProductProjection>,
-    productInfo: ElementCreator
-  ) {
+  private removeFromCart(lineItemId: string, response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
     const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (cartID)
       this.api
@@ -423,7 +405,6 @@ export default class ProductView extends DefaultView {
         .getCartByCartID(cartID)
         .then((cartResponse) => {
           if (lineItemId) {
-            // console.log('response.body.key', lineItemId);
             this.api
               .getClientApi()
               .removeLineItem(cartID, cartResponse.body.version, lineItemId)
@@ -448,7 +429,6 @@ export default class ProductView extends DefaultView {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        // .createCart()
         .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
@@ -462,8 +442,6 @@ export default class ProductView extends DefaultView {
   }
 
   private addToCart(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
-    // this.createAnonimCart();
-
     const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (cartID !== null) {

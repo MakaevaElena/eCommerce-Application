@@ -6,7 +6,6 @@ import Router from '../../../router/router';
 import DefaultView from '../../default-view';
 import styleCss from './cart-view.module.scss';
 import ErrorMessage from '../../../message/error-message';
-// eslint-disable-next-line import/no-named-as-default
 import CartItem from './cart-item';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import Observer from '../../../../observer/observer';
@@ -83,17 +82,12 @@ export default class CartView extends DefaultView {
   }
 
   private configView() {
-    // todo здесь не получилось заменить на getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (anonimCartID) {
       this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
-
-        // this.api
-        //   .getClientApi()
-        //   .getActiveCart()
         .then((cartResponse) => {
           const cartId = cartResponse.body.id;
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
@@ -131,8 +125,6 @@ export default class CartView extends DefaultView {
   }
 
   private createClearCartButton(response: ClientResponse<Cart>) {
-    // const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-
     if (response.body.lineItems.length > 0) {
       const button = new LinkButton('CLEAR CART', this.clearCart.bind(this));
 
@@ -165,7 +157,6 @@ export default class CartView extends DefaultView {
 
   private removeItem(item: LineItem) {
     if (item.productKey) this.removeProductHandler(item.id);
-    // this.itemsWrapper.getElement().innerHTML = '';
   }
 
   private showEmptyCart() {
@@ -208,7 +199,7 @@ export default class CartView extends DefaultView {
     const emptyCartSecondText = new ElementCreator({
       tag: TagName.DIV,
       classNames: [styleCss['cart-empty__second-text']],
-      textContent: `What are you waiting for? 
+      textContent: `What are you waiting for?
                   ...Christmas?`,
     });
 
@@ -328,7 +319,6 @@ export default class CartView extends DefaultView {
         applyButton.getElement().textContent = 'PROMO applied';
       }
       if (!promoInput.value) {
-        console.log('!promoInput.value');
         promoInput.setCustomValidity('Enter the PROMO code');
         promoInput.reportValidity();
       }
@@ -381,7 +371,6 @@ export default class CartView extends DefaultView {
       .then((cartResponse) => {
         const cartId = cartResponse.body.id;
         localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
-        // console.log('cartResponse', cartResponse);
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
@@ -406,7 +395,6 @@ export default class CartView extends DefaultView {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        // .createCart()
         .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);

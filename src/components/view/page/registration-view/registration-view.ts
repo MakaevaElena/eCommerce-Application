@@ -126,6 +126,7 @@ export default class RegistrationView extends DefaultView {
     this.getElement().removeChild(this.checkValidityElement);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createLabel(name: string) {
     const label = document.createElement('label');
     label.textContent = name;
@@ -133,6 +134,7 @@ export default class RegistrationView extends DefaultView {
     return label;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createTitle(): HTMLHeadElement {
     const title = document.createElement('h1');
     title.classList.add(styles.registrationView__tittle);
@@ -140,6 +142,7 @@ export default class RegistrationView extends DefaultView {
     return title;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createDescription(): HTMLParagraphElement {
     const description = document.createElement('p');
     description.classList.add(styles.registrationView__description);
@@ -147,6 +150,7 @@ export default class RegistrationView extends DefaultView {
     return description;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private fillInputsGroups(inputsParams: Array<InputParams>): Array<InputCreator> {
     const inputs: Array<InputCreator> = [];
     inputsParams.forEach((inputParams: InputParams) => {
@@ -204,6 +208,7 @@ export default class RegistrationView extends DefaultView {
     return result;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createDefaultButton(text: string, classList: Array<string>): HTMLButtonElement {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
@@ -248,6 +253,7 @@ export default class RegistrationView extends DefaultView {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private changePostalPatternWithCountry(
     postal: InputCreator,
     countryList: Array<Array<string>>,
@@ -266,6 +272,7 @@ export default class RegistrationView extends DefaultView {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private changePostalPatternWithOutCountry(postal: InputCreator) {
     postal.setTitle(InputTittles.WRONG_COUNTRY);
     postal.setMessageError(InputTittles.WRONG_COUNTRY);
@@ -395,7 +402,6 @@ export default class RegistrationView extends DefaultView {
     if (userID)
       this.api
         .getClientApi()
-        // .loginCustomer(params)
         .loginCustomer(params, userID)
         .then((response) => {
           if (response.body.customer) {

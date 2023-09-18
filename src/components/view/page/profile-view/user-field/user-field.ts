@@ -50,7 +50,6 @@ export default class UserField {
     this.action = userFieldsProps.action;
     this.actionName = userFieldsProps.actionName;
     this.id = userFieldsProps.id;
-    // this.version = userFieldsProps.version;
 
     this.cancelButton = this.createCancelButton();
     this.confirmButton = this.createConfirmButton();
@@ -71,6 +70,7 @@ export default class UserField {
     return this.confirmButton;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createElementField() {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylesField));
@@ -117,6 +117,7 @@ export default class UserField {
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createButton(
     textContent: string,
     classList?: Array<string>,
@@ -127,16 +128,19 @@ export default class UserField {
     return button.getButton();
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showInfoMessage(textContent: string) {
     const messageShower = new InfoMessage();
     messageShower.showMessage(textContent);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showErrorMessage(textContent: string) {
     const messageShower = new ErrorMessage();
     messageShower.showMessage(textContent);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showWarningMessage(textContent: string) {
     const messageShower = new WarningMessage();
     messageShower.showMessage(textContent);

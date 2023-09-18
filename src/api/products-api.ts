@@ -89,7 +89,6 @@ export default class ProductApi {
       .get({
         queryArgs: {
           staged: true,
-          // priceCurrency: 'priceCurrency',
         },
       })
       .execute();

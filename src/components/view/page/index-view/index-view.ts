@@ -53,13 +53,8 @@ export default class IndexView extends DefaultView {
       .getClientApi()
       .getPromoCodes()
       .then((codes) => {
-        // console.log('codes', codes);
         codes.body.results.forEach((code) => {
-          // this.getPromoCodesPercent(code.cartDiscounts[0].id).then((percent) => {
           this.renderPromoCode(code);
-          // this.getPromoCodesPercent(code.cartDiscounts[0].id);
-          // console.log('percent', percent);
-          // });
         });
       })
 
@@ -71,13 +66,6 @@ export default class IndexView extends DefaultView {
 
     this.wrapper.append(this.promoList.getElement());
   }
-
-  // private getPromoCodesPercent(promoCodeCartDiscountId: string) {
-  //   return this.api
-  //     .getClientApi()
-  //     .getPromoCodesPercent(promoCodeCartDiscountId)
-  //     .then((response) => console.log('responsePercent', response));
-  // }
 
   private renderPromoCode(code: DiscountCode) {
     const promoCodeBlock = new ElementCreator({
@@ -110,18 +98,8 @@ export default class IndexView extends DefaultView {
 
   private createLinks() {
     const wrapper = new CreateTagElement().createTagElement('div', [styleCss['content-wrapper']]);
-    // const messageButton = this.createMessageButton();
-    // wrapper.append(messageButton.getElement());
     this.getCreator().addInnerElement(wrapper);
   }
-
-  // private createMessageButton() {
-  //   const linkButton = new LinkButton('Messages', () => {
-  //     this.showMessage();
-  //   });
-
-  //   return linkButton;
-  // }
 
   private createSignInButton() {
     const linkButton = new LinkButton(LinkName.REGISTRATION, () => {

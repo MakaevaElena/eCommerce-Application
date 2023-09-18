@@ -19,8 +19,6 @@ export default class CartItem extends DefaultView {
 
   private api: TotalApi;
 
-  // private cartSection: ElementCreator;
-
   private itemsWrapper: ElementCreator;
 
   private observer = Observer.getInstance();
@@ -35,7 +33,6 @@ export default class CartItem extends DefaultView {
 
     this.api = api;
 
-    // this.cartSection = cartSection;
     this.itemsWrapper = itemsWrapper;
 
     this.router = router;
@@ -147,7 +144,6 @@ export default class CartItem extends DefaultView {
           'change',
           debounce(async () => {
             this.changeQuantityItem(itemKey, Number(itemQuantityInput.value)).then(async () => {
-              // itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
               itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
             });
           }, 800)
@@ -158,10 +154,6 @@ export default class CartItem extends DefaultView {
           classNames: [styleCss['item-block__order-value'], styleCss['cart-cell']],
           textContent: ``,
         });
-
-        // itemOrderSumm.getElement().textContent = `PRICE: ${(
-        //   Number(lineItemData[0].totalPrice.centAmount) / 100
-        // ).toFixed(2)}  ${lineItemData[0].totalPrice.currencyCode}`;
 
         itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
 
@@ -188,15 +180,8 @@ export default class CartItem extends DefaultView {
         itemOrderValue.addInnerElement(itemRemoveButton);
         itemBlock.addInnerElement(itemOrderValue);
         this.itemsWrapper.addInnerElement(itemBlock.getElement());
-        // this.cartSection.addInnerElement(itemsWrapper);
       });
   }
-
-  // private getItemSum(lineItemData: LineItem[], value: number) {
-  //   return `PRICE: ${((Number(lineItemData[0].totalPrice.centAmount) / 100) * Number(value)).toFixed(2)}  ${
-  //     lineItemData[0].totalPrice.currencyCode
-  //   }`;
-  // }
 
   private getItemSum(response: ClientResponse<ProductProjection>, value: string) {
     if (response.body.masterVariant.prices?.[1].discounted?.value) {
@@ -252,10 +237,8 @@ export default class CartItem extends DefaultView {
             }
           })
           .catch((error) => new ErrorMessage().showMessage(error.message));
-        // this.observer.notify(EventName.TOTAL_COST_CHANGED);
         return quantity;
       })
-      // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
       .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 }

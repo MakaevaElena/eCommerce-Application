@@ -11,13 +11,6 @@ export default class MainView extends DefaultView {
       textContent: '',
     };
     super(params);
-
-    this.configView();
-  }
-
-  private configView() {
-    // throw new Error(`configView() for ${this.getElement()} not implemented`);
-    // this.getAllProducts();
   }
 
   public setContent(element: InsertableElement) {
