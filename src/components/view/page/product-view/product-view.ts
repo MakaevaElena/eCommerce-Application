@@ -448,7 +448,8 @@ export default class ProductView extends DefaultView {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        .createCart()
+        // .createCart()
+        .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
         })
