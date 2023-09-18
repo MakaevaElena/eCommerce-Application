@@ -223,28 +223,31 @@ export default class LoginView extends DefaultView {
         }
       }
 
-      this.api
-        .getClientApi()
-        .getCustomer({ email, password })
-        .then((response) => {
-          if (response.body.customer) {
-            window.localStorage.setItem(`isLogin`, 'true');
-            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
-            this.router.setHref(PagePath.INDEX);
+      const userID = localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+      if (userID)
+        this.api
+          .getClientApi()
+          // .loginCustomer({ email, password })
+          .loginCustomer({ email, password }, userID)
+          .then((response) => {
+            if (response.body.customer) {
+              window.localStorage.setItem(`isLogin`, 'true');
+              window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
+              this.router.setHref(PagePath.INDEX);
 
-            const client = createUser(email, password);
-            this.api.recreate(client);
+              const client = createUser(email, password);
+              this.api.recreate(client);
 
-            const customerId = response.body.customer.id;
-            localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
-            localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
-            this.observer.notify(EventName.LOGIN);
-          }
-        })
-        .catch(() => {
-          this.passwordElement.setCustomValidity(Message.PASSWORD_IS_WRONG);
-          this.passwordElement.reportValidity();
-        });
+              const customerId = response.body.customer.id;
+              localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+              localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+              this.observer.notify(EventName.LOGIN);
+            }
+          })
+          .catch(() => {
+            this.passwordElement.setCustomValidity(Message.PASSWORD_IS_WRONG);
+            this.passwordElement.reportValidity();
+          });
     }
   }
 

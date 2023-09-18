@@ -215,49 +215,47 @@ export default class CartItem extends DefaultView {
   }
 
   private removeItemFromCart(response: ClientResponse<ProductProjection>) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    if (anonimCartID)
-      this.api
-        .getClientApi()
-        .getCartByCartID(anonimCartID)
-        .then(async (cartResponse) => {
-          const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
-          if (item[0].id)
-            this.api
-              .getClientApi()
-              .removeLineItem(anonimCartID, cartResponse.body.version, item[0].id)
-              .then(() => {
-                this.observer.notify(EventName.TOTAL_COST_CHANGED);
-                new InfoMessage().showMessage('Item removed from cart');
-                this.observer.notify(EventName.UPDATE_CART);
-              })
-              .catch((error) => new ErrorMessage().showMessage(error.message));
-        })
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then(async (cartResponse) => {
+        const cartId = cartResponse.body.id;
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+        const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
+        if (item[0].id)
+          this.api
+            .getClientApi()
+            .removeLineItem(cartId, cartResponse.body.version, item[0].id)
+            .then(() => {
+              this.observer.notify(EventName.TOTAL_COST_CHANGED);
+              new InfoMessage().showMessage('Item removed from cart');
+              this.observer.notify(EventName.UPDATE_CART);
+            })
+            .catch((error) => new ErrorMessage().showMessage(error.message));
+      })
+      .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
   private async changeQuantityItem(itemKey: string, quantity: number) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    if (anonimCartID)
-      this.api
-        .getClientApi()
-        .getCartByCartID(anonimCartID)
-        .then(async (cartResponse) => {
-          const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
-          this.api
-            .getClientApi()
-            .changeQuantityByLineID(cartResponse.body.id, cartResponse.body.version, lineItemData[0].id, quantity)
-            .then((response) => {
-              if (response.statusCode === 200) {
-                this.observer.notify(EventName.TOTAL_COST_CHANGED);
-                this.observer.notify(EventName.UPDATE_CART);
-              }
-            })
-            .catch((error) => new ErrorMessage().showMessage(error.message));
-          // this.observer.notify(EventName.TOTAL_COST_CHANGED);
-          return quantity;
-        })
-        // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
-        .catch((error) => new ErrorMessage().showMessage(error.message));
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then(async (cartResponse) => {
+        const lineItemData = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === itemKey);
+        this.api
+          .getClientApi()
+          .changeQuantityByLineID(cartResponse.body.id, cartResponse.body.version, lineItemData[0].id, quantity)
+          .then((response) => {
+            if (response.statusCode === 200) {
+              this.observer.notify(EventName.TOTAL_COST_CHANGED);
+              this.observer.notify(EventName.UPDATE_CART);
+            }
+          })
+          .catch((error) => new ErrorMessage().showMessage(error.message));
+        // this.observer.notify(EventName.TOTAL_COST_CHANGED);
+        return quantity;
+      })
+      // .then(() => this.observer.notify(EventName.TOTAL_COST_CHANGED))
+      .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 }

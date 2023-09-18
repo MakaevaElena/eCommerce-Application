@@ -219,8 +219,13 @@
   @include border();
   background-color: black;
   border-radius: 5px;
-  margin-top: 0.5rem;
+  margin: 0.5rem 0;
   padding: 0.3rem 0;
+
+  &__old {
+    flex: 0 1 12.5%;
+    text-decoration: 2px line-through solid transparentize($color-brand-primary, 0.2);
+  }
 
   &__title {
     flex: 0 1 25%;
@@ -228,6 +233,7 @@
 
   &__value {
     flex: 0 1 25%;
+    // flex: 0 1 12.5%;
   }
 
   &__input-box {
