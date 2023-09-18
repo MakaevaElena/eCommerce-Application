@@ -313,6 +313,7 @@ export default class CartView extends DefaultView {
     });
 
     const promoInput = new TagElement().createTagElement('input', [styleCss['cart-promo__input']]);
+    promoInput.setCustomValidity('');
 
     const promoApplyButtonBox = new ElementCreator({
       tag: TagName.DIV,
@@ -321,10 +322,15 @@ export default class CartView extends DefaultView {
     });
 
     const applyButton = new LinkButton('Apply PROMO', () => {
-      if (promoInput instanceof HTMLInputElement) {
+      if (promoInput instanceof HTMLInputElement && promoInput.value) {
         this.applyPromo(promoInput.value);
         applyButton.disableButton();
         applyButton.getElement().textContent = 'PROMO applied';
+      }
+      if (!promoInput.value) {
+        console.log('!promoInput.value');
+        promoInput.setCustomValidity('Enter the PROMO code');
+        promoInput.reportValidity();
       }
     });
 
