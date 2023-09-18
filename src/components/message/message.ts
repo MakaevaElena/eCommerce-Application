@@ -21,8 +21,10 @@ export default class Message {
   }
 
   public showMessage(text: string) {
-    const params = {
+    const params: Toastify.Options = {
       text,
+      position: 'left',
+      close: true,
       style: {
         background: this.getBackgroundColor(),
       },

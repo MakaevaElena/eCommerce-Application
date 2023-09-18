@@ -79,6 +79,7 @@ export default class PasswordChanger {
     this.passwordChangerElement.append(wrap);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createWrap(): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylePasswordWrap));
@@ -89,6 +90,7 @@ export default class PasswordChanger {
     return this.passwordChangerElement;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createPasswordChangerElement(): HTMLDivElement {
     const element = document.createElement(TagName.DIV);
     element.classList.add(...Object.values(stylePasswordChanger));
@@ -106,6 +108,7 @@ export default class PasswordChanger {
     return newPasswordField;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createSubTitle(textContent: string): HTMLElement {
     const subTitle = document.createElement('h3');
     subTitle.classList.add(...Object.values(stylePasswordField));
@@ -135,6 +138,7 @@ export default class PasswordChanger {
     return this.createButtons(TextContent.CANCEL_BUTTON, this.cancelHandler.bind(this), Events.CLICK);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createButtons(textContent: string, eventListener?: CallbackListener, event?: string): HTMLButtonElement {
     const button = new ButtonCreator(textContent, undefined, eventListener, event);
     return button.getButton();
@@ -149,20 +153,22 @@ export default class PasswordChanger {
       this.showWarningMessage(TextContent.VALIDATE_FORM_BEFORE_SUBMIT);
     } else {
       this.changePassword();
-      // console.log('form valid');
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showWarningMessage(textContent: string) {
     const messageShower = new WarningMessage();
     messageShower.showMessage(textContent);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showInfoMessage(textContent: string) {
     const messageShower = new InfoMessage();
     messageShower.showMessage(textContent);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showErrorMessage(textContent: string) {
     const messageShower = new ErrorMessage();
     messageShower.showMessage(textContent);

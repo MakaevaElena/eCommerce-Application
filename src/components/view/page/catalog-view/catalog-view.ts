@@ -19,7 +19,6 @@ import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
 import TotalApi from '../../../../api/total-api';
 import ApiType from '../../../app/type';
-// import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';

@@ -11,7 +11,6 @@ const createAnonim = () => {
   const anonymousId = Guid.newGuid();
 
   localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, '');
-  // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
   localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, anonymousId);
 
   const options: AnonymousAuthMiddlewareOptions = {

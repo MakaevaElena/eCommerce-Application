@@ -53,25 +53,18 @@ export default class ClientApi {
   }
 
   public loginCustomer({ email, password }: { email: string; password: string }, anonymousId: string) {
-    return (
-      this.clientRoot
-        // .me()
-        .login()
-        .post({
-          body: {
-            email,
-            password,
-            updateProductData: true,
-            anonymousId,
-            anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
-          },
-          // headers: {
-          //   Authorization: 'Bearer xxx',
-          // },
-        })
-
-        .execute()
-    );
+    return this.clientRoot
+      .login()
+      .post({
+        body: {
+          email,
+          password,
+          updateProductData: true,
+          anonymousId,
+          anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
+        },
+      })
+      .execute();
   }
 
   public createUserRoot(email: string, password: string) {
@@ -104,28 +97,8 @@ export default class ClientApi {
     };
   }
 
-  public createCustomer(customerData: CustomerData) {
-    try {
-      const customer = this.clientRoot
-        // .withProjectKey({ projectKey: this.projectKey })
-        .customers()
-        .post({
-          body: this.createCustomerDraft(customerData),
-        })
-        .execute();
-
-      // check to make sure status is 201
-      return customer;
-    } catch (error) {
-      return error;
-    }
-  }
-
   // PRODUCTS
 
-  // public getProducts() {
-  //   return this.clientRoot.products().get().execute();
-  // }
   public getProducts(args?: QueryParamType) {
     const params = args ? { ...args } : {};
 
@@ -165,7 +138,6 @@ export default class ClientApi {
       .get({
         queryArgs: {
           staged: true,
-          // priceCurrency: 'priceCurrency',
         },
       })
       .execute();
@@ -173,7 +145,6 @@ export default class ClientApi {
 
   // CART
 
-  // /{projectKey}/carts/customer-id={customerId}
   public getCartByCustomerId(id: string) {
     return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
@@ -204,7 +175,6 @@ export default class ClientApi {
           key: `cart-key-${Guid.newGuid()}`,
           currency: 'USD',
           country: 'US',
-          // customerId,
         },
       })
       .execute();
@@ -238,7 +208,6 @@ export default class ClientApi {
           actions: [
             {
               action: 'changeLineItemQuantity',
-              // lineItemId: id,
               lineItemId,
               quantity,
             },
@@ -259,8 +228,6 @@ export default class ClientApi {
             {
               action: 'removeLineItem',
               lineItemId,
-              // lineItemKey: key,
-              // quantity,
             },
           ],
         },
@@ -306,4 +273,3 @@ export default class ClientApi {
     return this.clientRoot.discountCodes().withId({ ID: promoCodeCartDiscountId }).get().execute();
   }
 }
-// https://docs.commercetools.com/api/projects/carts#update-actions

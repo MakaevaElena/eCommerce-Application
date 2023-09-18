@@ -2,7 +2,7 @@ import { ClientResponse, ProductProjection } from '@commercetools/platform-sdk';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-//
+
 import './swiper.css';
 import './modal.css';
 
@@ -88,6 +88,7 @@ export default class ProductView extends DefaultView {
   private configView() {
     this.wrapper.replaceChildren('');
     this.renderProductCard(this.productId).then(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const swiper = new Swiper('.swiper', {
         modules: [Navigation, Pagination],
         speed: 500,
@@ -103,9 +104,7 @@ export default class ProductView extends DefaultView {
           prevEl: '.swiper-button-prev',
         },
         keyboard: true,
-        // ...
       });
-      console.log(swiper.params);
     });
   }
 
@@ -210,12 +209,11 @@ export default class ProductView extends DefaultView {
 
         const productDeveloper = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
 
           textContent: `DEVELOPER: ${developer()}`,
         });
 
-        // eslint-disable-next-line consistent-return
         const playersQuantity = () => {
           const index = productResponse.body.masterVariant.attributes?.findIndex(
             (el) => el.name === 'players_quantity'
@@ -228,7 +226,7 @@ export default class ProductView extends DefaultView {
 
         const productPlayersQuantity = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLAYERS QUANTITY: ${playersQuantity()}`,
         });
 
@@ -252,7 +250,7 @@ export default class ProductView extends DefaultView {
 
         const productPlatform = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLATFORM: ${platform()}`,
         });
 
@@ -266,7 +264,7 @@ export default class ProductView extends DefaultView {
 
         const productGenre = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `GENRE: ${genre()}`,
         });
 
@@ -280,7 +278,7 @@ export default class ProductView extends DefaultView {
 
         const productRelease = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `RELEASE: ${release()}`,
         });
 
@@ -328,6 +326,7 @@ export default class ProductView extends DefaultView {
       });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showModal(images: Array<string>) {
     const modal = new ProductModal('modal', images);
     modal.renderModal();
@@ -340,7 +339,6 @@ export default class ProductView extends DefaultView {
       .getClientApi()
       .getCategory(categoryId)
       .then((category) => {
-        // console.log('category', category);
         this.productCategory.getElement().textContent = `CATEGORY: ${category.body.name.ru}`;
       })
       .catch((error) => {
@@ -376,27 +374,19 @@ export default class ProductView extends DefaultView {
     let button = new LinkButton('Add to cart', async () => {
       this.addToCart(response, productInfo);
       button.getElement().remove();
-      // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
     });
 
-    // todo здесь не получилось заменить на getActiveCart()
-    // this.api
-    //   .getClientApi()
-    //   .getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (anonimCartID)
       await this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
         .then(async (cartResponse) => {
-          // const cartId = cartResponse.body.id;
-          // localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', async () => {
               this.removeFromCart(item[0].id, response, productInfo);
               button.getElement().remove();
-              // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
             });
           }
         })
@@ -409,13 +399,7 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
-  // todo здесь не получилось заменить на getActiveCart()
-  private removeFromCart(
-    // cartID: string,
-    lineItemId: string,
-    response: ClientResponse<ProductProjection>,
-    productInfo: ElementCreator
-  ) {
+  private removeFromCart(lineItemId: string, response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
     const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
     if (cartID)
       this.api
@@ -423,20 +407,18 @@ export default class ProductView extends DefaultView {
         .getCartByCartID(cartID)
         .then((cartResponse) => {
           if (lineItemId) {
-            // console.log('response.body.key', lineItemId);
             this.api
               .getClientApi()
               .removeLineItem(cartID, cartResponse.body.version, lineItemId)
-              .then(async () =>
-                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
-              );
+              .then(async () => {
+                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+                this.observer.notify(EventName.UPDATE_CART);
+                this.observer.notify(EventName.REMOVE_FROM_CART);
+                new InfoMessage().showMessage('Item removed from cart');
+              });
           }
         })
-        .then(() => {
-          this.observer.notify(EventName.UPDATE_CART);
-          this.observer.notify(EventName.REMOVE_FROM_CART);
-          new InfoMessage().showMessage('Item removed from cart');
-        })
+        .then(() => {})
         .catch((error) => {
           if (error instanceof Error) {
             new ErrorMessage().showMessage(error.message);
@@ -448,7 +430,6 @@ export default class ProductView extends DefaultView {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        // .createCart()
         .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
@@ -462,8 +443,6 @@ export default class ProductView extends DefaultView {
   }
 
   private addToCart(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
-    // this.createAnonimCart();
-
     const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (cartID !== null) {
@@ -480,14 +459,12 @@ export default class ProductView extends DefaultView {
           this.api
             .getClientApi()
             .addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku)
-            .then(async () =>
-              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
-            );
-      })
-      .then(() => {
-        new InfoMessage().showMessage('Item added to cart');
-        this.observer.notify(EventName.UPDATE_CART);
-        this.observer.notify(EventName.ADD_TO_CART);
+            .then(async () => {
+              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+              new InfoMessage().showMessage('Item added to cart');
+              this.observer.notify(EventName.UPDATE_CART);
+              this.observer.notify(EventName.ADD_TO_CART);
+            });
       })
       .catch((error) => {
         if (error instanceof Error) {
