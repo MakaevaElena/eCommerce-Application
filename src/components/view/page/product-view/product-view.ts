@@ -208,7 +208,7 @@ export default class ProductView extends DefaultView {
 
         const productDeveloper = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
 
           textContent: `DEVELOPER: ${developer()}`,
         });
@@ -225,7 +225,7 @@ export default class ProductView extends DefaultView {
 
         const productPlayersQuantity = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLAYERS QUANTITY: ${playersQuantity()}`,
         });
 
@@ -249,7 +249,7 @@ export default class ProductView extends DefaultView {
 
         const productPlatform = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLATFORM: ${platform()}`,
         });
 
@@ -263,7 +263,7 @@ export default class ProductView extends DefaultView {
 
         const productGenre = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `GENRE: ${genre()}`,
         });
 
@@ -277,7 +277,7 @@ export default class ProductView extends DefaultView {
 
         const productRelease = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `RELEASE: ${release()}`,
         });
 

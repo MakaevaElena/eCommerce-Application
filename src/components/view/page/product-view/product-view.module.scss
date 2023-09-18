@@ -82,12 +82,9 @@
   border-radius: 5px;
 }
 
-@media screen and (max-width: 800px) {
-  .product-section {
-    flex-direction: column;
-    width: 500px;
-    padding: 0rem 1rem;
-  }
+.product-attributes {
+  flex-direction: column;
+  padding: 0rem 1rem;
 }
 
 @media screen and (max-width: 550px) {
