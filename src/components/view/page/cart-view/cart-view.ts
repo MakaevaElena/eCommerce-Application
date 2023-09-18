@@ -237,7 +237,7 @@ export default class CartView extends DefaultView {
     this.cartSection.addInnerElement(header);
   }
 
-  private createTotalOrderValue(totalPrice: string) {
+  private createTotalOrderValue(totalPrice: string, oldTotalPrice: string) {
     this.totalCost.getElement().innerHTML = '';
     this.totalCost.getElement().remove();
 
@@ -247,9 +247,19 @@ export default class CartView extends DefaultView {
       textContent: 'TOTAL COST: ',
     });
 
+    const oldTotalPriceElement = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-total-cost__old']],
+      textContent: `${oldTotalPrice}`,
+    });
+
     this.orderTotalCost.getElement().textContent = `${totalPrice}`;
 
     this.totalCost.addInnerElement(orderTotalCostTitle);
+    if (oldTotalPrice !== totalPrice) {
+      this.totalCost.addInnerElement(oldTotalPriceElement);
+    }
+
     this.totalCost.addInnerElement(this.orderTotalCost);
     this.cartSection.addInnerElement(this.totalCost);
 
@@ -347,7 +357,15 @@ export default class CartView extends DefaultView {
         const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
           cartResponse.body.totalPrice.currencyCode
         }`;
-        this.createTotalOrderValue(totalPrice);
+
+        let oldTotalPrice = 0;
+        cartResponse.body.lineItems.forEach((item) => {
+          oldTotalPrice += Number(item.price.value.centAmount) * item.quantity;
+        });
+        this.createTotalOrderValue(
+          totalPrice,
+          `${(oldTotalPrice / 100).toFixed(2)} ${cartResponse.body.totalPrice.currencyCode}`
+        );
       })
       .catch((error) => {
         if (error instanceof Error) {
