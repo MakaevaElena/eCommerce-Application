@@ -131,26 +131,50 @@ export default class CartView extends DefaultView {
     // const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
     if (response.body.lineItems.length > 0) {
-      const button = new LinkButton('CLEAR CART', () => {
-        this.api
-          .getClientApi()
-          .getActiveCart()
-          .then((cartResponse) => {
-            const cartId = cartResponse.body.id;
+      const button = new LinkButton('CLEAR CART', this.clearCart.bind(this));
+      // const button = new LinkButton('CLEAR CART', () => {
+      //   this.api
+      //     .getClientApi()
+      //     .getActiveCart()
+      //     .then((cartResponse) => {
+      //       const cartId = cartResponse.body.id;
 
-            this.api
-              .getClientApi()
-              .deleteCartByCartID(cartId, cartResponse.body.version)
-              .then(() => {
-                localStorage.removeItem(LocalStorageKeys.ANONIM_CART_ID);
-                this.showEmptyCart();
-              });
-            // cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
-          });
-      });
+      //       this.api
+      //         .getClientApi()
+      //         .deleteCartByCartID(cartId, cartResponse.body.version)
+      //         .then(() => {
+      //           localStorage.removeItem(LocalStorageKeys.ANONIM_CART_ID);
+      //           this.showEmptyCart();
+      //         });
+      //       // cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
+      //     });
+      // });
 
       this.cartSection.addInnerElement(button.getElement());
     }
+  }
+
+  private clearCart() {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((response) => {
+        const { id, version } = response.body;
+
+        this.api
+          .getClientApi()
+          .deleteCustomerCart(id, version)
+          .then(() => {
+            localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
+            this.observer.notify(EventName.UPDATE_CART);
+            this.showEmptyCart();
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
   private removeItem(item: LineItem) {
