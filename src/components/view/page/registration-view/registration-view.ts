@@ -391,26 +391,26 @@ export default class RegistrationView extends DefaultView {
   }
 
   private makeLogin(params: { email: string; password: string }) {
-    // const userID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    // if (userID)
-    this.api
-      .getClientApi()
-      .loginCustomer(params)
-      // .loginCustomer(params, userID)
-      .then((response) => {
-        if (response.body.customer) {
-          window.localStorage.setItem(`isLogin`, 'true');
-          window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
+    const userID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (userID)
+      this.api
+        .getClientApi()
+        // .loginCustomer(params)
+        .loginCustomer(params, userID)
+        .then((response) => {
+          if (response.body.customer) {
+            window.localStorage.setItem(`isLogin`, 'true');
+            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
 
-          const client = createUser(params.email, params.password);
-          this.api.recreate(client);
+            const client = createUser(params.email, params.password);
+            this.api.recreate(client);
 
-          const customerId = response.body.customer.id;
-          localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
-          localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
-          this.observer.notify(EventName.LOGIN);
-        }
-      });
+            const customerId = response.body.customer.id;
+            localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+            localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+            this.observer.notify(EventName.LOGIN);
+          }
+        });
   }
 
   private isCheckValidityFormHandler(): boolean {

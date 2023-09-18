@@ -52,7 +52,7 @@ export default class ClientApi {
       .execute();
   }
 
-  public loginCustomer({ email, password }: { email: string; password: string }) {
+  public loginCustomer({ email, password }: { email: string; password: string }, anonymousId: string) {
     return (
       this.clientRoot
         // .me()
@@ -62,8 +62,8 @@ export default class ClientApi {
             email,
             password,
             updateProductData: true,
-            // anonymousId,
-            // anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
+            anonymousId,
+            anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
           },
           // headers: {
           //   Authorization: 'Bearer xxx',
