@@ -15,6 +15,8 @@ import ErrorMessage from '../../../message/error-message';
 export default class HeaderView extends DefaultView {
   private MAX_COUNTER_VALUE = 99;
 
+  private URI_NOT_FOUND = 'URI not found';
+
   private api: TotalApi;
 
   private router: Router;
@@ -81,12 +83,15 @@ export default class HeaderView extends DefaultView {
           } else if (itemsInCart > 0) {
             value = itemsInCart.toString();
           }
-
           button.setCounterValue(value);
         })
         .catch((error) => {
           if (error instanceof Error) {
-            new ErrorMessage().showMessage(error.message);
+            if (error.message.startsWith(this.URI_NOT_FOUND)) {
+              button.setCounterValue();
+            } else {
+              new ErrorMessage().showMessage(error.message);
+            }
           }
         });
     }
