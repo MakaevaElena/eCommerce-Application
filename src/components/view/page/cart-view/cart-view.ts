@@ -1,4 +1,4 @@
-import { Cart, ClientResponse } from '@commercetools/platform-sdk';
+import { Cart, ClientResponse, LineItem } from '@commercetools/platform-sdk';
 import TagName from '../../../../enum/tag-name';
 import TagElement from '../../../../utils/create-tag-element';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
@@ -83,13 +83,20 @@ export default class CartView extends DefaultView {
   }
 
   private configView() {
+    // todo здесь не получилось заменить на getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
-    if (anonimCartID)
+    if (anonimCartID) {
       this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
-        .then(async (cartResponse) => {
+
+        // this.api
+        //   .getClientApi()
+        //   .getActiveCart()
+        .then((cartResponse) => {
+          const cartId = cartResponse.body.id;
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
           if (cartResponse.body.lineItems.length > 0) {
             this.createCartHeader();
             cartResponse.body.lineItems.forEach(async (item) => {
@@ -98,26 +105,67 @@ export default class CartView extends DefaultView {
               );
               if (item.productKey) await this.cartItem.createCartItem(item.productKey, lineItemData);
             });
+          } else {
+            this.showEmptyCart();
           }
 
-          // const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-          //   cartResponse.body.totalPrice.currencyCode
-          // }`;
-
-          // return totalPrice;
           return cartResponse;
         })
         .then((cartResponse) => {
-          this.cartSection.addInnerElement(this.itemsWrapper);
+          if (cartResponse.body.lineItems.length > 0) {
+            this.cartSection.addInnerElement(this.itemsWrapper);
+            this.createPromo(cartResponse);
+            this.updateTotalSumm();
+          }
           this.wrapper.append(this.cartSection.getElement());
+
           return cartResponse;
         })
         .then((cartResponse) => {
-          this.updateTotalSumm();
-          return cartResponse;
+          this.createClearCartButton(cartResponse);
         })
-        .then((cartResponse) => this.createPromo(cartResponse))
         .catch((error) => new ErrorMessage().showMessage(error.message));
+    } else {
+      this.showEmptyCart();
+    }
+  }
+
+  private createClearCartButton(response: ClientResponse<Cart>) {
+    // const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
+    if (response.body.lineItems.length > 0) {
+      const button = new LinkButton('CLEAR CART', this.clearCart.bind(this));
+
+      this.cartSection.addInnerElement(button.getElement());
+    }
+  }
+
+  private clearCart() {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((response) => {
+        const { id, version } = response.body;
+
+        this.api
+          .getClientApi()
+          .deleteCustomerCart(id, version)
+          .then(() => {
+            localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, '');
+            this.observer.notify(EventName.UPDATE_CART);
+            this.showEmptyCart();
+          });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeItem(item: LineItem) {
+    if (item.productKey) this.removeProductHandler(item.id);
+    // this.itemsWrapper.getElement().innerHTML = '';
   }
 
   private showEmptyCart() {
@@ -211,7 +259,7 @@ export default class CartView extends DefaultView {
     this.cartSection.addInnerElement(header);
   }
 
-  private createTotalOrderValue(totalPrice: string) {
+  private createTotalOrderValue(totalPrice: string, oldTotalPrice: string) {
     this.totalCost.getElement().innerHTML = '';
     this.totalCost.getElement().remove();
 
@@ -221,9 +269,19 @@ export default class CartView extends DefaultView {
       textContent: 'TOTAL COST: ',
     });
 
+    const oldTotalPriceElement = new ElementCreator({
+      tag: TagName.DIV,
+      classNames: [styleCss['cart-total-cost__old']],
+      textContent: `${oldTotalPrice}`,
+    });
+
     this.orderTotalCost.getElement().textContent = `${totalPrice}`;
 
     this.totalCost.addInnerElement(orderTotalCostTitle);
+    if (oldTotalPrice !== totalPrice) {
+      this.totalCost.addInnerElement(oldTotalPriceElement);
+    }
+
     this.totalCost.addInnerElement(this.orderTotalCost);
     this.cartSection.addInnerElement(this.totalCost);
 
@@ -255,6 +313,7 @@ export default class CartView extends DefaultView {
     });
 
     const promoInput = new TagElement().createTagElement('input', [styleCss['cart-promo__input']]);
+    promoInput.setCustomValidity('');
 
     const promoApplyButtonBox = new ElementCreator({
       tag: TagName.DIV,
@@ -263,10 +322,15 @@ export default class CartView extends DefaultView {
     });
 
     const applyButton = new LinkButton('Apply PROMO', () => {
-      if (promoInput instanceof HTMLInputElement) {
+      if (promoInput instanceof HTMLInputElement && promoInput.value) {
         this.applyPromo(promoInput.value);
         applyButton.disableButton();
         applyButton.getElement().textContent = 'PROMO applied';
+      }
+      if (!promoInput.value) {
+        console.log('!promoInput.value');
+        promoInput.setCustomValidity('Enter the PROMO code');
+        promoInput.reportValidity();
       }
     });
 
@@ -289,52 +353,61 @@ export default class CartView extends DefaultView {
   }
 
   private applyPromo(promoCode: string) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    if (anonimCartID)
-      this.api
-        .getClientApi()
-        .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
-          this.api
-            .getClientApi()
-            .updateCartWithDiscount(anonimCartID, cartResponse.body.version, promoCode)
-            .then(() => {
-              this.updateTotalSumm();
-              this.observer.notify(EventName.UPDATE_CART);
-            })
-            .catch((error) => {
-              if (error instanceof Error) {
-                new ErrorMessage().showMessage(error.message);
-              }
-            });
-        });
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((cartResponse) => {
+        const cartId = cartResponse.body.id;
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+        this.api
+          .getClientApi()
+          .updateCartWithDiscount(cartId, cartResponse.body.version, promoCode)
+          .then(() => {
+            this.updateTotalSumm();
+            this.observer.notify(EventName.UPDATE_CART);
+          })
+          .catch((error) => {
+            if (error instanceof Error) {
+              new ErrorMessage().showMessage(error.message);
+            }
+          });
+      });
   }
 
   private updateTotalSumm() {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-    if (anonimCartID)
-      this.api
-        .getClientApi()
-        .getCartByCartID(anonimCartID)
-        .then((cartResponse) => {
-          console.log('cartResponse', cartResponse);
-          const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
-            cartResponse.body.totalPrice.currencyCode
-          }`;
-          this.createTotalOrderValue(totalPrice);
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            new ErrorMessage().showMessage(error.message);
-          }
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((cartResponse) => {
+        const cartId = cartResponse.body.id;
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+        // console.log('cartResponse', cartResponse);
+        const totalPrice = `${(Number(cartResponse.body.totalPrice.centAmount) / 100).toFixed(2)} ${
+          cartResponse.body.totalPrice.currencyCode
+        }`;
+
+        let oldTotalPrice = 0;
+        cartResponse.body.lineItems.forEach((item) => {
+          oldTotalPrice += Number(item.price.value.centAmount) * item.quantity;
         });
+        this.createTotalOrderValue(
+          totalPrice,
+          `${(oldTotalPrice / 100).toFixed(2)} ${cartResponse.body.totalPrice.currencyCode}`
+        );
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
   private createAnonimCart() {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        .createCart()
+        // .createCart()
+        .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
           this.configView();
@@ -345,5 +418,36 @@ export default class CartView extends DefaultView {
           }
         });
     }
+  }
+
+  private removeProductHandler(lineItemId: string) {
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((cart) => {
+        const cartId = cart.body.id;
+        this.removeProductFromCart(cartId, lineItemId, cart.body.version);
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+  }
+
+  private removeProductFromCart(cartID: string, lineItemId: string, version: number) {
+    this.api
+      .getClientApi()
+      .removeLineItem(cartID, version, lineItemId)
+      .then(() => {
+        this.observer.notify(EventName.REMOVE_FROM_CART);
+        this.observer.notify(EventName.UPDATE_CART);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 }

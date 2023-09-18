@@ -19,7 +19,7 @@ import PaginationPosition from './enum/pagination-position';
 import Spinner from '../../../shared/spinner/spinner';
 import TotalApi from '../../../../api/total-api';
 import ApiType from '../../../app/type';
-import LocalStorageKeys from '../../../../enum/local-storage-keys';
+// import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class CatalogView extends DefaultView {
   private readonly LANG = 'en-US';
@@ -128,17 +128,22 @@ export default class CatalogView extends DefaultView {
   /**
    * Set visibility cards' button Add to/Remove from cart
    */
+
   private checkProductsInCart() {
     this.api
       .getClientApi()
       .getActiveCart()
-      .then((responce) => {
-        const itemIds = responce.body.lineItems.map((item) => item.productId);
+      .then((response) => {
+        const itemIds = response.body.lineItems.map((item) => item.productId);
         this.cards.forEach((card) => {
           card.setProductInCart(itemIds.includes(card.getProductId()));
         });
       })
-      .catch(() => {});
+      .catch(() => {
+        this.cards.forEach((card) => {
+          card.setProductInCart(false);
+        });
+      });
   }
 
   private recallProductCards() {

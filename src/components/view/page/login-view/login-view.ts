@@ -223,9 +223,12 @@ export default class LoginView extends DefaultView {
         }
       }
 
+      // const userID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+      // if (userID)
       this.api
         .getClientApi()
-        .getCustomer({ email, password })
+        .loginCustomer({ email, password })
+        // .loginCustomer({ email, password }, userID)
         .then((response) => {
           if (response.body.customer) {
             window.localStorage.setItem(`isLogin`, 'true');
