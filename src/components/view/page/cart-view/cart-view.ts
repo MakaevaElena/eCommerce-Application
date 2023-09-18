@@ -86,7 +86,7 @@ export default class CartView extends DefaultView {
     // todo здесь не получилось заменить на getActiveCart()
     const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
-    if (anonimCartID)
+    if (anonimCartID) {
       this.api
         .getClientApi()
         .getCartByCartID(anonimCartID)
@@ -125,6 +125,9 @@ export default class CartView extends DefaultView {
           this.createClearCartButton(cartResponse);
         })
         .catch((error) => new ErrorMessage().showMessage(error.message));
+    } else {
+      this.showEmptyCart();
+    }
   }
 
   private createClearCartButton(response: ClientResponse<Cart>) {
@@ -132,23 +135,6 @@ export default class CartView extends DefaultView {
 
     if (response.body.lineItems.length > 0) {
       const button = new LinkButton('CLEAR CART', this.clearCart.bind(this));
-      // const button = new LinkButton('CLEAR CART', () => {
-      //   this.api
-      //     .getClientApi()
-      //     .getActiveCart()
-      //     .then((cartResponse) => {
-      //       const cartId = cartResponse.body.id;
-
-      //       this.api
-      //         .getClientApi()
-      //         .deleteCartByCartID(cartId, cartResponse.body.version)
-      //         .then(() => {
-      //           localStorage.removeItem(LocalStorageKeys.ANONIM_CART_ID);
-      //           this.showEmptyCart();
-      //         });
-      //       // cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
-      //     });
-      // });
 
       this.cartSection.addInnerElement(button.getElement());
     }
@@ -414,7 +400,8 @@ export default class CartView extends DefaultView {
     if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
       this.api
         .getClientApi()
-        .createCart()
+        // .createCart()
+        .createCustomerCart()
         .then((cartResponse) => {
           localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
           this.configView();
@@ -428,26 +415,19 @@ export default class CartView extends DefaultView {
   }
 
   private removeProductHandler(lineItemId: string) {
-    // todo здесь не получилось заменить на getActiveCart()
-    const cartId = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
-
-    if (cartId)
-      this.api
-        .getClientApi()
-        .getCartByCartID(cartId)
-        // this.api
-        //   .getClientApi()
-        //   .getActiveCart()
-        .then((cart) => {
-          // const cartId = cart.body.id;
-          this.removeProductFromCart(cartId, lineItemId, cart.body.version);
-          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            new ErrorMessage().showMessage(error.message);
-          }
-        });
+    this.api
+      .getClientApi()
+      .getActiveCart()
+      .then((cart) => {
+        const cartId = cart.body.id;
+        this.removeProductFromCart(cartId, lineItemId, cart.body.version);
+        localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, cartId);
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
   private removeProductFromCart(cartID: string, lineItemId: string, version: number) {

@@ -394,7 +394,7 @@ export default class ProductView extends DefaultView {
           const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
           if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
             button = new LinkButton('Remove from cart', async () => {
-              this.removeFromCart(anonimCartID, item[0].id, response, productInfo);
+              this.removeFromCart(item[0].id, response, productInfo);
               button.getElement().remove();
               // productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
             });
@@ -409,36 +409,39 @@ export default class ProductView extends DefaultView {
     return button;
   }
 
+  // todo здесь не получилось заменить на getActiveCart()
   private removeFromCart(
-    cartID: string,
+    // cartID: string,
     lineItemId: string,
     response: ClientResponse<ProductProjection>,
     productInfo: ElementCreator
   ) {
-    this.api
-      .getClientApi()
-      .getCartByCartID(cartID)
-      .then((cartResponse) => {
-        if (lineItemId) {
-          // console.log('response.body.key', lineItemId);
-          this.api
-            .getClientApi()
-            .removeLineItem(cartID, cartResponse.body.version, lineItemId)
-            .then(async () =>
-              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
-            );
-        }
-      })
-      .then(() => {
-        this.observer.notify(EventName.UPDATE_CART);
-        this.observer.notify(EventName.REMOVE_FROM_CART);
-        new InfoMessage().showMessage('Item removed from cart');
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          new ErrorMessage().showMessage(error.message);
-        }
-      });
+    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (cartID)
+      this.api
+        .getClientApi()
+        .getCartByCartID(cartID)
+        .then((cartResponse) => {
+          if (lineItemId) {
+            // console.log('response.body.key', lineItemId);
+            this.api
+              .getClientApi()
+              .removeLineItem(cartID, cartResponse.body.version, lineItemId)
+              .then(async () =>
+                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
+              );
+          }
+        })
+        .then(() => {
+          this.observer.notify(EventName.UPDATE_CART);
+          this.observer.notify(EventName.REMOVE_FROM_CART);
+          new InfoMessage().showMessage('Item removed from cart');
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
   }
 
   private createAnonimCart() {
