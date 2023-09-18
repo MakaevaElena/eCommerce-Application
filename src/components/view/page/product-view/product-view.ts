@@ -88,6 +88,7 @@ export default class ProductView extends DefaultView {
   private configView() {
     this.wrapper.replaceChildren('');
     this.renderProductCard(this.productId).then(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const swiper = new Swiper('.swiper', {
         modules: [Navigation, Pagination],
         speed: 500,
@@ -325,6 +326,7 @@ export default class ProductView extends DefaultView {
       });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showModal(images: Array<string>) {
     const modal = new ProductModal('modal', images);
     modal.renderModal();
