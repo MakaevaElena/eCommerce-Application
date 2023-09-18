@@ -127,14 +127,26 @@ export default class CartView extends DefaultView {
         .catch((error) => new ErrorMessage().showMessage(error.message));
   }
 
-  private createClearCartButton(cartResponse: ClientResponse<Cart>) {
-    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+  private createClearCartButton(response: ClientResponse<Cart>) {
+    // const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
 
-    if (anonimCartID && cartResponse.body.lineItems.length > 0) {
+    if (response.body.lineItems.length > 0) {
       const button = new LinkButton('CLEAR CART', () => {
-        // todo удаляется только один Item, дальше конфликт по версии карты
-        cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
-        this.showEmptyCart();
+        this.api
+          .getClientApi()
+          .getActiveCart()
+          .then((cartResponse) => {
+            const cartId = cartResponse.body.id;
+
+            this.api
+              .getClientApi()
+              .deleteCartByCartID(cartId, cartResponse.body.version)
+              .then(() => {
+                localStorage.removeItem(LocalStorageKeys.ANONIM_CART_ID);
+                this.showEmptyCart();
+              });
+            // cartResponse.body.lineItems.forEach(async (item) => this.removeItem(item));
+          });
       });
 
       this.cartSection.addInnerElement(button.getElement());

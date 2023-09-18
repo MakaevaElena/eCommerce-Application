@@ -182,6 +182,16 @@ export default class ClientApi {
     return this.clientRoot.carts().withId({ ID: cartId }).get().execute();
   }
 
+  public deleteCartByCartID(cartId: string, cartVersion: number) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartId })
+      .delete({
+        queryArgs: { version: cartVersion },
+      })
+      .execute();
+  }
+
   public createCart() {
     return this.clientRoot
       .carts()
