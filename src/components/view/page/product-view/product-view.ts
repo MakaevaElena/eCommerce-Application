@@ -408,16 +408,15 @@ export default class ProductView extends DefaultView {
             this.api
               .getClientApi()
               .removeLineItem(cartID, cartResponse.body.version, lineItemId)
-              .then(async () =>
-                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
-              );
+              .then(async () => {
+                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+                this.observer.notify(EventName.UPDATE_CART);
+                this.observer.notify(EventName.REMOVE_FROM_CART);
+                new InfoMessage().showMessage('Item removed from cart');
+              });
           }
         })
-        .then(() => {
-          this.observer.notify(EventName.UPDATE_CART);
-          this.observer.notify(EventName.REMOVE_FROM_CART);
-          new InfoMessage().showMessage('Item removed from cart');
-        })
+        .then(() => {})
         .catch((error) => {
           if (error instanceof Error) {
             new ErrorMessage().showMessage(error.message);
@@ -458,14 +457,12 @@ export default class ProductView extends DefaultView {
           this.api
             .getClientApi()
             .addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku)
-            .then(async () =>
-              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement())
-            );
-      })
-      .then(() => {
-        new InfoMessage().showMessage('Item added to cart');
-        this.observer.notify(EventName.UPDATE_CART);
-        this.observer.notify(EventName.ADD_TO_CART);
+            .then(async () => {
+              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+              new InfoMessage().showMessage('Item added to cart');
+              this.observer.notify(EventName.UPDATE_CART);
+              this.observer.notify(EventName.ADD_TO_CART);
+            });
       })
       .catch((error) => {
         if (error instanceof Error) {
