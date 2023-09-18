@@ -8,8 +8,15 @@ import styleCss from './header-view.module.scss';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
 import ImageButton from '../../../shared/image-button/image-button';
+import ApiType from '../../../app/type';
+import TotalApi from '../../../../api/total-api';
+import ErrorMessage from '../../../message/error-message';
 
 export default class HeaderView extends DefaultView {
+  private MAX_COUNTER_VALUE = 99;
+
+  private api: TotalApi;
+
   private router: Router;
 
   private observer: Observer;
@@ -18,7 +25,7 @@ export default class HeaderView extends DefaultView {
 
   private buttonsWrapper: ElementCreator;
 
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['header-view']],
@@ -26,6 +33,7 @@ export default class HeaderView extends DefaultView {
     };
     super(params);
 
+    this.api = paramApi.api;
     this.observer = Observer.getInstance();
 
     this.headerLinks = new Map();
@@ -60,9 +68,27 @@ export default class HeaderView extends DefaultView {
   }
 
   private updateCartCounter() {
-    const aboutUsButton = this.headerLinks.get(PagePath.ABOUT_US);
-    if (aboutUsButton && aboutUsButton instanceof ImageButton) {
-      aboutUsButton.setCounterValue(10);
+    const button = this.headerLinks.get(PagePath.CART);
+    if (button && button instanceof ImageButton) {
+      this.api
+        .getClientApi()
+        .getActiveCart()
+        .then((responce) => {
+          const itemsInCart = responce.body.lineItems.length;
+          let value = '';
+          if (itemsInCart > this.MAX_COUNTER_VALUE) {
+            value = `${this.MAX_COUNTER_VALUE}+`;
+          } else if (itemsInCart > 0) {
+            value = itemsInCart.toString();
+          }
+
+          button.setCounterValue(value);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
     }
   }
 

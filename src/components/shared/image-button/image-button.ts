@@ -49,10 +49,10 @@ export default class ImageButton extends DefaultView {
     this.getElement().classList.remove(styleCss.hide);
   }
 
-  public setCounterValue(quantity?: number) {
-    if (quantity) {
-      this.counter.innerHTML = quantity > 99 ? '99+' : quantity.toString();
-      this.counter.classList.remove('hide');
+  public setCounterValue(value?: string) {
+    if (value) {
+      this.counter.innerHTML = value;
+      this.counter.classList.remove(styleCss.hide);
     } else {
       this.counter.innerHTML = '';
       this.counter.classList.add(styleCss.hide);

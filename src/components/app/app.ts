@@ -41,7 +41,10 @@ export default class App {
     this.router = new Router(routes);
 
     this.main = new MainView();
-    this.header = new HeaderView(this.router);
+
+    const paramApi: ApiType = { api: this.api };
+
+    this.header = new HeaderView(this.router, paramApi);
     this.footer = new FooterView();
 
     this.observer.subscribe(EventName.LOGIN, this.lookForCustomerCartId.bind(this));
