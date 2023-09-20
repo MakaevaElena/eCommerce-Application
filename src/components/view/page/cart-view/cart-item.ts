@@ -122,7 +122,7 @@ export default class CartItem extends DefaultView {
                 itemOrderSumm.getElement().textContent = `${this.getItemSum(response, itemQuantityInput.value)}`;
               });
             }
-          }, 800)
+          }, 1000)
         );
 
         itemQuantityPlus.getElement().addEventListener(
