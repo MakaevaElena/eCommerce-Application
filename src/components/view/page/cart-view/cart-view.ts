@@ -313,11 +313,17 @@ export default class CartView extends DefaultView {
     });
 
     const applyButton = new LinkButton('Apply PROMO', () => {
-      if (promoInput instanceof HTMLInputElement && promoInput.value) {
-        this.applyPromo(promoInput.value);
-        applyButton.disableButton();
-        applyButton.getElement().textContent = 'PROMO applied';
-      }
+      this.getPromoCodes().then((promos) => {
+        if (promoInput instanceof HTMLInputElement && promos.includes(promoInput.value)) {
+          this.applyPromo(promoInput.value);
+          applyButton.disableButton();
+          applyButton.getElement().textContent = 'PROMO applied';
+        } else {
+          promoInput.setCustomValidity('Incorrect PROMO code');
+          promoInput.reportValidity();
+        }
+      });
+
       if (!promoInput.value) {
         promoInput.setCustomValidity('Enter the PROMO code');
         promoInput.reportValidity();
@@ -335,6 +341,26 @@ export default class CartView extends DefaultView {
     promoApplyButtonBox.addInnerElement(applyButton.getElement());
     promo.addInnerElement(promoApplyButtonBox);
     this.cartSection.addInnerElement(promo);
+  }
+
+  private async getPromoCodes() {
+    const promos: string[] = [];
+    await this.api
+      .getClientApi()
+      .getPromoCodes()
+      .then((codes) => {
+        codes.body.results.forEach((code) => {
+          promos.push(`${code.code}`);
+        });
+      })
+
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
+
+    return promos;
   }
 
   public setContent(element: InsertableElement) {
