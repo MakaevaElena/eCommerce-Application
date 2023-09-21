@@ -20,7 +20,9 @@ export default class ProductModal extends Modal {
     this.observer?.subscribe(EventName.IMAGES_LOADED_TO_PRODUCT_PAGE, this.initSwiper.bind(this));
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private initSwiper() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const productModalSwiper = new Swiper('.product-modal-swiper', {
       modules: [Navigation, Pagination],
       speed: 500,
@@ -36,8 +38,6 @@ export default class ProductModal extends Modal {
       },
       keyboard: true,
     });
-
-    console.log(productModalSwiper.params);
   }
 
   private createProductModal() {
@@ -80,10 +80,7 @@ export default class ProductModal extends Modal {
 
   public renderModal() {
     const content = this.createProductModal();
-    // console.log(content);
     this.buildModal(content);
-
-    // document.querySelector('.modal__image').style.backgroundImage = `url(${this.img})`;
   }
 
   public createSwiperWrapper(images: Array<string>) {

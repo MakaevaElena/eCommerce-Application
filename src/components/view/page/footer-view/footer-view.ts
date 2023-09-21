@@ -11,8 +11,6 @@ export default class FooterView extends DefaultView {
       textContent: '',
     };
     super(params);
-
-    // this.configView();
   }
 
   private configView() {

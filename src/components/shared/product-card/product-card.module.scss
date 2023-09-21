@@ -2,12 +2,12 @@
 @import '../../../style/abstract/mixins/border-mixin.scss';
 
 .product-card {
+  position: relative;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   align-items: center;
-  width: 22vw;
-  min-height: 10vh;
+  width: 28vw;
   font-family: 'Karla', sans-serif;
   @include border();
   background: $color-page-background;
@@ -16,11 +16,7 @@
 
   transition: box-shadow 0.5s;
 
-  @media (max-width: 1200px) {
-    width: 28vw;
-  }
-
-  @media (max-width: 900px) {
+  @media (max-width: 1024px) {
     width: 45vw;
   }
 
@@ -40,15 +36,54 @@
 .product-card__image {
   display: block;
   width: 100%;
-  display: block;
-  width: 100%;
-  object-fit: contain;
+  aspect-ratio: 1;
   align-self: flex-start;
+  cursor: zoom-in;
 }
 
-.product-card__content-wrapper {
-  padding: 0 5px;
-  align-self: flex-start;
+.card-button {
+  position: absolute;
+  top: 0;
+  width: 3rem;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: $color-page-background;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &.button-remove {
+    left: 0;
+    background:
+      url('../../../assets/images/cart.svg') center / contain no-repeat,
+      $color-text-discount;
+    background-size: 2.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+
+  &.button-add {
+    right: 0;
+    background:
+      url('../../../assets/images/cart.svg') center / contain no-repeat,
+      $color-text-price;
+    background-size: 2.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+
+  &_hide {
+    display: none;
+  }
+
+  &_disabled {
+    pointer-events: none;
+    opacity: 0.2;
+  }
 }
 
 .product-card__content-wrapper {
@@ -129,7 +164,6 @@
 }
 
 .product-card__discount {
-  // font-size: 1.2rem;
   font-size: 2rem;
   text-align: center;
   color: $color-text-discount;

@@ -1,0 +1,45 @@
+@import './src/style/helper.scss';
+
+.RSLogo {
+  width: 90%;
+  padding: 0.5rem;
+  margin-inline: auto;
+  border-radius: 10px;
+  background: radial-gradient(circle, rgba(166, 38, 38, 0.3) 27%, rgba(86, 207, 225, 0.05) 76%);
+}
+
+.link {
+  display: block;
+  width: 100%;
+  height: 10vh;
+  background-image: url('https://rs.school/images/rs_school_js.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: gradient 15s infinite linear;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &__container {
+    width: 50%;
+    margin-inline: auto;
+    border-radius: 100px;
+    transition: background-color 1s;
+
+    &:hover {
+      background: transparentize($color-brand-primary, 0.9);
+      backdrop-filter: blur(1px);
+    }
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 80% 0;
+  }
+  50% {
+    background-position: 20% 100%;
+  }
+  100% {
+    background-position: 80% 0;
+  }
+}

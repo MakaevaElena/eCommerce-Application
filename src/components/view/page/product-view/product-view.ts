@@ -2,7 +2,7 @@ import { ClientResponse, ProductProjection } from '@commercetools/platform-sdk';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-//
+
 import './swiper.css';
 import './modal.css';
 
@@ -11,7 +11,6 @@ import 'swiper/css/zoom';
 import Swiper from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 
-import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
 import { LinkName, PagePath } from '../../../router/pages';
@@ -24,9 +23,15 @@ import ErrorMessage from '../../../message/error-message';
 import ProductModal from './product-modal';
 import Observer from '../../../../observer/observer';
 import EventName from '../../../../enum/event-name';
+import InfoMessage from '../../../message/info-message';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
+import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 export default class ProductView extends DefaultView {
-  private observer: Observer;
+  private api: TotalApi;
+
+  private observer = Observer.getInstance();
 
   private router: Router;
 
@@ -34,27 +39,27 @@ export default class ProductView extends DefaultView {
 
   private wrapper: HTMLDivElement;
 
-  private anonimApi: ClientApi;
-
   private productCategory = new ElementCreator({
     tag: TagName.SPAN,
     classNames: [styleCss['product-category']],
     textContent: `CATEGORY: `,
   });
 
-  constructor(router: Router) {
+  private addButtonContainer = new ElementCreator({
+    tag: TagName.DIV,
+    classNames: [],
+    textContent: ``,
+  });
+
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['product-view']],
       textContent: '',
     };
     super(params);
-    // this.router = router;
-    this.observer = Observer.getInstance();
-    this.anonimApi = new ClientApi();
 
-    // this.productKey = window.location.hash;
-    // this.getProducts();
+    this.api = paramApi.api;
 
     this.router = router;
 
@@ -67,7 +72,7 @@ export default class ProductView extends DefaultView {
     if (productId) {
       this.productId = productId;
     }
-
+    this.createAnonimCart();
     this.configView();
   }
 
@@ -83,6 +88,7 @@ export default class ProductView extends DefaultView {
   private configView() {
     this.wrapper.replaceChildren('');
     this.renderProductCard(this.productId).then(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const swiper = new Swiper('.swiper', {
         modules: [Navigation, Pagination],
         speed: 500,
@@ -98,21 +104,17 @@ export default class ProductView extends DefaultView {
           prevEl: '.swiper-button-prev',
         },
         keyboard: true,
-        // ...
       });
-
-      console.log(swiper.params);
     });
   }
 
   private renderProductCard(key: string) {
     const imagesUrls: string[] = [];
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .productProjectionResponseKEY(key)
-      .then((response) => {
-        console.log('product', response);
-
-        this.getCategory(response);
+      .then(async (productResponse) => {
+        this.getCategory(productResponse);
 
         const section = new ElementCreator({
           tag: TagName.SECTION,
@@ -144,8 +146,8 @@ export default class ProductView extends DefaultView {
           textContent: '',
         });
 
-        if (response.body.masterVariant.images) {
-          response.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
+        if (productResponse.body.masterVariant.images) {
+          productResponse.body.masterVariant.images.forEach((image) => imagesUrls.push(image.url));
         }
 
         const productInfo = new ElementCreator({
@@ -157,17 +159,14 @@ export default class ProductView extends DefaultView {
         const productName = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-name']],
-          textContent: `${response.body.name.en}`,
+          textContent: `${productResponse.body.name.en}`,
         });
 
-        // this.category = `CATEGORY: ${response.body.masterVariant.attributes?.[3].value?.[0].key}`;
-        // eslint-disable-next-line consistent-return
-
         const price = () => {
-          if (response.body.masterVariant.prices?.[1].value) {
-            return `PRICE: ${(Number(response.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
+          if (productResponse.body.masterVariant.prices?.[1].value) {
+            return `PRICE: ${(Number(productResponse.body.masterVariant.prices?.[1].value?.centAmount) / 100).toFixed(
               2
-            )} ${response.body.masterVariant.prices?.[1].value?.currencyCode}`;
+            )} ${productResponse.body.masterVariant.prices?.[1].value?.currencyCode}`;
           }
           return '';
         };
@@ -179,11 +178,11 @@ export default class ProductView extends DefaultView {
         });
 
         function discountPrice() {
-          if (response.body.masterVariant.prices?.[1].discounted?.value) {
+          if (productResponse.body.masterVariant.prices?.[1].discounted?.value) {
             productPrice.getElement().classList.add(styleCss.crossed);
             return `DISCOUNT PRICE: ${(
-              Number(response.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
-            ).toFixed(2)} ${response.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`;
+              Number(productResponse.body.masterVariant.prices?.[1].discounted?.value?.centAmount) / 100
+            ).toFixed(2)} ${productResponse.body.masterVariant.prices?.[1].discounted?.value?.currencyCode}`;
           }
           return '';
         }
@@ -201,41 +200,41 @@ export default class ProductView extends DefaultView {
         });
 
         const developer = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'developer');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'developer');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
 
         const productDeveloper = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
 
           textContent: `DEVELOPER: ${developer()}`,
         });
 
-        // eslint-disable-next-line consistent-return
         const playersQuantity = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'players_quantity');
+          const index = productResponse.body.masterVariant.attributes?.findIndex(
+            (el) => el.name === 'players_quantity'
+          );
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
 
         const productPlayersQuantity = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLAYERS QUANTITY: ${playersQuantity()}`,
         });
 
         const platform = () => {
           let result = '';
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'Platform');
           if (index && index > -1) {
-            // return response.body.masterVariant.attributes?.[index].value?.[0].key;
-            response.body.masterVariant.attributes?.[index].value?.forEach(
+            productResponse.body.masterVariant.attributes?.[index].value?.forEach(
               (el: { [x: string]: string; key: string }, i: number) => {
                 if (i === 0) {
                   result += `${el.key} `;
@@ -251,42 +250,42 @@ export default class ProductView extends DefaultView {
 
         const productPlatform = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `PLATFORM: ${platform()}`,
         });
 
         const genre = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'genre');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0].key;
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0].key;
           }
           return '';
         };
 
         const productGenre = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `GENRE: ${genre()}`,
         });
 
         const release = () => {
-          const index = response.body.masterVariant.attributes?.findIndex((el) => el.name === 'release');
+          const index = productResponse.body.masterVariant.attributes?.findIndex((el) => el.name === 'release');
           if (index !== undefined && index > -1) {
-            return response.body.masterVariant.attributes?.[index].value?.[0];
+            return productResponse.body.masterVariant.attributes?.[index].value?.[0];
           }
           return '';
         };
 
         const productRelease = new ElementCreator({
           tag: TagName.DIV,
-          classNames: [styleCss['product-developer'], styleCss.attributes],
+          classNames: [styleCss['product-attributes']],
           textContent: `RELEASE: ${release()}`,
         });
 
         const productDescription = new ElementCreator({
           tag: TagName.SPAN,
           classNames: [styleCss['product-description']],
-          textContent: `DESCRIPTION: ${response.body.description?.en}`,
+          textContent: `DESCRIPTION: ${productResponse.body.description?.en}`,
         });
 
         productImagesSwiper.addInnerElement(this.createSwiperWrapper(imagesUrls));
@@ -300,26 +299,34 @@ export default class ProductView extends DefaultView {
         productInfo.addInnerElement(this.productCategory);
         productInfo.addInnerElement(productPrice);
 
-        if (response.body.masterVariant.prices?.[1].discounted?.value) {
+        if (productResponse.body.masterVariant.prices?.[1].discounted?.value) {
           productInfo.addInnerElement(productDiscountPrice);
         }
 
         productInfo.addInnerElement(productDescription);
-        // productInfo.addInnerElement(addToCard);
-        productInfo.addInnerElement(this.createToCartButton().getElement());
         productInfo.addInnerElement(productAttributes);
         productAttributes.addInnerElement(productDeveloper);
         productAttributes.addInnerElement(productPlayersQuantity);
         productAttributes.addInnerElement(productPlatform);
         productAttributes.addInnerElement(productGenre);
         productAttributes.addInnerElement(productRelease);
+        if (productResponse.body.masterVariant.sku)
+          this.addButtonContainer.addInnerElement(
+            (await this.createToCartButton(productResponse, productInfo)).getElement()
+          );
+
+        productInfo.addInnerElement(this.addButtonContainer);
         this.wrapper.textContent = '';
         this.wrapper.append(section.getElement());
-        // this.wrapper.append(productVideo);
       })
-      .catch((error) => new ErrorMessage().showMessage(error.message));
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private showModal(images: Array<string>) {
     const modal = new ProductModal('modal', images);
     modal.renderModal();
@@ -328,32 +335,16 @@ export default class ProductView extends DefaultView {
   private getCategory(response: ClientResponse<ProductProjection>) {
     const categoryId = response.body.categories?.[0].id;
 
-    return this.anonimApi
+    return this.api
+      .getClientApi()
       .getCategory(categoryId)
       .then((category) => {
-        // console.log('category', category);
         this.productCategory.getElement().textContent = `CATEGORY: ${category.body.name.ru}`;
       })
       .catch((error) => {
         this.createMessagePopup('error.message');
         throw new Error(error.message);
       });
-  }
-
-  private getProducts() {
-    this.anonimApi
-      .getProducts()
-      // .then((response) => console.log(response))
-      .catch((error) => {
-        this.createMessagePopup('error.message');
-        throw new Error(error.message);
-      });
-  }
-
-  private getProductByKey(key: string) {
-    this.anonimApi.productProjectionResponseKEY(key).then((response) => {
-      console.log('product', response);
-    });
   }
 
   private createMessagePopup(message: string) {
@@ -373,16 +364,113 @@ export default class ProductView extends DefaultView {
 
   private createMainButton() {
     const button = new LinkButton(LinkName.INDEX, () => {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     });
     return button;
   }
 
-  private createToCartButton() {
-    const button = new LinkButton('Add to cart', () => {
-      this.router.navigate(PagePath.EMPTY);
+  private async createToCartButton(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    this.addButtonContainer.getElement().innerHTML = '';
+    let button = new LinkButton('Add to cart', async () => {
+      this.addToCart(response, productInfo);
+      button.getElement().remove();
     });
+
+    const anonimCartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (anonimCartID)
+      await this.api
+        .getClientApi()
+        .getCartByCartID(anonimCartID)
+        .then(async (cartResponse) => {
+          const item = cartResponse.body.lineItems.filter((lineItem) => lineItem.productKey === response.body.key);
+          if (cartResponse.body.lineItems.some((lineItem) => lineItem.productKey === response.body.key)) {
+            button = new LinkButton('Remove from cart', async () => {
+              this.removeFromCart(item[0].id, response, productInfo);
+              button.getElement().remove();
+            });
+          }
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
+
     return button;
+  }
+
+  private removeFromCart(lineItemId: string, response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (cartID)
+      this.api
+        .getClientApi()
+        .getCartByCartID(cartID)
+        .then((cartResponse) => {
+          if (lineItemId) {
+            this.api
+              .getClientApi()
+              .removeLineItem(cartID, cartResponse.body.version, lineItemId)
+              .then(async () => {
+                productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+                this.observer.notify(EventName.UPDATE_CART);
+                this.observer.notify(EventName.REMOVE_FROM_CART);
+                new InfoMessage().showMessage('Item removed from cart');
+              });
+          }
+        })
+        .then(() => {})
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
+  }
+
+  private createAnonimCart() {
+    if (!localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID)) {
+      this.api
+        .getClientApi()
+        .createCustomerCart()
+        .then((cartResponse) => {
+          localStorage.setItem(LocalStorageKeys.ANONIM_CART_ID, `${cartResponse.body.id}`);
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            new ErrorMessage().showMessage(error.message);
+          }
+        });
+    }
+  }
+
+  private addToCart(response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    const cartID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+
+    if (cartID !== null) {
+      this.addItemToCart(cartID, response, productInfo);
+    }
+  }
+
+  private addItemToCart(cartID: string, response: ClientResponse<ProductProjection>, productInfo: ElementCreator) {
+    this.api
+      .getClientApi()
+      .getCartByCartID(cartID)
+      .then((cartResponse) => {
+        if (response.body.masterVariant?.sku)
+          this.api
+            .getClientApi()
+            .addItemToCartByID(cartID, cartResponse.body.version, response.body.masterVariant?.sku)
+            .then(async () => {
+              productInfo.addInnerElement((await this.createToCartButton(response, productInfo)).getElement());
+              new InfoMessage().showMessage('Item added to cart');
+              this.observer.notify(EventName.UPDATE_CART);
+              this.observer.notify(EventName.ADD_TO_CART);
+            });
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          new ErrorMessage().showMessage(error.message);
+        }
+      });
   }
 
   public createSwiperWrapper(images: Array<string>) {
@@ -413,8 +501,4 @@ export default class ProductView extends DefaultView {
 
     return slide.getElement();
   }
-}
-
-export function getView(router: Router): ProductView {
-  return new ProductView(router);
 }

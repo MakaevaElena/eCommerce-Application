@@ -1,4 +1,3 @@
-import ClientApi from '../../../../api/client-api';
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams } from '../../../../utils/element-creator';
 import DefaultView from '../../default-view';
@@ -10,13 +9,17 @@ import { PagePath } from '../../../router/pages';
 import Router from '../../../router/router';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import ErrorMessage from '../../../message/error-message';
+import createUser from '../../../../api/sdk/with-password-flow';
+import createAnonim from '../../../../api/sdk/with-anonimous-flow';
+import TotalApi from '../../../../api/total-api';
+import ApiType from '../../../app/type';
 
 const checkOneNumber = /(?=.*[0-9])/g;
 const checkOneLowerLatinSimbol = /(?=.*[a-z])/;
 const checkOneUpperLatinSimbol = /(?=.*[A-Z])/;
 const checkSpecialSimbols = /(?=.*[!@#$%^&*])/;
 const checkLenght = /[0-9a-zA-Z!@#$%^&*]{8,}/;
-const checkWhiteSpace = /[^\s]/gim;
+const checkWhiteSpace = /^\s|\s$/;
 const checkEmail = /[a-z0-9]+[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/;
 
 enum Message {
@@ -54,13 +57,11 @@ export default class LoginView extends DefaultView {
 
   private emailElement = this.loginEmail.getElement() as HTMLInputElement;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
-  private anonimApi: ClientApi;
+  private api: TotalApi;
 
-  private userApi?: ClientApi;
-
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styleCss['login-view']],
@@ -68,14 +69,11 @@ export default class LoginView extends DefaultView {
     };
     super(params);
     this.router = router;
-
-    this.observer = Observer.getInstance();
-    this.observer?.subscribe(EventName.LOGOUT, this.updateLoginPage.bind(this));
-
-    this.anonimApi = new ClientApi();
+    this.api = paramApi.api;
+    this.observer.subscribe(EventName.LOGOUT, this.logout.bind(this));
 
     if (localStorage.getItem('isLogin') === 'true') {
-      this.router.navigate(PagePath.INDEX);
+      this.router.setHref(PagePath.INDEX);
     } else {
       this.configView();
     }
@@ -85,10 +83,12 @@ export default class LoginView extends DefaultView {
     this.renderForm();
   }
 
-  private updateLoginPage() {
+  private logout() {
     this.getCreator().clearInnerContent();
     this.configView();
-    this.anonimApi = new ClientApi();
+
+    const client = createAnonim();
+    this.api.recreate(client);
   }
 
   private renderForm() {
@@ -125,7 +125,7 @@ export default class LoginView extends DefaultView {
     const loginSubmitButton = new ElementCreator({
       tag: TagName.BUTTON,
       classNames: [styleCss.button],
-      textContent: 'SIGN IN',
+      textContent: 'LOG IN',
     });
 
     const registrationField = new ElementCreator({
@@ -166,7 +166,7 @@ export default class LoginView extends DefaultView {
     loginSubmitButton.getElement().addEventListener('click', (event) => this.submitLogin(event));
 
     toRegistrationLinkButton.getElement().addEventListener('click', () => {
-      this.router.navigate(PagePath.REGISTRATION);
+      this.router.setHref(PagePath.REGISTRATION);
     });
 
     loginForm.addInnerElement(loginTitle);
@@ -210,7 +210,7 @@ export default class LoginView extends DefaultView {
     if (email.length !== 0 && password.length !== 0 && this.validatePassword() && this.validateEmail()) {
       if (email !== undefined) {
         try {
-          const response = await this.anonimApi.checkCustomerExist(email);
+          const response = await this.api.getClientApi().checkCustomerExist(email);
           if (response.body.results.length === 0) {
             this.emailElement.setCustomValidity(Message.MAIL_NOT_REGISTERED);
             this.emailElement.reportValidity();
@@ -223,22 +223,30 @@ export default class LoginView extends DefaultView {
         }
       }
 
-      this.anonimApi
-        .getCustomer({ email, password })
-        .then((response) => {
-          if (response.body.customer) {
-            window.localStorage.setItem(`isLogin`, 'true');
-            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
-            this.observer.notify(EventName.LOGIN);
-            this.router.navigate(PagePath.INDEX);
-            this.userApi = new ClientApi({ email, password });
-            this.userApi.returnCustomerById(response.body.customer.id);
-          }
-        })
-        .catch(() => {
-          this.passwordElement.setCustomValidity(Message.PASSWORD_IS_WRONG);
-          this.passwordElement.reportValidity();
-        });
+      const userID = localStorage.getItem(LocalStorageKeys.ANONYMOUS_ID);
+      if (userID)
+        this.api
+          .getClientApi()
+          .loginCustomer({ email, password }, userID)
+          .then((response) => {
+            if (response.body.customer) {
+              window.localStorage.setItem(`isLogin`, 'true');
+              window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, email);
+              this.router.setHref(PagePath.INDEX);
+
+              const client = createUser(email, password);
+              this.api.recreate(client);
+
+              const customerId = response.body.customer.id;
+              localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+              localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+              this.observer.notify(EventName.LOGIN);
+            }
+          })
+          .catch(() => {
+            this.passwordElement.setCustomValidity(Message.PASSWORD_IS_WRONG);
+            this.passwordElement.reportValidity();
+          });
     }
   }
 
@@ -247,7 +255,7 @@ export default class LoginView extends DefaultView {
     this.emailElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWhiteSpace.test(value):
+      case checkWhiteSpace.test(value):
         this.emailElement.setCustomValidity(Message.EMAIL_CONTAIN_WHITESPACE);
         break;
 
@@ -274,7 +282,7 @@ export default class LoginView extends DefaultView {
     this.passwordElement.setCustomValidity('');
 
     switch (true) {
-      case !checkWhiteSpace.test(value):
+      case checkWhiteSpace.test(value):
         this.passwordElement.setCustomValidity(Message.PASSWORD_CONTAIN_WHITESPACE);
         break;
 

@@ -1,12 +1,8 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { createAnonim } from './sdk/with-anonimous-flow';
-import { createUser } from './sdk/with-password-flow';
-import QueryParamType from './sdk/type';
-
-type LoginData = {
-  email: string;
-  password: string;
-};
+import { Client } from '@commercetools/sdk-client-v2';
+import createAnonim from './sdk/with-anonimous-flow';
+import { CTP_PROJECT_KEY } from './sdk/const';
+import { QueryParamType } from './sdk/type';
 
 export enum Template {
   ENUM_ATTRIBUTE_MASK = 'variants.attributes.%ATTRIBUTE%.key:%VALUE%',
@@ -15,14 +11,15 @@ export enum Template {
 }
 
 export default class ProductApi {
-  private clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot;
 
   private MAX_PRODUCTS = 500;
 
-  constructor(loginData?: LoginData) {
-    if (loginData) {
-      const userClient = createUser(loginData.email, loginData.password);
-      this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+  constructor(client?: Client) {
+    if (client) {
+      this.clientRoot = createApiBuilderFromCtpClient(client).withProjectKey({ projectKey: CTP_PROJECT_KEY });
+    } else {
+      this.clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     }
   }
 
@@ -37,9 +34,8 @@ export default class ProductApi {
       .execute();
   }
 
-  public getProducts(args: QueryParamType) {
-    const params = { ...args };
-    // params.filter = 'variants.scopedPrice.currentValue.centAmount:range (* to 2100)';
+  public getProducts(args?: QueryParamType) {
+    const params = args ? { ...args } : {};
 
     return this.clientRoot
       .productProjections()
@@ -93,7 +89,6 @@ export default class ProductApi {
       .get({
         queryArgs: {
           staged: true,
-          // priceCurrency: 'priceCurrency',
         },
       })
       .execute();

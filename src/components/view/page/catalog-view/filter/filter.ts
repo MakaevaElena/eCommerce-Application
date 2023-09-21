@@ -1,4 +1,5 @@
-import ProductApi, { Template } from '../../../../../api/products-api';
+import { Template } from '../../../../../api/products-api';
+import TotalApi from '../../../../../api/total-api';
 import EventName from '../../../../../enum/event-name';
 import Observer from '../../../../../observer/observer';
 import ErrorMessage from '../../../../message/error-message';
@@ -23,14 +24,14 @@ export default class Filter {
 
   private filterPriceData: PriceFilterGroup = this.getEmptyPriceData();
 
-  private productApi: ProductApi;
+  private api: TotalApi;
 
   private filterHeader = new FilterHeaderView();
 
   private observer = Observer.getInstance();
 
-  constructor(productApi: ProductApi) {
-    this.productApi = productApi;
+  constructor(api: TotalApi) {
+    this.api = api;
     this.getFilterData();
     this.createFilterTags();
     this.observer.subscribe(EventName.SHOW_FILTER, this.showFilterPopup.bind(this));
@@ -41,12 +42,13 @@ export default class Filter {
    * Get basic data to setup Filter
    */
   public getFilterData() {
-    this.productApi
-      .getAllProducts()
+    this.api
+      .getProductApi()
+      .getProducts()
       .then((response) => {
         const { results } = response.body;
         results.forEach((result) => {
-          const { attributes } = result.masterData.current.masterVariant;
+          const { attributes } = result.masterVariant;
           if (attributes) {
             attributes.forEach((attr) => {
               if (attr.name === FilterAttribute.GENGE) {

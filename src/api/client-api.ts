@@ -1,11 +1,10 @@
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
-import { createAnonim } from './sdk/with-anonimous-flow';
-import { createUser } from './sdk/with-password-flow';
-
-type LoginData = {
-  email: string;
-  password: string;
-};
+import { Client } from '@commercetools/sdk-client-v2';
+import createAnonim from './sdk/with-anonimous-flow';
+import createUser from './sdk/with-password-flow';
+import Guid from '../utils/guid';
+import { CTP_PROJECT_KEY } from './sdk/const';
+import { QueryParamType } from './sdk/type';
 
 type CustomerData = {
   email: string;
@@ -17,12 +16,13 @@ type CustomerData = {
 };
 
 export default class ClientApi {
-  private clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: 'best-games' });
+  private clientRoot;
 
-  constructor(loginData?: LoginData) {
-    if (loginData) {
-      const userClient = createUser(loginData.email, loginData.password);
-      this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+  constructor(client?: Client) {
+    if (client) {
+      this.clientRoot = createApiBuilderFromCtpClient(client).withProjectKey({ projectKey: CTP_PROJECT_KEY });
+    } else {
+      this.clientRoot = createApiBuilderFromCtpClient(createAnonim()).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     }
   }
 
@@ -41,59 +41,36 @@ export default class ClientApi {
       .execute();
   }
 
-  public returnCustomerById(id: string) {
+  public getCustomerByID(customerID: string) {
     return this.clientRoot
       .customers()
       .get({
         queryArgs: {
-          where: `id="${id}"`,
+          where: `id="${customerID}"`,
         },
       })
       .execute();
   }
 
-  public getCustomer({ email, password }: { email: string; password: string }) {
+  public loginCustomer({ email, password }: { email: string; password: string }, anonymousId: string) {
     return this.clientRoot
-      .me()
       .login()
       .post({
         body: {
           email,
           password,
           updateProductData: true,
-          // anonymousId: options?.anonymousId,
-          // anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
+          anonymousId,
+          anonymousCartSignInMode: 'MergeWithExistingCustomerCart',
         },
-        // headers: {
-        //   Authorization: 'Bearer xxx',
-        // },
       })
-
       .execute();
   }
 
   public createUserRoot(email: string, password: string) {
     const userClient = createUser(email, password);
-    this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: 'best-games' });
+    this.clientRoot = createApiBuilderFromCtpClient(userClient).withProjectKey({ projectKey: CTP_PROJECT_KEY });
     return this.clientRoot;
-  }
-
-  public createCart = (customerId: string) => {
-    return this.clientRoot
-      .carts()
-      .post({
-        body: {
-          key: `cart-key-${Math.floor(Math.random() * 100000)}`,
-          currency: 'RUB',
-          country: 'RU',
-          customerId,
-        },
-      })
-      .execute();
-  };
-
-  public getCartByCustomerId(id: string) {
-    return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
   }
 
   public getCategory(id: string) {
@@ -120,27 +97,18 @@ export default class ClientApi {
     };
   }
 
-  public createCustomer(customerData: CustomerData) {
-    try {
-      const customer = this.clientRoot
-        // .withProjectKey({ projectKey: this.projectKey })
-        .customers()
-        .post({
-          body: this.createCustomerDraft(customerData),
-        })
-        .execute();
-
-      // check to make sure status is 201
-      return customer;
-    } catch (error) {
-      return error;
-    }
-  }
-
   // PRODUCTS
 
-  public getProducts() {
-    return this.clientRoot.products().get().execute();
+  public getProducts(args?: QueryParamType) {
+    const params = args ? { ...args } : {};
+
+    return this.clientRoot
+      .productProjections()
+      .search()
+      .get({
+        queryArgs: params,
+      })
+      .execute();
   }
 
   public getProductbyID(productID: string) {
@@ -170,9 +138,138 @@ export default class ClientApi {
       .get({
         queryArgs: {
           staged: true,
-          // priceCurrency: 'priceCurrency',
         },
       })
       .execute();
+  }
+
+  // CART
+
+  public getCartByCustomerId(id: string) {
+    return this.clientRoot.carts().withCustomerId({ customerId: id }).get().execute();
+  }
+
+  public getCartByCartID(cartId: string) {
+    return this.clientRoot.carts().withId({ ID: cartId }).get().execute();
+  }
+
+  public deleteCartByCartID(cartId: string, cartVersion: number) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartId })
+      .delete({
+        queryArgs: { version: cartVersion },
+      })
+      .execute();
+  }
+
+  public deleteCustomerCart(cartId: string, version: number) {
+    return this.clientRoot.me().carts().withId({ ID: cartId }).delete({ queryArgs: { version } }).execute();
+  }
+
+  public createCart() {
+    return this.clientRoot
+      .carts()
+      .post({
+        body: {
+          key: `cart-key-${Guid.newGuid()}`,
+          currency: 'USD',
+          country: 'US',
+        },
+      })
+      .execute();
+  }
+
+  public addItemToCartByID = (cartID: string, cartVersion: number, productSku: string) => {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'addLineItem',
+              sku: productSku,
+            },
+          ],
+        },
+      })
+      .execute();
+  };
+
+  public changeQuantityByLineID(cartID: string, cartVersion: number, lineItemId: string, quantity: number) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'changeLineItemQuantity',
+              lineItemId,
+              quantity,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public removeLineItem(cartID: string, cartVersion: number, lineItemId: string) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'removeLineItem',
+              lineItemId,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public updateCartWithDiscount(cartID: string, cartVersion: number, discountCode: string) {
+    return this.clientRoot
+      .carts()
+      .withId({ ID: cartID })
+      .post({
+        body: {
+          version: cartVersion,
+          actions: [
+            {
+              action: 'addDiscountCode',
+              code: discountCode,
+            },
+          ],
+        },
+      })
+      .execute();
+  }
+
+  public getActiveCart() {
+    return this.clientRoot.me().activeCart().get().execute();
+  }
+
+  public createCustomerCart() {
+    return this.clientRoot
+      .me()
+      .carts()
+      .post({ body: { currency: 'USD', country: 'US' } })
+      .execute();
+  }
+
+  public getPromoCodes() {
+    return this.clientRoot.discountCodes().get().execute();
+  }
+
+  public getPromoCodesPercent(promoCodeCartDiscountId: string) {
+    return this.clientRoot.discountCodes().withId({ ID: promoCodeCartDiscountId }).get().execute();
   }
 }

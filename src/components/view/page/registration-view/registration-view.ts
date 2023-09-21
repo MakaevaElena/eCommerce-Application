@@ -12,10 +12,8 @@ import Inputs from './inputs-params/inputs';
 import PostalPatterns from './inputs-params/postal-paterns';
 import PostalTitles from './inputs-params/postal-titles';
 import TextContents from './enum/text-contents';
-import RegApi from '../../../../api/reg-api';
 import Router from '../../../router/router';
 import { PagePath } from '../../../router/pages';
-import ClientApi from '../../../../api/client-api';
 import EventName from '../../../../enum/event-name';
 import Observer from '../../../../observer/observer';
 import Delays from '../../../../enum/delays';
@@ -23,8 +21,14 @@ import StatusCodes from '../../../../enum/status-codes';
 import LocalStorageKeys from '../../../../enum/local-storage-keys';
 import CountryOptions from '../../../../utils/input/options/country-options';
 import InputParamsCreator from '../../../../utils/input/input-values/input-params-creator';
+import Guid from '../../../../utils/guid';
+import TotalApi from '../../../../api/total-api';
+import createUser from '../../../../api/sdk/with-password-flow';
+import ApiType from '../../../app/type';
 
 export default class RegistrationView extends DefaultView {
+  private api: TotalApi;
+
   private inputs: Array<InputCreator>;
 
   private mainInputsGroup: Array<InputCreator>;
@@ -53,21 +57,21 @@ export default class RegistrationView extends DefaultView {
 
   private isBillingAddress: boolean;
 
-  private observer: Observer;
+  private observer = Observer.getInstance();
 
   private router: Router;
 
   private countryOption: CountryOptions;
 
-  constructor(router: Router) {
+  constructor(router: Router, paramApi: ApiType) {
     const params: ElementParams = {
       tag: TagName.SECTION,
       classNames: [styles.registrationView],
       textContent: '',
     };
     super(params);
+    this.api = paramApi.api;
     this.router = router;
-    this.observer = Observer.getInstance();
     this.mainInputsGroup = this.fillInputsGroups(this.createMainParams());
     this.shippingInputsGroup = this.fillInputsGroups(this.createShippingAddressParams());
     this.billingInputsGroup = this.fillInputsGroups(this.createBillingAddressParams());
@@ -106,7 +110,7 @@ export default class RegistrationView extends DefaultView {
   }
 
   private redirectLoginhandler() {
-    this.router.navigate(PagePath.LOGIN);
+    this.router.setHref(PagePath.LOGIN);
   }
 
   private createValidMessageElement(): HTMLDivElement {
@@ -122,6 +126,7 @@ export default class RegistrationView extends DefaultView {
     this.getElement().removeChild(this.checkValidityElement);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createLabel(name: string) {
     const label = document.createElement('label');
     label.textContent = name;
@@ -129,6 +134,7 @@ export default class RegistrationView extends DefaultView {
     return label;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createTitle(): HTMLHeadElement {
     const title = document.createElement('h1');
     title.classList.add(styles.registrationView__tittle);
@@ -136,6 +142,7 @@ export default class RegistrationView extends DefaultView {
     return title;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createDescription(): HTMLParagraphElement {
     const description = document.createElement('p');
     description.classList.add(styles.registrationView__description);
@@ -143,6 +150,7 @@ export default class RegistrationView extends DefaultView {
     return description;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private fillInputsGroups(inputsParams: Array<InputParams>): Array<InputCreator> {
     const inputs: Array<InputCreator> = [];
     inputsParams.forEach((inputParams: InputParams) => {
@@ -200,6 +208,7 @@ export default class RegistrationView extends DefaultView {
     return result;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private createDefaultButton(text: string, classList: Array<string>): HTMLButtonElement {
     const defaultButton = document.createElement(TagName.BUTTON);
     defaultButton.type = ButtonTypes.BUTTON;
@@ -244,6 +253,7 @@ export default class RegistrationView extends DefaultView {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private changePostalPatternWithCountry(
     postal: InputCreator,
     countryList: Array<Array<string>>,
@@ -262,6 +272,7 @@ export default class RegistrationView extends DefaultView {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   private changePostalPatternWithOutCountry(postal: InputCreator) {
     postal.setTitle(InputTittles.WRONG_COUNTRY);
     postal.setMessageError(InputTittles.WRONG_COUNTRY);
@@ -337,8 +348,8 @@ export default class RegistrationView extends DefaultView {
       countryBillingCode: this.isBillingAddress
         ? this.inputs[Inputs.BILLING_COUNTRY].getInputValue().slice(-2)
         : this.inputs[Inputs.SHIPPING_COUNTRY].getInputValue().slice(-2),
-      key: `${Date.now().toString(16)}-${Math.trunc(Math.random() * 1e10).toString(16)}`,
-      // TODO: realize GUID generator
+      key: Guid.newGuid(),
+
       defaultShippingAddressNum: this.isDefaultShippingAddress ? 0 : undefined,
       defaultBillingAddressNum: this.getDefaultBillinAddressNum(),
     };
@@ -358,20 +369,20 @@ export default class RegistrationView extends DefaultView {
 
   private formSubmitHandler() {
     if (this.isCheckValidityFormHandler()) {
-      const api = new RegApi();
       const params = this.getParams();
 
       const loginParams = {
         email: this.inputs[Inputs.EMAIL].getInputValue(),
         password: this.inputs[Inputs.PASSWORD].getInputValue(),
       };
-      api
+      this.api
+        .getRegApi()
         .createCustomer(params)
         .then((response) => {
           if (response.statusCode === StatusCodes.USER_CREATED) {
             this.checkValidityElement.textContent = TextContents.REGISTRATION_OK;
             this.getElement().append(this.checkValidityElement);
-            setTimeout(() => this.router.navigate(PagePath.LOGIN), Delays.SWITCH_TO_PAGE);
+            setTimeout(() => this.router.setHref(PagePath.LOGIN), Delays.SWITCH_TO_PAGE);
           }
         })
         .then(() => {
@@ -387,14 +398,25 @@ export default class RegistrationView extends DefaultView {
   }
 
   private makeLogin(params: { email: string; password: string }) {
-    const loginApi = new ClientApi();
-    loginApi.getCustomer(params).then((response) => {
-      if (response.body.customer) {
-        window.localStorage.setItem(`isLogin`, 'true');
-        window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
-        this.observer.notify(EventName.LOGIN);
-      }
-    });
+    const userID = localStorage.getItem(LocalStorageKeys.ANONIM_CART_ID);
+    if (userID)
+      this.api
+        .getClientApi()
+        .loginCustomer(params, userID)
+        .then((response) => {
+          if (response.body.customer) {
+            window.localStorage.setItem(`isLogin`, 'true');
+            window.localStorage.setItem(LocalStorageKeys.MAIL_ADDRESS, params.email);
+
+            const client = createUser(params.email, params.password);
+            this.api.recreate(client);
+
+            const customerId = response.body.customer.id;
+            localStorage.setItem(LocalStorageKeys.CUSTOMER_ID, customerId);
+            localStorage.setItem(LocalStorageKeys.ANONYMOUS_ID, '');
+            this.observer.notify(EventName.LOGIN);
+          }
+        });
   }
 
   private isCheckValidityFormHandler(): boolean {
