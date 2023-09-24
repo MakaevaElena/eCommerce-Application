@@ -1,6 +1,6 @@
 import TagName from '../../../../enum/tag-name';
 import ElementCreator, { ElementParams, InsertableElement } from '../../../../utils/element-creator';
-import { LinkName, PagePath } from '../../../router/pages';
+import { PagePath } from '../../../router/pages';
 import Router, { Route } from '../../../router/router';
 import LinkButton from '../../../shared/link-button/link-button';
 import DefaultView from '../../default-view';
@@ -11,6 +11,7 @@ import ImageButton from '../../../shared/image-button/image-button';
 import ApiType from '../../../app/type';
 import TotalApi from '../../../../api/total-api';
 import ErrorMessage from '../../../message/error-message';
+import LocalStorageKeys from '../../../../enum/local-storage-keys';
 
 export default class HeaderView extends DefaultView {
   private MAX_COUNTER_VALUE = 99;
@@ -124,7 +125,7 @@ export default class HeaderView extends DefaultView {
     const path = PagePath.CART;
 
     const link = new ImageButton(() => {
-      this.router.setHref(PagePath.CART);
+      this.router.setHref(path);
     });
     link.setImage(styleCss['button-cart']);
 
@@ -136,9 +137,11 @@ export default class HeaderView extends DefaultView {
   private createMainButton() {
     const path = PagePath.INDEX;
 
-    const link = new LinkButton(LinkName.INDEX, () => {
+    const link = new ImageButton(() => {
       this.router.setHref(path);
     });
+    link.setImage(styleCss['button-main']);
+
     this.headerLinks.set(path, link);
     return link;
   }
@@ -146,9 +149,10 @@ export default class HeaderView extends DefaultView {
   private createCatalogButton() {
     const path = PagePath.CATALOG;
 
-    const link = new LinkButton(LinkName.CATALOG, () => {
+    const link = new ImageButton(() => {
       this.router.setHref(path);
     });
+    link.setImage(styleCss['button-catalog']);
     this.headerLinks.set(path, link);
 
     return link;
@@ -157,9 +161,10 @@ export default class HeaderView extends DefaultView {
   private createLogInButton() {
     const path = PagePath.LOGIN;
 
-    const link = new LinkButton(LinkName.LOGIN, () => {
+    const link = new ImageButton(() => {
       this.router.setHref(path);
     });
+    link.setImage(styleCss['button-login']);
     this.headerLinks.set(path, link);
 
     this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
@@ -171,9 +176,10 @@ export default class HeaderView extends DefaultView {
   private createSignInButton() {
     const path = PagePath.REGISTRATION;
 
-    const link = new LinkButton(LinkName.REGISTRATION, () => {
+    const link = new ImageButton(() => {
       this.router.setHref(path);
     });
+    link.setImage(styleCss['button-signin']);
     this.headerLinks.set(path, link);
 
     this.observer.subscribe(EventName.LOGIN, () => link.hideButton());
@@ -183,12 +189,13 @@ export default class HeaderView extends DefaultView {
   }
 
   private createLogoutButton() {
-    const link = new LinkButton(LinkName.LOGOUT, () => {
+    const link = new ImageButton(() => {
       this.observer.notify(EventName.LOGOUT);
       localStorage.setItem(`isLogin`, 'false');
-      localStorage.removeItem('anonimCardID');
+      localStorage.removeItem(LocalStorageKeys.ANONIM_CART_ID);
       this.router.setHref('');
     });
+    link.setImage(styleCss['button-logout']);
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
     this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());
@@ -197,9 +204,10 @@ export default class HeaderView extends DefaultView {
   }
 
   private createProfileButton() {
-    const link = new LinkButton(LinkName.PROFILE, () => {
+    const link = new ImageButton(() => {
       this.router.setHref(PagePath.PROFILE);
     });
+    link.setImage(styleCss['button-profile']);
 
     this.observer.subscribe(EventName.LOGIN, () => link.showButton());
     this.observer.subscribe(EventName.LOGOUT, () => link.hideButton());

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg fill="#000000" width="800px" height="800px" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
+  <g fill-rule="evenodd" style="transform-origin: 960.125px 960.006px;" transform="matrix(-0.000001, 1, -1, -0.000001, -0.000004, -0.000009)">
+    <path d="M0 176.142 176.13.012l960.12 960.119L176.13 1920 0 1743.87l783.864-783.739L0 176.142Z" style="fill: rgb(255, 255, 255);"/>
+    <path d="M 620 176.142 L 796.13 0.012 L 1756.25 960.131 L 796.13 1920 L 620 1743.87 L 1403.86 960.131 L 620 176.142 Z" style="fill: rgb(255, 255, 255); stroke-linecap: round; stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%;"/>
+  </g>
+</svg>

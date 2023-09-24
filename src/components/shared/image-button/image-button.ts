@@ -52,10 +52,10 @@ export default class ImageButton extends DefaultView {
   public setCounterValue(value?: string) {
     if (value) {
       this.counter.innerHTML = value;
-      this.counter.classList.remove(styleCss.hide);
+      this.counter.classList.add(styleCss['image-button__counter_show']);
     } else {
       this.counter.innerHTML = '';
-      this.counter.classList.add(styleCss.hide);
+      this.counter.classList.remove(styleCss['image-button__counter_show']);
     }
   }
 
