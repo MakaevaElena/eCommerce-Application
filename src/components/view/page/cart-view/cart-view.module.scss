@@ -13,7 +13,6 @@
   width: 100%;
   height: 100%;
   font-family: 'Karla', sans-serif;
-  @include border();
 
   .content-wrapper {
     display: flex;
@@ -278,10 +277,11 @@
   }
 
   &__row-image {
-    background: center no-repeat url('../../../../assets/images/row.png');
+    background: center no-repeat url('../../../../assets/images/arrow-down.svg');
     background-size: contain;
     height: 50px;
     width: 50px;
+    margin-bottom: 1rem;
   }
 
   &__image {
