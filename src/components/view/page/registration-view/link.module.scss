@@ -1,0 +1,31 @@
+@import './src/style/helper.scss';
+
+.button {
+  margin: 1rem;
+  padding: clamp(2px, 1vmin, 8px) clamp(2px, 1.5vmin, 16px);
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.5rem;
+  color: $color-text-primary;
+  background-color: $color-brand-primary;
+  border: 0;
+  border-radius: 2px;
+  box-shadow:
+    0 4px 4px transparentize($color-page-background, 0.25),
+    0 2px 3px transparentize($color-page-background, 0.5);
+  transition-property: color, background-color, transform, box-shadow;
+  transition-duration: 0.05s;
+  transition-timing-function: ease-out;
+  cursor: pointer;
+
+  &:hover {
+    background-color: transparentize($color-brand-primary, 0.1);
+  }
+
+  &:active {
+    transform: translate(-2px, 2px);
+    background-color: transparentize($color-brand-primary, 0.5);
+    box-shadow:
+      0 4px 4px transparentize($color-page-background, 0.25),
+      0 2px 3px transparentize($color-page-background, 0.5);
+  }
+}

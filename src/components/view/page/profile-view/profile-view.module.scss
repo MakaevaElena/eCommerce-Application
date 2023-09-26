@@ -1,0 +1,15 @@
+@import '../../../../style/abstract/variables/colors.scss';
+
+.profile-view {
+  background: url('../../../../assets/images/profile.jpg') no-repeat top center;
+  background-size: cover;
+  min-height: 80vh;
+  width: 100%;
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}

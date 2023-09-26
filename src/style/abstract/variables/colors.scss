@@ -1,0 +1,16 @@
+//  /* Base Colors */
+$color-brand-primary: rgba(166, 38, 38, 1);
+$color-brand-secondary: rgba(86, 207, 225, 1);
+
+$color-text-primary: rgba(255, 255, 255, 1);
+$color-text-secondary: rgba(157, 161, 160, 1);
+$color-text-dark: rgb(61, 61, 61);
+// Я бы порекомендовал его использовать и для изменения цвета лого(корзины, юзера, b т.д.)
+$color-text-price: rgba(0, 255, 0, 1);
+$color-text-price-discounted: $color-text-primary;
+$color-text-discount: rgba(255, 0, 0, 1);
+$color-background-discount: rgba(255, 255, 0, 1);
+
+$color-page-background: rgba(0, 0, 0, 1);
+$color-page-background-secondary: rgba(177, 177, 177, 1);
+// в макете использован как заглушка вместо картинки игры, пока та грузится, так же можно использовать как background в случае если на черном какой-то блок не очень или для общего фона использована картинка, и плохо видно элемент(а может и не стоит))

@@ -1,0 +1,70 @@
+@import '../../../../../../style/helper.scss';
+
+.filter-popup {
+  display: flex;
+  padding: 0;
+}
+
+.filter-popup__wrapper {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  max-width: 80vw;
+  padding: 1rem;
+  font-size: 2rem;
+  background: $color-page-background;
+  @include border();
+  color: $color-text-discount;
+  position: relative;
+}
+
+.filter-popup::backdrop {
+  backdrop-filter: blur(2px);
+}
+
+.filter-popup__title {
+  font-size: 2rem;
+}
+
+.filter-popup__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+
+  padding-block-start: 0.35em;
+  padding-inline-start: 0.35em;
+  padding-inline-end: 0.35em;
+  padding-block-end: 0.35em;
+}
+
+.filter-popup__price-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-popup__group-legend {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.filter-popup__close-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  outline: none;
+  border: 0.2rem solid $color-text-discount;
+  border-radius: 10rem;
+  background-image: url(../../../../../../assets/images/icon-close.png);
+  background-size: 45%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  right: 1rem;
+  top: 0.6rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}

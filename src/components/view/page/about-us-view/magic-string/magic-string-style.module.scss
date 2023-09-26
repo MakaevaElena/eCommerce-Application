@@ -1,0 +1,43 @@
+@import './src/style/helper.scss';
+
+.waving {
+  perspective: 1000px;
+  & > * {
+    display: inline-block;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    transform-origin: top;
+    animation: waving 1.5s infinite ease-in-out;
+    animation-fill-mode: backwards;
+
+    @for $i from 1 through 20 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.12}s;
+      }
+    }
+  }
+}
+
+@keyframes waving {
+  0% {
+    transform: rotateX(20deg) translateY(0);
+    text-shadow:
+      0 3px 0 #ccc,
+      0 10px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  50% {
+    transform: rotateX(45deg) translateY(-20px);
+    text-shadow:
+      0 3px 0 #ccc,
+      0 55px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  100% {
+    transform: rotateX(20deg) translateY(0);
+    text-shadow:
+      0 3px 0 #ccc,
+      0 10px 10px rgba(0, 0, 0, 0.5);
+  }
+}

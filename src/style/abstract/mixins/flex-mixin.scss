@@ -1,0 +1,14 @@
+@mixin flex($justify: space-between, $aligh-item: center) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $aligh-item;
+}
+
+// для использования данного миксина в классе достаточно прописать
+// @inlude flex();
+// если не передавать  аргументов, то применится:
+//  justify-content: space-between;
+//  align-items: center;
+// первым аргументом передается значение для свойства justify-content
+// вторым аргументом передается значение для свойства align-items
+// можно добавить еще wrap и т.д. надо обсудить

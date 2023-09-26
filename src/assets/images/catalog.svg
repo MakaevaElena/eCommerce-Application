@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg fill="#ffffff" width="800px" height="800px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" id="Layer_3"
+  version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <g>
+    <rect height="4" width="25" x="16.5" />
+    <rect height="4" width="25" x="16.5" y="14" />
+    <rect height="4" width="25" x="16.5" y="28" />
+    <rect height="4" width="25" x="16.5" y="42" />
+    <circle cx="9.5" cy="3" r="3" />
+    <circle cx="9.5" cy="17" r="3" />
+    <circle cx="9.5" cy="31" r="3" />
+    <circle cx="9.5" cy="45" r="3" />
+  </g>
+
+</svg>

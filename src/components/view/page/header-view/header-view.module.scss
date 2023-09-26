@@ -1,0 +1,53 @@
+.header-view {
+  display: flex;
+  justify-content: end;
+  z-index: 2;
+}
+
+.header-view__button-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: end;
+  padding: 1rem;
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.button-main {
+  background: url('../../../../assets/images/main-page.svg');
+}
+
+.button-catalog {
+  background: url('../../../../assets/images/catalog.svg');
+}
+
+.button-login {
+  background: url('../../../../assets/images/login.svg');
+}
+
+.button-logout {
+  background: url('../../../../assets/images/logout.svg');
+}
+
+.button-signin {
+  background: url('../../../../assets/images/signin.svg');
+}
+
+.button-about-us {
+  background: url('../../../../assets/images/about-us.svg');
+}
+
+.button-cart {
+  background: url('../../../../assets/images/cart.svg');
+}
+
+.button-profile {
+  background: url('../../../../assets/images/profile.svg');
+}

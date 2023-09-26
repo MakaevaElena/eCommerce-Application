@@ -1,0 +1,46 @@
+@import './src/style/helper.scss';
+
+.index-view {
+  box-sizing: border-box;
+  background: url('../../../../assets/images/index.jpg') no-repeat top center;
+  background-size: cover;
+  height: 100%;
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+.promo {
+  &__code-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: start;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 0.5rem;
+    width: fit-content;
+  }
+
+  &__code-block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  &__code-element {
+    background-color: black;
+    border-radius: 5px;
+    @include border();
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    padding: 0.3rem;
+  }
+
+  &__code-text {
+  }
+}

@@ -1,0 +1,14 @@
+.swiper {
+  max-width: 30rem;
+  width: 50%;
+  aspect-ratio: 1;
+
+  @media (max-width: 550px) {
+    width: 80%;
+  }
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  color: red;
+}

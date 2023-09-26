@@ -1,0 +1,11 @@
+@import '../../../../../../style/helper';
+
+.field-group {
+  flex-grow: 0;
+  margin: 1rem auto;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  width: max(305px, 30vw);
+  @include border(0.2rem);
+  border-radius: 2px;
+}

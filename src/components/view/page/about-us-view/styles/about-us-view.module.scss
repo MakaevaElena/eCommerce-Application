@@ -1,0 +1,58 @@
+@import './src/style/helper.scss';
+
+.about-us-view {
+  background: url('../../../../../assets/images/about-us-view.jpg') no-repeat top center;
+  background-attachment: fixed;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+.link {
+  position: relative;
+  color: $color-text-primary;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.link:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.2rem;
+  width: 0;
+  height: 0.1rem;
+  background-color: $color-brand-primary;
+  transition: width 0.2s;
+}
+
+.link:hover {
+  color: $color-brand-primary;
+}
+
+.link:hover:before {
+  width: 100%;
+}
+
+.intro {
+  width: 90%;
+  margin-inline: auto;
+  margin-bottom: 0.1rem;
+  padding: 0.5rem;
+  border-radius: 2rem;
+  background: radial-gradient(circle, rgba(86, 207, 225, 0.5) 40%, rgba(166, 38, 38, 0.5) 90%);
+
+  &__item {
+    margin: 0.3rem;
+    font-size: 1.2rem;
+    text-indent: 1rem;
+    text-align: justify;
+  }
+}
